@@ -1,0 +1,321 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Export Ops Hub — Giới thiệu & Hướng dẫn sử dụng</title>
+<style>
+  :root{
+    --bg:#f5f7f5; --panel:#ffffff; --sunken:#eef2ee;
+    --ink:#16211d; --ink-soft:#4a574f; --ink-faint:#8593895; --ink-faint:#859389;
+    --line:#dde4de; --line-soft:#e9eee9;
+    --accent:#0e6e64; --accent-strong:#0a5049; --accent-soft:#e2efeb;
+    --warn:#b5691f; --warn-soft:#f6e9d8; --danger:#b3432b;
+    --sale:#0e6e64; --lead:#7a5bd0; --tech:#b5691f; --admin:#c0392b; --master:#1f6feb;
+    --radius:12px;
+    --maxw:940px;
+  }
+  @media (prefers-color-scheme:dark){
+    :root{
+      --bg:#121613; --panel:#1a201d; --sunken:#161b18;
+      --ink:#e8efe9; --ink-soft:#aab6ae; --ink-faint:#7d8a82;
+      --line:#2a332d; --line-soft:#232b26;
+      --accent:#4fd1a5; --accent-strong:#7fe0c0; --accent-soft:#183028;
+      --warn:#e0a35a; --warn-soft:#2c2114; --danger:#e0715a;
+      --sale:#4fd1a5; --lead:#b49bf0; --tech:#e0a35a; --admin:#e0715a; --master:#6fa8ff;
+    }
+  }
+  :root[data-theme="light"]{
+    --bg:#f5f7f5; --panel:#ffffff; --sunken:#eef2ee;
+    --ink:#16211d; --ink-soft:#4a574f; --ink-faint:#859389;
+    --line:#dde4de; --line-soft:#e9eee9;
+    --accent:#0e6e64; --accent-strong:#0a5049; --accent-soft:#e2efeb;
+    --warn:#b5691f; --warn-soft:#f6e9d8; --danger:#b3432b;
+    --sale:#0e6e64; --lead:#7a5bd0; --tech:#b5691f; --admin:#c0392b; --master:#1f6feb;
+  }
+  :root[data-theme="dark"]{
+    --bg:#121613; --panel:#1a201d; --sunken:#161b18;
+    --ink:#e8efe9; --ink-soft:#aab6ae; --ink-faint:#7d8a82;
+    --line:#2a332d; --line-soft:#232b26;
+    --accent:#4fd1a5; --accent-strong:#7fe0c0; --accent-soft:#183028;
+    --warn:#e0a35a; --warn-soft:#2c2114; --danger:#e0715a;
+    --sale:#4fd1a5; --lead:#b49bf0; --tech:#e0a35a; --admin:#e0715a; --master:#6fa8ff;
+  }
+  *{box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  @media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}}
+  body{
+    margin:0; background:var(--bg); color:var(--ink);
+    font-family:"Be Vietnam Pro","Segoe UI",system-ui,-apple-system,sans-serif;
+    font-size:16px; line-height:1.6; -webkit-font-smoothing:antialiased;
+  }
+  .wrap{max-width:var(--maxw); margin:0 auto; padding:0 20px 80px}
+
+  /* Hero */
+  header.hero{
+    max-width:var(--maxw); margin:0 auto; padding:52px 20px 32px;
+  }
+  .eyebrow{font-size:12.5px; letter-spacing:.16em; text-transform:uppercase; color:var(--accent); font-weight:700; margin:0 0 10px}
+  h1{font-size:clamp(30px,5vw,46px); line-height:1.08; margin:0 0 14px; font-weight:800; letter-spacing:-.02em; text-wrap:balance}
+  .lede{font-size:18px; color:var(--ink-soft); margin:0 0 24px; max-width:62ch}
+  .hero-meta{display:flex; flex-wrap:wrap; gap:10px}
+  .chip{display:inline-flex; align-items:center; gap:7px; background:var(--panel); border:1px solid var(--line); border-radius:999px; padding:7px 14px; font-size:13.5px; color:var(--ink-soft)}
+  .chip b{color:var(--ink); font-weight:600}
+  .chip a{color:var(--accent); text-decoration:none; font-weight:600}
+
+  /* TOC */
+  nav.toc{
+    background:var(--panel); border:1px solid var(--line); border-radius:var(--radius);
+    padding:18px 20px; margin:8px 0 40px;
+  }
+  nav.toc .toc-title{font-size:12px; letter-spacing:.12em; text-transform:uppercase; color:var(--ink-faint); font-weight:700; margin-bottom:12px}
+  nav.toc ol{margin:0; padding:0; list-style:none; display:grid; grid-template-columns:repeat(auto-fit,minmax(220px,1fr)); gap:8px 22px; counter-reset:toc}
+  nav.toc li{counter-increment:toc}
+  nav.toc a{display:flex; gap:10px; align-items:baseline; text-decoration:none; color:var(--ink); padding:5px 0; border-bottom:1px solid transparent}
+  nav.toc a:hover{color:var(--accent)}
+  nav.toc a::before{content:counter(toc,decimal-leading-zero); font-variant-numeric:tabular-nums; color:var(--accent); font-weight:700; font-size:13px; min-width:24px}
+
+  section{margin:0 0 42px; scroll-margin-top:20px}
+  h2{font-size:26px; font-weight:750; letter-spacing:-.01em; margin:0 0 6px; display:flex; align-items:center; gap:12px; text-wrap:balance}
+  h2 .num{font-size:14px; font-variant-numeric:tabular-nums; color:var(--accent); background:var(--accent-soft); border-radius:8px; padding:3px 9px; font-weight:700}
+  .section-sub{color:var(--ink-soft); margin:0 0 20px; max-width:64ch}
+  h3{font-size:17px; font-weight:700; margin:22px 0 8px; color:var(--ink)}
+
+  .card{background:var(--panel); border:1px solid var(--line); border-radius:var(--radius); padding:22px 24px; margin:16px 0}
+  .card.tinted{background:var(--accent-soft); border-color:transparent}
+
+  p{margin:0 0 12px}
+  ul,ol{margin:0 0 12px; padding-left:22px}
+  li{margin:6px 0}
+  b,strong{font-weight:650}
+  a{color:var(--accent)}
+  code,.kbd{font-family:"SF Mono",ui-monospace,Consolas,monospace; font-size:.88em; background:var(--sunken); border:1px solid var(--line-soft); border-radius:5px; padding:1px 6px; color:var(--ink)}
+  .btn-ex{display:inline-block; font-weight:600; font-size:.9em; background:var(--accent); color:#fff; border-radius:6px; padding:2px 9px; white-space:nowrap}
+  :root[data-theme="dark"] .btn-ex,@media (prefers-color-scheme:dark){.btn-ex{color:#08120e}}
+
+  /* role legend */
+  .roles{display:grid; grid-template-columns:repeat(auto-fit,minmax(240px,1fr)); gap:14px}
+  .role{background:var(--panel); border:1px solid var(--line); border-radius:var(--radius); padding:16px 18px; border-top:3px solid var(--rc,var(--accent))}
+  .role .rname{font-weight:750; font-size:15px; color:var(--rc,var(--accent)); display:flex; align-items:center; gap:8px; margin-bottom:4px}
+  .role p{font-size:14px; color:var(--ink-soft); margin:0}
+  .r-sale{--rc:var(--sale)} .r-lead{--rc:var(--lead)} .r-tech{--rc:var(--tech)} .r-admin{--rc:var(--admin)} .r-master{--rc:var(--master)}
+
+  .rolebadge{display:inline-block; font-size:11.5px; font-weight:700; letter-spacing:.03em; padding:2px 9px; border-radius:999px; color:#fff; vertical-align:middle}
+  @media (prefers-color-scheme:dark){.rolebadge{color:#0d1310}}
+  :root[data-theme="dark"] .rolebadge{color:#0d1310}
+  :root[data-theme="light"] .rolebadge{color:#fff}
+  .b-sale{background:var(--sale)} .b-lead{background:var(--lead)} .b-tech{background:var(--tech)} .b-admin{background:var(--admin)} .b-master{background:var(--master)} .b-all{background:var(--ink-soft)}
+
+  /* steps */
+  ol.steps{list-style:none; padding:0; counter-reset:s; margin:14px 0}
+  ol.steps>li{counter-increment:s; position:relative; padding:4px 0 14px 44px; margin:0}
+  ol.steps>li::before{content:counter(s); position:absolute; left:0; top:2px; width:28px; height:28px; border-radius:50%; background:var(--accent); color:#fff; font-weight:700; font-size:14px; display:flex; align-items:center; justify-content:center; font-variant-numeric:tabular-nums}
+  @media (prefers-color-scheme:dark){ol.steps>li::before{color:#08120e}}
+  :root[data-theme="dark"] ol.steps>li::before{color:#08120e}
+  :root[data-theme="light"] ol.steps>li::before{color:#fff}
+  ol.steps>li:not(:last-child)::after{content:""; position:absolute; left:13.5px; top:32px; bottom:2px; width:1px; background:var(--line)}
+
+  .note{border-left:3px solid var(--warn); background:var(--warn-soft); padding:12px 16px; border-radius:0 8px 8px 0; margin:14px 0; font-size:14.5px}
+  .note b{color:var(--warn)}
+  .tip{border-left:3px solid var(--accent); background:var(--accent-soft); padding:12px 16px; border-radius:0 8px 8px 0; margin:14px 0; font-size:14.5px}
+
+  .divider{height:1px; background:var(--line); border:0; margin:0 0 40px}
+  footer{color:var(--ink-faint); font-size:13px; text-align:center; padding-top:24px; border-top:1px solid var(--line)}
+
+  table.feat{width:100%; border-collapse:collapse; font-size:14px; margin:12px 0}
+  table.feat th,table.feat td{text-align:left; padding:9px 12px; border-bottom:1px solid var(--line)}
+  table.feat th{font-size:12px; text-transform:uppercase; letter-spacing:.05em; color:var(--ink-faint); font-weight:700}
+  table.feat td:first-child{white-space:nowrap; font-weight:600}
+  .tbl-wrap{overflow-x:auto}
+</style>
+</head>
+<body>
+
+
+<header class="hero">
+  <p class="eyebrow">Phòng Vận hành Kinh doanh · Karofi</p>
+  <h1>Export Ops Hub</h1>
+  <p class="lede">Ứng dụng lập báo giá xuất khẩu (PI) trực tuyến: tra cứu khách hàng &amp; lịch sử đơn, dựng báo giá với lợi nhuận tính sẵn, phối hợp giữa Sale — Kỹ thuật — Quản lý theo một quy trình duyệt thống nhất, và xuất chứng từ đúng biểu mẫu công ty.</p>
+  <div class="hero-meta">
+    <span class="chip">🔗 <a href="https://karofisale.github.io/export/pi-app.html">karofisale.github.io/export/pi-app.html</a></span>
+    <span class="chip">🔐 Đăng nhập bằng <b>Tên + PIN</b></span>
+    <span class="chip">🚢 Liên kết <b>Shipment Tracking</b></span>
+  </div>
+</header>
+
+<div class="wrap">
+
+  <nav class="toc" aria-label="Mục lục">
+    <div class="toc-title">Nội dung</div>
+    <ol>
+      <li><a href="#gioithieu">App này giải quyết gì</a></li>
+      <li><a href="#vaitro">Vai trò &amp; quyền hạn</a></li>
+      <li><a href="#batdau">Bắt đầu &amp; đổi mật khẩu</a></li>
+      <li><a href="#sale">Dành cho Sale</a></li>
+      <li><a href="#technician">Dành cho Kỹ thuật</a></li>
+      <li><a href="#lead">Dành cho Trưởng nhóm</a></li>
+      <li><a href="#admin">Dành cho Admin / Master</a></li>
+      <li><a href="#shipment">Shipment Tracking</a></li>
+      <li><a href="#meo">Mẹo &amp; lưu ý</a></li>
+    </ol>
+  </nav>
+
+  <section id="gioithieu">
+    <h2><span class="num">01</span> App này giải quyết gì</h2>
+    <p class="section-sub">Trước đây mỗi sale lập PI trên một file Google Sheet riêng, dữ liệu sản phẩm/giá/khách bị sao chép nhiều bản và lệch nhau. Export Ops Hub đọc <b>trực tiếp</b> từ nguồn gốc và tập trung mọi thao tác vào một nơi.</p>
+    <div class="card">
+      <ul>
+        <li><b>Một nguồn dữ liệu duy nhất:</b> sản phẩm, giá vốn, khách hàng lấy thẳng từ hệ thống trung tâm — không còn bản sao lệch phiên bản.</li>
+        <li><b>Báo giá thông minh:</b> gõ vài ký tự ra ngay sản phẩm kèm giá đề xuất và giá bán gần nhất cho chính khách đó; tự tính %lợi nhuận, CBM, số container.</li>
+        <li><b>Quy trình duyệt khép kín:</b> Sale tạo → Kỹ thuật kiểm tra → Admin xác nhận vào hệ theo dõi sản xuất/xuất hàng.</li>
+        <li><b>Xuất chứng từ đúng mẫu:</b> PI (Excel/PDF), Yêu cầu phát triển sản phẩm (R&amp;D), Yêu cầu cấp mã khách hàng.</li>
+      </ul>
+    </div>
+    <div class="tip">Mở app bằng trình duyệt trên máy tính (khuyến nghị Chrome/Edge). Không cần cài đặt gì; chỉ cần đường link ở đầu trang.</div>
+  </section>
+
+  <section id="vaitro">
+    <h2><span class="num">02</span> Vai trò &amp; quyền hạn</h2>
+    <p class="section-sub">Mỗi tài khoản có một vai trò quyết định những gì nhìn thấy và làm được. Vai trò do quản trị đặt trong hệ thống.</p>
+    <div class="roles">
+      <div class="role r-sale"><div class="rname">● Sale</div><p>Lập báo giá cho khách của mình. Xem đơn của mình theo tháng, tạo/sửa/nhân bản PI, xuất PI, tạo khách mới.</p></div>
+      <div class="role r-lead"><div class="rname">● Trưởng nhóm (Lead)</div><p>Xem toàn bộ khách &amp; đơn (trừ nhóm bảo mật riêng). Trang chủ là dashboard doanh thu FOB theo tháng.</p></div>
+      <div class="role r-tech"><div class="rname">● Kỹ thuật (Technician)</div><p>Kiểm tra mã sản phẩm mới, đóng gói, kích thước thùng. Xác nhận đơn (reviewed) và xuất phiếu yêu cầu R&amp;D.</p></div>
+      <div class="role r-admin"><div class="rname">● Admin</div><p>Toàn quyền sale + sửa mọi đơn, quản lý mã khách, và <b>Xác nhận đơn vào Operations2025</b>.</p></div>
+      <div class="role r-master"><div class="rname">● Master</div><p>Như Admin và nhìn thấy <b>tất cả</b> khách/đơn không giới hạn.</p></div>
+    </div>
+  </section>
+
+  <hr class="divider">
+
+  <section id="batdau">
+    <h2><span class="num">03</span> Bắt đầu &amp; đổi mật khẩu</h2>
+    <ol class="steps">
+      <li>Mở link app, chọn <b>tên của bạn</b> trong danh sách và nhập <b>PIN</b>. Đăng nhập một lần, các lần sau tự vào (phiên giữ 6 giờ).</li>
+      <li>Đổi PIN: bấm <span class="btn-ex">🔑 Đổi mật khẩu</span> ở thanh trên → nhập PIN hiện tại, PIN mới (tối thiểu 4 ký tự), nhập lại → Lưu.</li>
+      <li>Dùng máy chung? Bấm <b>Đăng xuất</b> khi xong để xoá phiên khỏi máy đó.</li>
+    </ol>
+    <div class="note"><b>Quên PIN?</b> Liên hệ quản trị để đặt lại. <b>Làm mới dữ liệu:</b> nếu vừa cập nhật giá/sản phẩm ở hệ thống trung tâm mà app chưa thấy, bấm <span class="btn-ex">⟳ Làm mới</span> (app tự làm mới mỗi 5 phút).</div>
+  </section>
+
+  <section id="sale">
+    <h2><span class="num">04</span> Dành cho Sale <span class="rolebadge b-sale">Sale</span></h2>
+    <p class="section-sub">Đăng nhập xong bạn thấy ngay <b>Đơn hàng của tôi theo tháng</b>. Bấm ◀ ▶ để đổi tháng; bấm một dòng để mở chi tiết. Chọn khách ở cột trái để lập báo giá mới.</p>
+
+    <h3>Xem &amp; chọn đơn của một khách</h3>
+    <p>Chọn khách ở cột trái (có ô tìm kiếm và sắp xếp theo Tên/Quốc gia). Màn hình hiện đơn mới nhất; đổi đơn khác ở ô <b>Đơn hàng</b>. Dòng tổng hiện PI, SO, Load Date, FOB, %LN tổng, trạng thái.</p>
+
+    <h3>Ba cách tạo báo giá</h3>
+    <div class="tbl-wrap"><table class="feat">
+      <tr><th>Nút</th><th>Dùng khi</th></tr>
+      <tr><td><span class="btn-ex">✎ Edit Details</span></td><td>Sửa đơn đang có (chỉ đơn ở trạng thái cho sửa).</td></tr>
+      <tr><td><span class="btn-ex">⧉ Clone</span></td><td>Lấy cấu hình đơn hiện tại làm đơn mới — <b>có thể chọn khách khác</b> cho đơn nhân bản.</td></tr>
+      <tr><td><span class="btn-ex">+ Create New</span></td><td>Tạo đơn mới: app nạp sẵn tất cả mã khách từng đặt để bạn xoá/sửa/thêm.</td></tr>
+    </table></div>
+
+    <h3>Form báo giá</h3>
+    <ul>
+      <li><b>Thêm/đổi sản phẩm:</b> bấm vào ô mã → gõ vài ký tự vào ô tìm nhanh 🔍, dropdown hiện mã + tên + <b>giá đề xuất</b> và <b>giá bán gần nhất cho khách này</b>. Hoặc chọn theo nhóm Category → Model → Mã.</li>
+      <li><b>Cột tự tính:</b> Thành tiền, <b>%LN</b> (đỏ nếu âm, vàng nếu dưới mức tối thiểu), Qty/CT, CT CBM, Item CBM.</li>
+      <li><b>Phần tổng phía trên:</b> Tổng giá trị, Discount (nhập % hoặc số tiền — tự suy ra ô kia), Other charges, Grand total, %LN tổng, tổng CBM và <b>ước tính container</b> (40′=67 CBM, 20′=27–28 CBM, dưới 20 CBM → gợi ý LCL).</li>
+      <li><b>Sửa L/W/H:</b> sửa trực tiếp trên dòng, CBM cập nhật theo.</li>
+    </ul>
+
+    <h3>Sản phẩm mới &amp; máy tùy chỉnh</h3>
+    <p>Trong ô chọn mã, chọn <b>🆕 New Product</b>:</p>
+    <ul>
+      <li><b>Spare Part</b> — linh kiện lẻ: app tự đánh mã tạm <code>Spare&lt;n&gt;</code>, bạn điền tên/brand/giá.</li>
+      <li><b>Machine</b> — máy mới: mã tạm <code>NewRO&lt;n&gt;</code> rồi mở <b>BOM Customize</b> để chọn Model/Filter Housing/Pump/Tank/Membrane/Adaptor/Post Filter/Carton… → bấm <b>Check giá</b> ra giá đề xuất → <b>Submit</b>.</li>
+      <li><b>Xem BOM của máy có sẵn:</b> double-click vào mã máy (mã bắt đầu bằng số 1) để mở <b>View BOM</b> — xem cấu hình, hoặc Edit BOM để đổi linh kiện và tính lại giá.</li>
+    </ul>
+    <div class="note"><b>Mã tạm</b> (Spare/NewRO) sẽ hiện ở ô "Sản phẩm chờ cấp mã" để kỹ thuật/quản trị cấp mã chính thức. Đơn còn mã tạm <b>chưa thể</b> được Admin xác nhận vào hệ thống.</div>
+
+    <h3>Trạng thái, lưu &amp; xuất</h3>
+    <ul>
+      <li>Đơn tạo mới/nhân bản mặc định trạng thái <b>targeted</b>; chọn <b>Expected Loading</b> (ngày dự kiến đóng hàng). Có thể chuyển qua lại <b>targeted ↔ drafted</b> và sửa Load Date bất cứ lúc nào.</li>
+      <li><span class="btn-ex">💾 Lưu đơn</span> — lưu báo giá của bạn. App <b>tự lưu nháp</b> khi đang soạn; mở lại sẽ hỏi khôi phục nếu có bản chưa lưu.</li>
+      <li><span class="btn-ex">⬇ Export PI</span> — xuất chứng từ PI ra <b>Excel</b> hoặc <b>PDF</b> đúng biểu mẫu công ty (khổ ngang); tên sản phẩm dùng tên tiếng Anh. Điền nhanh Trade terms/POL/POD/Payment trước khi xuất.</li>
+      <li><span class="btn-ex" style="background:var(--danger)">🗑 Xóa PI</span> — xoá hẳn đơn <b>targeted</b> của bạn (có hỏi xác nhận).</li>
+    </ul>
+
+    <h3>Khách hàng mới</h3>
+    <p>Bấm <span class="btn-ex">+ Khách mới</span> ở cột trái, điền thông tin → lưu. Khách mới được ghi vào danh mục khách trung tâm và xuất hiện ngay trong danh sách của bạn.</p>
+  </section>
+
+  <hr class="divider">
+
+  <section id="technician">
+    <h2><span class="num">05</span> Dành cho Kỹ thuật <span class="rolebadge b-tech">Technician</span></h2>
+    <p class="section-sub">Đăng nhập xong bạn thấy ngay <b>Hàng đợi cần kiểm tra</b> — mọi đơn của các sale đang chờ xử lý, kèm ô lọc theo khách/PI/SO. Bấm một dòng để mở đơn.</p>
+    <ol class="steps">
+      <li><b>Kiểm tra &amp; sửa:</b> mở đơn → <span class="btn-ex">✎ Edit Details</span> → đối chiếu và sửa <b>mã sản phẩm mới, quy cách đóng gói, kích thước carton</b> (đổi mã tạm sang mã thật, sửa L/W/H…). Đơn vẫn giữ tên sale gốc.</li>
+      <li><b>Xác nhận:</b> bấm <span class="btn-ex">✔ Xác nhận (reviewed)</span> — chuyển đơn sang trạng thái <b>reviewed</b> để Admin duyệt tiếp. Bạn vẫn mở lại sửa được sau đó.</li>
+      <li><b>Yêu cầu R&amp;D:</b> với đơn có mã mới hoặc máy đã đổi BOM, bấm <span class="btn-ex">⬇ Form RD</span> để xuất <b>Yêu cầu phát triển sản phẩm mới</b> (mỗi mã một trang, đã điền sẵn cấu hình/lõi/màng/giá) gửi bộ phận R&amp;D.</li>
+    </ol>
+    <div class="tip">Kỹ thuật chỉ kiểm tra/duyệt, <b>không</b> tạo hay nhân bản đơn mới.</div>
+  </section>
+
+  <section id="lead">
+    <h2><span class="num">06</span> Dành cho Trưởng nhóm <span class="rolebadge b-lead">Lead</span></h2>
+    <p class="section-sub">Trang chủ là <b>Doanh thu FOB theo tháng</b> — tính trên các đơn đã vào Operations2025 theo tháng Load Date.</p>
+    <ul>
+      <li>Xem tổng FOB tháng, số đơn, số khách; đổi tháng bằng ◀ ▶.</li>
+      <li><b>Gom nhóm</b> theo <b>Sale / Khách hàng / Thị trường</b> để thấy tỷ trọng đóng góp.</li>
+      <li><b>Danh sách đơn trong tháng</b> (PI, SO, ngày load, FOB, trạng thái) — bấm một dòng để xem chi tiết ngay, không cần chọn khách trước.</li>
+      <li>Vẫn có cột khách bên trái để mở chi tiết một khách như thường.</li>
+    </ul>
+  </section>
+
+  <section id="admin">
+    <h2><span class="num">07</span> Dành cho Admin / Master <span class="rolebadge b-admin">Admin</span> <span class="rolebadge b-master">Master</span></h2>
+    <p class="section-sub">Admin có toàn quyền vận hành đơn. Master thêm quyền nhìn thấy tất cả khách/đơn không giới hạn.</p>
+    <h3>Sửa đơn &amp; mã khách hàng</h3>
+    <ul>
+      <li>Sửa được đơn của mọi sale (đơn vẫn giữ tên sale gốc).</li>
+      <li>Khi sửa đơn, ô <b>Mã KH</b> cho phép cập nhật/bổ sung mã khách — mã này ghi thẳng vào danh mục khách trung tâm.</li>
+      <li>Khách chưa có mã: bấm <span class="btn-ex">⬇ YC tạo mã KH</span> để xuất phiếu <b>Yêu cầu cấp mã khách hàng</b> đúng biểu mẫu (tự điền thông tin khách, mã quốc gia, công ty/phòng ban theo nhóm).</li>
+    </ul>
+    <h3>Xác nhận đơn vào Operations2025</h3>
+    <ol class="steps">
+      <li>Mở đơn của sale (đã reviewed hoặc targeted/drafted) → <span class="btn-ex">✔ Confirm → Operations2025</span>.</li>
+      <li>Nhập <b>Số SO</b> và <b>Load Date</b> (bắt buộc), chọn trạng thái và tháng.</li>
+      <li>App ghi đơn vào Operations2025 (giữ nguyên các công thức của bảng), rồi <b>xoá bản nháp khỏi file sale</b> — đơn "chuyển nhà" hẳn, không tồn tại hai bản.</li>
+    </ol>
+    <div class="note"><b>Bị chặn khi:</b> đơn còn mã tạm (Spare/NewRO) chưa cấp mã, hoặc số SO đã tồn tại. Xử lý xong mới confirm lại được.</div>
+  </section>
+
+  <hr class="divider">
+
+  <section id="shipment">
+    <h2><span class="num">08</span> Shipment Tracking</h2>
+    <p class="section-sub">Trang theo dõi lịch trình vận chuyển, liên kết hai chiều với app báo giá.</p>
+    <ul>
+      <li>Từ app báo giá bấm <span class="btn-ex">🚢 Shipment</span> để mở. Đã đăng nhập app rồi thì <b>xem được ngay, không cần mật khẩu</b>.</li>
+      <li><b>Sale/Lead: chỉ xem</b> (Load date, ETD/ETA, trạng thái, tra cứu vận đơn theo hãng tàu). <b>Chỉ Admin/Master mới sửa</b> được lịch trình.</li>
+      <li><b>Double-click số SO</b> trên trang Shipment để mở thẳng đơn đó bên app báo giá (theo phân quyền của bạn).</li>
+      <li>Phía trên bảng có <b>tổng FOB theo tháng</b>; đổi tháng bằng ô chọn tháng.</li>
+    </ul>
+  </section>
+
+  <section id="meo">
+    <h2><span class="num">09</span> Mẹo &amp; lưu ý</h2>
+    <div class="card">
+      <ul>
+        <li><b>Tự lưu nháp:</b> đang soạn báo giá mà đóng nhầm/mất mạng — mở lại app sẽ hỏi khôi phục bản nháp.</li>
+        <li><b>Dữ liệu trễ tối đa 5 phút</b> (do bộ nhớ đệm tăng tốc). Cần số mới ngay thì bấm ⟳ Làm mới.</li>
+        <li><b>%LN màu đỏ</b> = lỗ so với giá đề xuất; <b>màu vàng</b> = dưới mức lợi nhuận tối thiểu. Cân nhắc trước khi chốt giá.</li>
+        <li><b>Container:</b> con số ước tính giúp bạn gợi ý khách gom đủ cont; dưới 20 CBM nên đi hàng lẻ (LCL).</li>
+        <li><b>Bảo mật:</b> đăng nhập là kiểm soát nội bộ theo tên + PIN — không chia sẻ PIN, đổi PIN định kỳ, đăng xuất khi dùng máy chung.</li>
+      </ul>
+    </div>
+  </section>
+
+  <footer>
+    Export Ops Hub · Phòng Vận hành Kinh doanh — Công ty CP Tập đoàn Karofi<br>
+    Tài liệu hướng dẫn nội bộ · cập nhật 2026
+  </footer>
+
+</div>
+
+</body>
+</html>

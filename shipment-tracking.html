@@ -1,0 +1,1099 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Shipment Tracking</title>
+<style>
+  :root{
+    --bg:#f4f6f9; --card:#ffffff; --border:#e2e6ec; --text:#1c2430; --text-dim:#6b7686;
+    --brand:#2457c5; --brand-dim:#e8eefb; --ok:#1a9c6b; --ok-dim:#e6f7f0;
+    --warn:#c98a00; --warn-dim:#fdf1dc; --err:#c93b3b; --err-dim:#fbeaea;
+    --shadow:0 1px 2px rgba(20,30,50,.06), 0 1px 12px rgba(20,30,50,.04);
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+  }
+  @media (prefers-color-scheme: dark){
+    :root{
+      --bg:#12151b; --card:#1a1e27; --border:#2b3140; --text:#e7ebf2; --text-dim:#8b93a3;
+      --brand:#6d9bff; --brand-dim:#1c2740; --ok:#4fd39c; --ok-dim:#123328;
+      --warn:#f0b93f; --warn-dim:#3a2e10; --err:#f28080; --err-dim:#3a1f1f;
+      --shadow:0 1px 2px rgba(0,0,0,.4), 0 1px 12px rgba(0,0,0,.3);
+    }
+  }
+  *{box-sizing:border-box;}
+  body{margin:0;background:var(--bg);color:var(--text);}
+  .wrap{max-width:1400px;margin:0 auto;padding:20px 24px 60px;}
+  header{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:14px;margin-bottom:18px;}
+  h1{font-size:20px;margin:0;font-weight:700;}
+  .sub{color:var(--text-dim);font-size:13px;margin-top:2px;}
+  .toolbar{display:flex;align-items:center;gap:10px;flex-wrap:wrap;}
+  .toolbar label{font-size:13px;color:var(--text-dim);}
+  input[type=month]{
+    border:1px solid var(--border);background:var(--card);color:var(--text);
+    border-radius:8px;padding:7px 10px;font-size:14px;
+  }
+  button{
+    font:inherit;border:1px solid var(--border);background:var(--card);color:var(--text);
+    border-radius:8px;padding:7px 12px;font-size:13px;cursor:pointer;transition:.15s;
+  }
+  button:hover{border-color:var(--brand);color:var(--brand);}
+  button:disabled{opacity:.5;cursor:default;}
+  button:disabled:hover{border-color:var(--border);color:var(--text);}
+  .btn-primary{background:var(--brand);color:#fff;border-color:var(--brand);}
+  .btn-primary:hover{opacity:.9;color:#fff;}
+  .btn-track{background:var(--ok-dim);border-color:var(--ok);color:var(--ok);font-weight:600;}
+  .btn-track:hover{color:var(--ok);opacity:.85;}
+  .btn-update{background:var(--warn-dim);border-color:var(--warn);color:var(--warn);font-weight:600;}
+  .btn-update:hover{color:var(--warn);opacity:.85;}
+  .btn-icon{padding:6px 8px;font-size:12px;}
+  .card{background:var(--card);border:1px solid var(--border);border-radius:12px;box-shadow:var(--shadow);overflow:hidden;}
+  .tablewrap{overflow:auto;max-height:72vh;}
+  table{border-collapse:collapse;width:100%;font-size:13.5px;min-width:1150px;}
+  th{
+    text-align:left;background:var(--bg);color:var(--text-dim);font-weight:600;font-size:11.5px;
+    text-transform:uppercase;letter-spacing:.03em;padding:10px 12px;border-bottom:1px solid var(--border);
+    position:sticky;top:0;z-index:2;white-space:nowrap;
+  }
+  td{padding:10px 12px;border-bottom:1px solid var(--border);vertical-align:middle;}
+  tr:last-child td{border-bottom:none;}
+  tr:hover td{background:rgba(36,87,197,.035);}
+  .client{font-weight:600;}
+  .country{color:var(--text-dim);font-size:12px;}
+  .status-pill{
+    display:inline-block;padding:2px 9px;border-radius:100px;font-size:11.5px;font-weight:600;
+    text-transform:capitalize;white-space:nowrap;
+  }
+  .st-opened{background:var(--brand-dim);color:var(--brand);}
+  .st-targeted{background:var(--warn-dim);color:var(--warn);}
+  .st-shipped{background:var(--ok-dim);color:var(--ok);}
+  .st-closed{background:var(--border);color:var(--text-dim);}
+  .st-default{background:var(--border);color:var(--text-dim);}
+  .mono{font-variant-numeric:tabular-nums;}
+  .cell-input{
+    width:118px;border:1px solid var(--brand);border-radius:6px;padding:4px 7px;font-size:12.5px;
+    background:var(--card);color:var(--text);
+  }
+  .actioncell{white-space:nowrap;}
+  .track-col{min-width:280px;}
+  .timeline{display:flex;flex-direction:column;gap:4px;min-width:250px;}
+  .tl-row{display:flex;align-items:center;gap:0;}
+  .tl-pt{display:flex;flex-direction:column;align-items:center;flex:0 0 auto;width:34px;}
+  .tl-dot{width:11px;height:11px;border-radius:50%;background:var(--border);border:2px solid var(--card);box-shadow:0 0 0 1.5px var(--border);}
+  .tl-dot.done{background:var(--ok);box-shadow:0 0 0 1.5px var(--ok);}
+  .tl-dot.active{background:var(--brand);box-shadow:0 0 0 1.5px var(--brand);}
+  .tl-line{flex:1 1 auto;height:2px;background:var(--border);margin:0 2px;}
+  .tl-line.done{background:var(--ok);}
+  .tl-labels{display:flex;font-size:10.5px;color:var(--text-dim);margin-top:2px;}
+  .tl-labels div{flex:1;text-align:center;}
+  .tl-labels div:first-child{text-align:left;flex:0 0 34px;}
+  .tl-labels div:last-child{text-align:right;flex:0 0 34px;}
+  .tl-note{font-size:11.5px;color:var(--text-dim);margin-top:2px;}
+  .editable{cursor:pointer;border-bottom:1px dashed var(--text-dim);}
+  .editable:hover{border-color:var(--brand);color:var(--brand);}
+  .err-box{font-size:12px;}
+  .err-box .msg{font-weight:600;}
+  .msg-err{color:var(--err);}
+  .msg-warn{color:var(--warn);}
+  select.line-suggest{
+    margin-top:4px;font-size:12px;border:1px solid var(--border);border-radius:6px;padding:3px 5px;
+    background:var(--card);color:var(--text);max-width:220px;
+  }
+  .linklike{color:var(--brand);text-decoration:none;font-size:11.5px;}
+  .linklike:hover{text-decoration:underline;}
+  .empty-state{padding:60px 20px;text-align:center;color:var(--text-dim);}
+  .footer-row{display:flex;justify-content:space-between;align-items:center;padding:12px 16px;border-top:1px solid var(--border);background:var(--bg);}
+  .progress{font-size:12.5px;color:var(--text-dim);}
+  .note-banner{
+    font-size:12px;color:var(--text-dim);background:var(--card);border:1px solid var(--border);
+    border-radius:8px;padding:8px 12px;margin-bottom:14px;
+  }
+  .toast{
+    position:fixed;bottom:18px;right:18px;background:var(--text);color:var(--bg);padding:10px 16px;
+    border-radius:8px;font-size:13px;box-shadow:var(--shadow);opacity:0;transform:translateY(8px);
+    transition:.25s;pointer-events:none;z-index:50;
+  }
+  .toast.show{opacity:1;transform:translateY(0);}
+  .modal-overlay{
+    position:fixed;inset:0;background:rgba(10,15,25,.45);z-index:100;
+    display:flex;align-items:center;justify-content:center;padding:20px;
+  }
+  .modal-box{
+    background:var(--card);border:1px solid var(--border);border-radius:12px;box-shadow:var(--shadow);
+    padding:18px 20px;max-width:560px;width:100%;
+  }
+  .modal-box h3{margin:0 0 8px;font-size:16px;}
+  .modal-desc{font-size:12.5px;color:var(--text-dim);margin:0 0 10px;}
+  .modal-box textarea{
+    width:100%;height:260px;border:1px solid var(--border);border-radius:8px;padding:10px;
+    font-size:12px;font-family:ui-monospace,SFMono-Regular,Consolas,monospace;background:var(--bg);color:var(--text);
+    resize:vertical;
+  }
+  .modal-actions{display:flex;justify-content:flex-end;gap:8px;margin-top:12px;flex-wrap:wrap;}
+  .modal-status{font-size:12px;margin-top:8px;min-height:16px;}
+  .modal-status.err{color:var(--err);}
+  .modal-status.ok{color:var(--ok);}
+  .modal-box input[type=password]{
+    width:100%;border:1px solid var(--border);background:var(--bg);color:var(--text);
+    border-radius:8px;padding:8px 10px;font-size:13px;margin-top:8px;
+  }
+  #gateOverlay{
+    position:fixed;inset:0;background:var(--bg);z-index:200;
+    display:flex;align-items:center;justify-content:center;padding:20px;
+  }
+  .gate-box{
+    background:var(--card);border:1px solid var(--border);border-radius:12px;box-shadow:var(--shadow);
+    padding:28px 26px;max-width:340px;width:100%;text-align:center;
+  }
+  .gate-box h2{font-size:17px;margin:0 0 6px;}
+  .gate-box p{font-size:12.5px;color:var(--text-dim);margin:0 0 16px;}
+  .gate-box input{
+    width:100%;border:1px solid var(--border);background:var(--bg);color:var(--text);
+    border-radius:8px;padding:9px 12px;font-size:14px;text-align:center;margin-bottom:10px;
+  }
+  .gate-box button{width:100%;}
+  .gate-err{color:var(--err);font-size:12px;min-height:16px;margin-top:8px;}
+</style>
+</head>
+<body>
+
+<div id="gateOverlay">
+  <div class="gate-box">
+    <h2>Shipment Tracking</h2>
+    <p>Nhập mật khẩu nội bộ để tiếp tục</p>
+    <input type="password" id="gateInput" placeholder="Mật khẩu" autocomplete="off">
+    <button class="btn-primary" id="gateSubmit">Vào</button>
+    <div class="gate-err" id="gateErr"></div>
+  </div>
+</div>
+
+<div class="wrap">
+  <header>
+    <div>
+      <h1>Shipment Tracking</h1>
+      <div class="sub" id="subtitle">Đang tải dữ liệu…</div>
+    </div>
+    <div class="toolbar">
+      <a href="pi-app.html" target="_blank" rel="noopener" style="text-decoration:none; margin-right:8px; font-size:14px" title="Mở app Báo giá PI">📋 Báo giá PI</a>
+      <label for="monthPicker">Tháng</label>
+      <input type="month" id="monthPicker">
+      <button id="prevMonth" class="btn-icon" title="Tháng trước">◀</button>
+      <button id="nextMonth" class="btn-icon" title="Tháng sau">▶</button>
+      <button id="refreshBtn">↻ Làm mới dữ liệu</button>
+    </div>
+  </header>
+
+  <div class="note-banner">
+    Load date, ETD, ETA và Status có thể sửa trực tiếp trên bảng (bấm vào giá trị để sửa). Nút <b>Tracking</b> mở trang hãng tàu tương ứng kèm sẵn số booking ở tab mới.
+    Mọi chỉnh sửa chỉ lưu cục bộ trên trình duyệt này. Admin bấm <b>Update Info</b>, nhập mã admin rồi bấm "Ghi vào Google Sheet" để ghi thẳng các thay đổi (chỉ ghi đúng ô đã sửa) — không cần qua Cowork nữa, nhưng vẫn có thể dùng "Sao chép" để dán thủ công nếu cần.
+  </div>
+
+  <div class="card">
+    <div id="fobTotal" style="padding:12px 14px 4px; font-weight:700; font-size:15px"></div>
+    <div class="tablewrap">
+      <table id="ordersTable">
+        <thead>
+          <tr>
+            <th>SO</th>
+            <th>Client</th>
+            <th>Country</th>
+            <th>FOB value</th>
+            <th>Load date</th>
+            <th>Status</th>
+            <th>Booking</th>
+            <th>Line</th>
+            <th class="track-col">Tracking</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody id="tbody">
+          <tr><td colspan="10"><div class="empty-state">Đang tải dữ liệu từ Google Sheet…</div></td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="footer-row">
+      <div class="progress" id="progressText"></div>
+      <button id="updateInfoBtn" class="btn-primary">Update Info</button>
+    </div>
+  </div>
+</div>
+<div class="toast" id="toast"></div>
+
+<div class="modal-overlay" id="updateInfoOverlay" style="display:none;">
+  <div class="modal-box">
+    <h3>Cập nhật vào Google Sheet</h3>
+    <p class="modal-desc">Danh sách thay đổi sắp ghi vào tab "Order" (chỉ đúng các ô đã sửa). Kiểm tra lại, nhập mã admin rồi bấm "Ghi vào Google Sheet".</p>
+    <textarea id="updateInfoText" readonly></textarea>
+    <input type="password" id="adminPasscode" placeholder="Mã admin" autocomplete="off">
+    <div class="modal-status" id="writeStatus"></div>
+    <div class="modal-actions">
+      <button id="writeToSheetBtn" class="btn-primary">Ghi vào Google Sheet</button>
+      <button id="copyUpdateInfoBtn">Sao chép</button>
+      <button id="closeUpdateInfoBtn">Đóng</button>
+    </div>
+  </div>
+</div>
+
+<script>
+const GATE_KEY = 'shptrack_gate_ok_v1';
+const GATE_HASH = '78817b2b662a2ee2abfdc02a9cc407fdb5468138cc1bd15f64667ac2494242f9';
+
+// Phiên đăng nhập chung với pi-app (cùng origin). Sale/lead đã đăng nhập -> xem không cần mật khẩu.
+// Chỉ admin/master mới được sửa (read-only với vai trò khác).
+function stReadSession(){
+  try{ var s = JSON.parse(localStorage.getItem('exportops_session')||'null'); return (s && s.user) ? s.user : null; }catch(e){ return null; }
+}
+var ST_SESSION = stReadSession();
+var CAN_EDIT = !!(ST_SESSION && (ST_SESSION.role === 'admin' || ST_SESSION.role === 'master'));
+
+async function sha256Hex(text){
+  const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(text));
+  return Array.from(new Uint8Array(buf)).map(b=>b.toString(16).padStart(2,'0')).join('');
+}
+
+function showGate(){ document.getElementById('gateOverlay').style.display = 'flex'; }
+function hideGate(){ document.getElementById('gateOverlay').style.display = 'none'; }
+
+async function tryGateSubmit(){
+  const input = document.getElementById('gateInput');
+  const errEl = document.getElementById('gateErr');
+  const val = input.value;
+  if(!val){ return; }
+  const hex = await sha256Hex(val);
+  if(hex === GATE_HASH){
+    try{ localStorage.setItem(GATE_KEY, '1'); }catch(e){}
+    errEl.textContent = '';
+    CAN_EDIT = true; // nhập đúng mật khẩu = admin -> cho sửa
+    hideGate();
+    if(window.allRows) renderForSelectedMonth();
+  }else{
+    errEl.textContent = 'Sai mật khẩu, thử lại.';
+    input.value = '';
+    input.focus();
+  }
+}
+
+(function initGate(){
+  // Có phiên đăng nhập pi-app (sale/lead/admin) -> xem thẳng, không cần mật khẩu.
+  if(ST_SESSION){ hideGate(); applyEditPermission(); return; }
+  let passed = false;
+  try{ passed = localStorage.getItem(GATE_KEY) === '1'; }catch(e){}
+  if(passed){ CAN_EDIT = true; hideGate(); } else { showGate(); }
+  document.getElementById('gateSubmit').addEventListener('click', tryGateSubmit);
+  document.getElementById('gateInput').addEventListener('keydown', (e)=>{
+    if(e.key === 'Enter') tryGateSubmit();
+  });
+})();
+
+/** Ẩn các nút chỉ dành cho người sửa khi ở chế độ chỉ-xem. */
+function applyEditPermission(){
+  var ui = document.getElementById('updateInfoBtn');
+  if(ui) ui.style.display = CAN_EDIT ? '' : 'none';
+  var banner = document.querySelector('.note-banner');
+  if(banner && !CAN_EDIT) banner.textContent = 'Chế độ chỉ xem. Chỉ admin mới cập nhật được lịch trình. Double-click số SO để mở đơn bên PI-app.';
+}
+
+const SHEET_ID = '1oWF0WMkGAXHBrZ0l52qDJZHWuLHRMx-Yg0lk3BiuW-c';
+const GAS_WEBAPP_URL = 'https://script.google.com/macros/s/AKfycbz7CwVNQ8xd0WXs8pvVuqMLfhSk2NPLkJfqIQwLmR0bknTTFbfx_TXEddWEaGIVmQAt/exec';
+const OVERLAY_KEY = 'shptrack_overlay_v1';
+
+async function gasCall(action, extra){
+  const res = await fetch(GAS_WEBAPP_URL, {
+    method: 'POST',
+    headers: {'Content-Type': 'text/plain;charset=utf-8'},
+    body: JSON.stringify({action, ...(extra||{})}),
+  });
+  if(!res.ok) throw new Error(`Lỗi HTTP ${res.status} khi gọi Apps Script`);
+  const json = await res.json();
+  if(!json.ok) throw new Error(json.error || 'Apps Script trả về lỗi không rõ.');
+  return json;
+}
+
+const CARRIERS = [
+  {name:'Maersk', aliases:['MAERSK','MSK','MAEU'], url:b=>`https://www.maersk.com/tracking/${encodeURIComponent(b)}`},
+  {name:'MSC', aliases:['MSC','MEDU'], url:b=>`https://www.msc.com/en/track-a-shipment?trackingNumber=${encodeURIComponent(b)}`},
+  {name:'CMA CGM', aliases:['CMA','CMACGM','CGM'], url:b=>`https://www.cma-cgm.com/ebusiness/tracking/search?SearchBy=Booking&Reference=${encodeURIComponent(b)}`},
+  {name:'COSCO', aliases:['COSCO','COSCON','CSCL'], url:b=>`https://elines.coscoshipping.com/ebusiness/cargoTracking?number=${encodeURIComponent(b)}`},
+  {name:'Evergreen', aliases:['EMC','EVERGREEN','EGLV'], url:b=>`https://www.shipmentlink.com/servlet/TDB1_CargoTracking.do?bl_no=${encodeURIComponent(b)}`},
+  {name:'OOCL', aliases:['OOCL','OOLU'], url:b=>`https://www.oocl.com/eng/ourservices/eservices/cargotracking/Pages/cargotracking.aspx?ContainerOrBookingOrBL=${encodeURIComponent(b)}`},
+  {name:'ONE (Ocean Network Express)', aliases:['ONE','ONEY'], url:b=>`https://ecomm.one-line.com/one-ecom/manage-shipment/cargo-tracking?bookingNumber=${encodeURIComponent(b)}`},
+  {name:'Hapag-Lloyd', aliases:['HPL','HLCU','HAPAG'], url:b=>`https://www.hapag-lloyd.com/en/online-business/track/track-by-booking-solution.html?blno=${encodeURIComponent(b)}`},
+  {name:'ZIM', aliases:['ZIM','ZIMU'], url:b=>`https://www.zim.com/tools/track-a-shipment?consnumber=${encodeURIComponent(b)}`},
+  {name:'Yang Ming', aliases:['YML','YMLU'], url:b=>`https://www.yangming.com/e-service/Track_Trace/track_trace_cargo_tracking.aspx?bookno=${encodeURIComponent(b)}`},
+  {name:'Wan Hai', aliases:['WHL','WANHAI'], url:b=>`https://www.wanhai.com/views/quick/CargoTrackSearch.xhtml?bookingNo=${encodeURIComponent(b)}`},
+  {name:'HMM', aliases:['HMM','HDMU'], url:b=>`https://www.hmm21.com/e-service/general/trackNTrace/TrackNTrace.do?bookingNo=${encodeURIComponent(b)}`},
+  {name:'PIL (Pacific Int. Lines)', aliases:['PIL','PCIU'], url:b=>`https://www.pilship.com/en-in/quick-access/track-and-trace_2717.html?bookingNo=${encodeURIComponent(b)}`},
+  {name:'KMTC', aliases:['KMTC'], url:b=>`https://ebiz.kmtc.co.kr/trans/TrackingKmtc.jsp?bkgNo=${encodeURIComponent(b)}`},
+  {name:'SITC', aliases:['SITC'], url:b=>`https://www.sitcline.com/newTrack/index?blNo=${encodeURIComponent(b)}`},
+  {name:'TS Lines', aliases:['TSL','TSLINES'], url:b=>`https://www.tslines.com/tracing?bookingNo=${encodeURIComponent(b)}`},
+  {name:'Interasia Lines', aliases:['IAL','INTERASIA'], url:b=>`https://www.interasialines.com/track?bookingNo=${encodeURIComponent(b)}`},
+  {name:'CU Lines', aliases:['CULINE','CULINES'], url:b=>`https://www.culines.com/track?bookingNo=${encodeURIComponent(b)}`},
+  {name:'Sinokor', aliases:['SINOKOR','SKR'], url:b=>`https://www.sinokor.co.kr/eng/CyberBL/BLTrace.asp?bkg_no=${encodeURIComponent(b)}`},
+  {name:'Namsung', aliases:['NAMSUNG','NSL'], url:b=>`https://www.nsline.co.kr`},
+  {name:'Heung-A', aliases:['HEUNGA','HAS'], url:b=>`https://www.heung-a.com`},
+  {name:'Emirates Shipping Line', aliases:['EMIRATE','ESL','EMIRATES'], url:b=>`https://esl.mideastnet.com`},
+];
+
+const STATUS_OPTIONS = ['targeted', 'opened', 'shipped', 'closed'];
+
+let allRows = [];
+let overlay = loadOverlay();
+
+function loadOverlay(){
+  try{ return JSON.parse(localStorage.getItem(OVERLAY_KEY)) || {}; }catch(e){ return {}; }
+}
+function saveOverlay(){
+  localStorage.setItem(OVERLAY_KEY, JSON.stringify(overlay));
+}
+
+function toast(msg){
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  clearTimeout(toast._t);
+  toast._t = setTimeout(()=>t.classList.remove('show'), 2600);
+}
+
+function parseUSDate(s){
+  if(!s) return null;
+  const m = /^(\d{1,2})\/(\d{1,2})\/(\d{4})$/.exec(String(s).trim());
+  if(!m) return null;
+  return new Date(+m[3], +m[1]-1, +m[2]);
+}
+function fmtDate(d){
+  if(!d) return '';
+  const p = n=>String(n).padStart(2,'0');
+  return `${p(d.getDate())}/${p(d.getMonth()+1)}/${d.getFullYear()}`;
+}
+function toDateInputValue(d){
+  if(!d) return '';
+  const p = n=>String(n).padStart(2,'0');
+  return `${d.getFullYear()}-${p(d.getMonth()+1)}-${p(d.getDate())}`;
+}
+function parseDateInputValue(s){
+  if(!s) return null;
+  const d = new Date(s + 'T00:00:00');
+  return isNaN(d) ? null : d;
+}
+
+async function loadData(){
+  document.getElementById('subtitle').textContent = 'Đang tải dữ liệu…';
+  try{
+    const json = await gasCall('stGetOrders');
+    const rows = json.rows || [];
+    if(!rows.length) throw new Error('Apps Script trả về dữ liệu rỗng cho tab "Order"');
+    allRows = rows.map((row, idx)=>buildRow(row, idx));
+    document.getElementById('subtitle').textContent =
+      `Đã tải ${allRows.length} đơn hàng · cập nhật lúc ${new Date().toLocaleTimeString('vi-VN')}`;
+    renderForSelectedMonth();
+  }catch(err){
+    console.error(err);
+    document.getElementById('subtitle').textContent = 'Lỗi tải dữ liệu: ' + err.message;
+    document.getElementById('tbody').innerHTML =
+      `<tr><td colspan="9"><div class="empty-state">${escapeHtml(err.message)}<br><button id="retryBtn" style="margin-top:10px;">Thử lại</button></div></td></tr>`;
+    const rb = document.getElementById('retryBtn');
+    if(rb) rb.onclick = loadData;
+  }
+}
+
+function buildRow(row, idx){
+  const so = (row.so||'').trim();
+  const realLoadDate = parseUSDate(row.realLoad);
+  const etdDate = parseUSDate(row.etd);
+  const etaDate = parseUSDate(row.eta);
+  const monthStr = row.month||'';
+
+  let monthKey = '';
+  const mm = /^(\d{1,2})\.(\d{4})$/.exec(monthStr);
+  if(mm){
+    monthKey = `${mm[2]}-${String(+mm[1]).padStart(2,'0')}`;
+  }else if(realLoadDate){
+    monthKey = `${realLoadDate.getFullYear()}-${String(realLoadDate.getMonth()+1).padStart(2,'0')}`;
+  }
+
+  const client = row.client||'';
+  const country = row.country||'';
+  const fobDisplay = row.fob||'';
+  const status = row.status||'';
+  const sheetBooking = row.booking||'';
+  const sheetLine = row.line||'';
+
+  const rowKey = so ? `SO_${so}` : `IDX_${idx}_${client}_${fobDisplay}`;
+  const ov = overlay[rowKey] || {};
+  const sheetRow = row.sheetRow;
+
+  return {
+    idx, rowKey, sheetRow, so, client, country, fobDisplay, realLoadDate, etdDate, etaDate, monthKey,
+    status: ov.statusOverride || status,
+    booking: ov.booking != null ? ov.booking : sheetBooking,
+    line: ov.line != null ? ov.line : sheetLine,
+    loadDateOverride: ov.loadDateOverride || '',
+    etdOverride: ov.etdOverride || '',
+    etaOverride: ov.etaOverride || '',
+  };
+}
+
+/**
+ * Mở đơn SO bên PI-app:
+ * - Giữ tham chiếu tab pi-app do chính trang này mở (piWin). Trình duyệt chỉ cho phép focus
+ *   tab mà mình nắm tham chiếu — tab pi-app người dùng tự mở tay thì KHÔNG focus được (rào bảo mật).
+ * - Có piWin còn sống: gửi lệnh chuyển đơn qua BroadcastChannel (không reload) rồi focus;
+ *   tab đó chưa đăng nhập (không ack trong 250ms) thì điều hướng nó kèm ?so.
+ * - Chưa có piWin: mở tab mới kèm ?so (pi-app tự đăng nhập bằng phiên đã lưu) — các lần sau tái sử dụng.
+ */
+let piWin = null;
+function openInPiApp(so){
+  const url = 'pi-app.html?so=' + encodeURIComponent(so);
+  if(piWin && !piWin.closed){
+    let bc = null;
+    try{ bc = new BroadcastChannel('exportops-deeplink'); }catch(e){}
+    if(!bc){ piWin = window.open(url, 'exportops-piapp'); try{ piWin.focus(); }catch(e){} return; }
+    const nonce = Math.random().toString(36).slice(2);
+    let acked = false;
+    bc.onmessage = (ev)=>{
+      if(ev.data && ev.data.type === 'ack' && ev.data.nonce === nonce) acked = true;
+    };
+    bc.postMessage({type:'open-so', so: String(so), nonce});
+    setTimeout(()=>{
+      bc.close();
+      if(!acked){ piWin = window.open(url, 'exportops-piapp'); } // tab chưa login -> điều hướng kèm ?so
+      try{ piWin.focus(); }catch(e){}
+    }, 250);
+  }else{
+    piWin = window.open(url, 'exportops-piapp');
+    try{ piWin.focus(); }catch(e){}
+  }
+}
+
+function escapeHtml(s){
+  return String(s).replace(/[&<>"']/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+}
+
+function statusClass(status){
+  const s = (status||'').toLowerCase();
+  if(s === 'opened') return 'st-opened';
+  if(s === 'targeted') return 'st-targeted';
+  if(s === 'shipped') return 'st-shipped';
+  if(s === 'closed') return 'st-closed';
+  return 'st-default';
+}
+
+function effectiveLoadDate(r){
+  const d = parseDateInputValue(r.loadDateOverride);
+  return d || r.realLoadDate;
+}
+function effectiveEtd(r){
+  const d = parseDateInputValue(r.etdOverride);
+  return d || r.etdDate;
+}
+
+function renderLoadDateCell(tdLoad, r){
+  const d = effectiveLoadDate(r);
+  if(!CAN_EDIT){ tdLoad.innerHTML = `<span class="mono">${d ? fmtDate(d) : '—'}</span>`; return; }
+  tdLoad.innerHTML = `<span class="mono editable">${d ? fmtDate(d) : '— chọn ngày'}</span>`;
+  tdLoad.querySelector('span').onclick = ()=>enterLoadDateEdit(tdLoad, r);
+}
+
+function enterLoadDateEdit(tdLoad, r){
+  tdLoad.innerHTML = `<input type="date" class="cell-input" value="${toDateInputValue(effectiveLoadDate(r))}">`;
+  const input = tdLoad.querySelector('input');
+  input.focus();
+  const commit = ()=>{
+    r.loadDateOverride = input.value;
+    overlay[r.rowKey] = {...(overlay[r.rowKey]||{}), loadDateOverride:r.loadDateOverride};
+    saveOverlay();
+    renderLoadDateCell(tdLoad, r);
+  };
+  input.addEventListener('change', commit);
+  input.addEventListener('blur', commit);
+}
+
+function renderStatusCell(tdStatus, r){
+  if(!CAN_EDIT){ tdStatus.innerHTML = `<span class="status-pill ${statusClass(r.status)}">${r.status ? escapeHtml(r.status) : '—'}</span>`; return; }
+  tdStatus.innerHTML = `<span class="status-pill editable ${statusClass(r.status)}">${r.status ? escapeHtml(r.status) : '— chọn'}</span>`;
+  tdStatus.querySelector('span').onclick = ()=>enterStatusEdit(tdStatus, r);
+}
+
+function enterStatusEdit(tdStatus, r){
+  const sel = document.createElement('select');
+  sel.className = 'cell-input';
+  sel.innerHTML = `<option value="">—</option>` + STATUS_OPTIONS.map(s=>
+    `<option value="${s}" ${s===r.status?'selected':''}>${s}</option>`).join('');
+  tdStatus.innerHTML = '';
+  tdStatus.appendChild(sel);
+  sel.focus();
+  let committed = false;
+  const commit = ()=>{
+    if(committed) return;
+    committed = true;
+    r.status = sel.value;
+    overlay[r.rowKey] = {...(overlay[r.rowKey]||{}), statusOverride:r.status};
+    saveOverlay();
+    renderStatusCell(tdStatus, r);
+  };
+  sel.addEventListener('change', commit);
+  sel.addEventListener('blur', ()=>renderStatusCell(tdStatus, r));
+}
+
+function findCarrier(lineRaw){
+  const norm = (lineRaw||'').trim().toUpperCase().replace(/[^A-Z0-9]/g,'');
+  if(!norm) return null;
+  for(const c of CARRIERS){
+    if(c.aliases.some(a=>a.replace(/[^A-Z0-9]/g,'') === norm)) return c;
+  }
+  return undefined;
+}
+
+function levenshtein(a,b){
+  const m=a.length,n=b.length;
+  const dp = Array.from({length:m+1},(_,i)=>[i,...Array(n).fill(0)]);
+  for(let j=0;j<=n;j++) dp[0][j]=j;
+  for(let i=1;i<=m;i++){
+    for(let j=1;j<=n;j++){
+      dp[i][j] = a[i-1]===b[j-1] ? dp[i-1][j-1] : 1+Math.min(dp[i-1][j-1],dp[i-1][j],dp[i][j-1]);
+    }
+  }
+  return dp[m][n];
+}
+
+function suggestCarriers(lineRaw){
+  const norm = (lineRaw||'').trim().toUpperCase();
+  if(!norm) return CARRIERS.slice(0,6);
+  const scored = CARRIERS.map(c=>{
+    let best = Infinity;
+    for(const a of c.aliases){
+      best = Math.min(best, levenshtein(norm, a));
+    }
+    best = Math.min(best, levenshtein(norm, c.name.toUpperCase()));
+    return {c, best};
+  }).sort((a,b)=>a.best-b.best);
+  return scored.filter(s=>s.best<=3).slice(0,5).map(s=>s.c).length
+    ? scored.filter(s=>s.best<=3).slice(0,5).map(s=>s.c)
+    : scored.slice(0,6).map(s=>s.c);
+}
+
+const MONTH_PICKER = document.getElementById('monthPicker');
+function currentMonthValue(){
+  const d = new Date();
+  return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}`;
+}
+MONTH_PICKER.value = currentMonthValue();
+
+function renderForSelectedMonth(){
+  const monthVal = MONTH_PICKER.value;
+  const rows = allRows.filter(r=>r.monthKey === monthVal);
+  const tbody = document.getElementById('tbody');
+  if(!rows.length){
+    tbody.innerHTML = `<tr><td colspan="10"><div class="empty-state">Không có đơn hàng nào trong tháng ${monthVal}.</div></td></tr>`;
+    updateProgressText(0,0);
+    updateFobTotal(rows, monthVal);
+    return;
+  }
+  tbody.innerHTML = '';
+  rows.forEach(r=>tbody.appendChild(renderRow(r)));
+  updateProgressText(0, rows.filter(r=>r.booking && r.line).length);
+  updateFobTotal(rows, monthVal);
+}
+
+/** Tổng FOB của tháng đang xem (parse chuỗi "$1,234.56" -> số; ô rỗng/không phải số tính 0). */
+function updateFobTotal(rows, monthVal){
+  const total = rows.reduce((sum, r)=>{
+    const n = parseFloat(String(r.fobDisplay||'').replace(/[$,\s]/g,''));
+    return sum + (isNaN(n) ? 0 : n);
+  }, 0);
+  const el = document.getElementById('fobTotal');
+  el.textContent = rows.length
+    ? `Tổng FOB tháng ${monthVal}: $${total.toLocaleString('en-US',{minimumFractionDigits:2, maximumFractionDigits:2})} · ${rows.length} đơn`
+    : '';
+}
+
+function updateProgressText(done, total){
+  const el = document.getElementById('progressText');
+  el.textContent = total
+    ? `Đã tra cứu ${done}/${total} đơn (đủ Booking & Line)`
+    : 'Không có đơn nào đủ Booking & Line để tra cứu';
+}
+
+function renderRow(r){
+  const tr = document.createElement('tr');
+  tr.dataset.rowkey = r.rowKey;
+
+  const tdSo = document.createElement('td');
+  if(r.so){
+    tdSo.innerHTML = `<span class="mono" style="cursor:pointer" title="Double-click để mở Edit Details bên PI-app">${escapeHtml(r.so)}</span>`;
+    tdSo.addEventListener('dblclick', ()=>openInPiApp(r.so));
+  }else{
+    tdSo.textContent = '—';
+  }
+
+  const tdClient = document.createElement('td');
+  tdClient.innerHTML = `<div class="client">${escapeHtml(r.client)}</div>`;
+
+  const tdCountry = document.createElement('td');
+  tdCountry.innerHTML = `<span class="country">${escapeHtml(r.country)}</span>`;
+
+  const tdFob = document.createElement('td');
+  tdFob.innerHTML = `<span class="mono">${escapeHtml(r.fobDisplay)}</span>`;
+
+  const tdLoad = document.createElement('td');
+  renderLoadDateCell(tdLoad, r);
+
+  const tdStatus = document.createElement('td');
+  renderStatusCell(tdStatus, r);
+
+  const tdBooking = document.createElement('td');
+  tdBooking.className = 'cell-booking';
+  tdBooking.textContent = r.booking || '—';
+
+  const tdLine = document.createElement('td');
+  tdLine.className = 'cell-line';
+  tdLine.textContent = r.line || '—';
+
+  const tdTrack = document.createElement('td');
+  tdTrack.className = 'cell-track track-col';
+  renderTrackCell(tdTrack, r);
+
+  const tdAction = document.createElement('td');
+  tdAction.className = 'actioncell cell-action';
+  renderActionCell(tdAction, r, tdBooking, tdLine, tdTrack);
+
+  tr.append(tdSo, tdClient, tdCountry, tdFob, tdLoad, tdStatus, tdBooking, tdLine, tdTrack, tdAction);
+  return tr;
+}
+
+function renderActionCell(tdAction, r, tdBooking, tdLine, tdTrack){
+  tdAction.innerHTML = '';
+  const hasBoth = r.booking && r.line;
+  if(hasBoth){
+    const btn = document.createElement('button');
+    btn.className = 'btn-track';
+    btn.textContent = 'Tracking';
+    // admin: mở link + cho sửa ETD/ETA; vai trò khác: chỉ mở link tra cứu
+    btn.onclick = CAN_EDIT
+      ? ()=>openTracking(r, tdBooking, tdLine, tdTrack, tdAction)
+      : ()=>openTrackingLink(r);
+    tdAction.appendChild(btn);
+  }else if(CAN_EDIT){
+    const btn = document.createElement('button');
+    btn.className = 'btn-update';
+    btn.textContent = 'Update';
+    btn.onclick = ()=>enterEditMode(r, tdBooking, tdLine, tdTrack, tdAction);
+    tdAction.appendChild(btn);
+  }
+}
+
+/** Chỉ mở link tra cứu vận đơn theo hãng tàu (read-only). */
+function openTrackingLink(r){
+  var bookingNumbers = (r.booking||'').split('&').map(function(s){return s.trim();}).filter(Boolean);
+  var carrier = findCarrier(r.line);
+  if(!carrier || !bookingNumbers.length){ toast('Chưa đủ thông tin hãng tàu/booking để tra cứu.'); return; }
+  var win = window.open(carrier.url(bookingNumbers[0]), '_blank', 'noopener');
+  if(!win) toast('Trình duyệt chặn pop-up — cho phép rồi bấm lại Tracking.');
+}
+
+function carrierSelectOptions(selectedAlias){
+  return CARRIERS.map(c=>
+    `<option value="${escapeHtml(c.aliases[0])}" ${c.aliases[0]===selectedAlias?'selected':''}>${escapeHtml(c.name)} (${escapeHtml(c.aliases[0])})</option>`
+  ).join('');
+}
+
+function enterEditMode(r, tdBooking, tdLine, tdTrack, tdAction){
+  tdBooking.innerHTML = `<input class="cell-input" data-f="booking" value="${escapeHtml(r.booking||'')}" placeholder="Booking no.">`;
+
+  const currentCarrier = findCarrier(r.line);
+  const selectedAlias = currentCarrier ? currentCarrier.aliases[0] : '';
+  const uid = 'lsel_' + Math.random().toString(36).slice(2);
+  tdLine.innerHTML = `
+    <select class="cell-input" id="${uid}_sel">
+      <option value="">— chọn hãng tàu —</option>
+      ${carrierSelectOptions(selectedAlias)}
+      <option value="__manual__" ${!currentCarrier && r.line ? 'selected' : ''}>Nhập tay…</option>
+    </select>
+    <input class="cell-input" id="${uid}_manual" style="margin-top:4px;display:${!currentCarrier && r.line ? 'block' : 'none'};" placeholder="Ký hiệu hãng tàu" value="${escapeHtml(!currentCarrier ? (r.line||'') : '')}">
+  `;
+  const sel = document.getElementById(`${uid}_sel`);
+  const manual = document.getElementById(`${uid}_manual`);
+  sel.onchange = ()=>{
+    manual.style.display = sel.value === '__manual__' ? 'block' : 'none';
+    if(sel.value === '__manual__') manual.focus();
+  };
+
+  tdAction.innerHTML = '';
+  const saveBtn = document.createElement('button');
+  saveBtn.className = 'btn-primary';
+  saveBtn.textContent = 'Lưu';
+  saveBtn.onclick = ()=>{
+    const bInput = tdBooking.querySelector('input');
+    r.booking = bInput.value.trim();
+    r.line = (sel.value === '__manual__' ? manual.value : sel.value).trim();
+    overlay[r.rowKey] = {...(overlay[r.rowKey]||{}), booking:r.booking, line:r.line};
+    saveOverlay();
+    tdBooking.textContent = r.booking || '—';
+    tdLine.textContent = r.line || '—';
+    renderActionCell(tdAction, r, tdBooking, tdLine, tdTrack);
+    refreshProgressCount();
+    toast('Đã lưu Booking/Line (lưu cục bộ trên trình duyệt)');
+  };
+  tdAction.appendChild(saveBtn);
+}
+
+function refreshProgressCount(){
+  const monthVal = MONTH_PICKER.value;
+  const rows = allRows.filter(r=>r.monthKey === monthVal);
+  const done = [...document.querySelectorAll('.cell-track')].filter(td=>td.dataset.ok==='1').length;
+  updateProgressText(done, rows.filter(r=>r.booking && r.line).length);
+}
+
+function computeStage(etd, eta){
+  const today = new Date(); today.setHours(0,0,0,0);
+  if(!etd && !eta) return 'unknown';
+  if(etd && today < etd) return 'not_started';
+  if(eta && today > eta) return 'arrived';
+  return 'in_transit';
+}
+
+function effectiveEta(r){
+  const d = parseDateInputValue(r.etaOverride);
+  return d || r.etaDate;
+}
+
+function renderTrackCell(tdTrack, r, opts){
+  opts = opts || {};
+  if(!CAN_EDIT) return renderTrackCellReadOnly(tdTrack, r);
+  const etd = effectiveEtd(r);
+  const eta = effectiveEta(r);
+  const hasAny = etd || eta;
+  const stage = computeStage(etd, eta);
+
+  if(hasAny){
+    const etdLabel = etd ? fmtDate(etd) : '—';
+    const etaLabel = eta ? fmtDate(eta) : '—';
+    const midClass = stage === 'arrived' ? 'done' : (stage === 'in_transit' ? 'active' : '');
+    const endClass = stage === 'arrived' ? 'done' : '';
+    tdTrack.innerHTML = `
+      <div class="timeline">
+        <div class="tl-row">
+          <div class="tl-pt"><div class="tl-dot done"></div></div>
+          <div class="tl-line ${stage!=='not_started'?'done':''}"></div>
+          <div class="tl-pt"><div class="tl-dot ${midClass}"></div></div>
+          <div class="tl-line ${stage==='arrived'?'done':''}"></div>
+          <div class="tl-pt"><div class="tl-dot ${endClass}"></div></div>
+        </div>
+        <div class="tl-labels"><div class="editable" data-pt="etd">${etdLabel}</div><div>In transit</div><div class="editable" data-pt="eta">${etaLabel}</div></div>
+      </div>`;
+    tdTrack.dataset.ok = '1';
+    tdTrack.querySelector('[data-pt="etd"]').onclick = ()=>renderTrackCell(tdTrack, r, {showForm:true});
+    tdTrack.querySelector('[data-pt="eta"]').onclick = ()=>renderTrackCell(tdTrack, r, {showForm:true});
+  }else{
+    tdTrack.innerHTML = '<span class="editable" style="font-size:12px;">— chọn ETD/ETA</span>';
+    tdTrack.dataset.ok = '0';
+    tdTrack.querySelector('span').onclick = ()=>renderTrackCell(tdTrack, r, {showForm:true});
+  }
+
+  if(opts.showForm){
+    appendDateEditForm(tdTrack, r);
+  }else if(hasAny){
+    const editLink = document.createElement('a');
+    editLink.href = '#';
+    editLink.className = 'linklike';
+    editLink.style.display = 'inline-block';
+    editLink.style.marginTop = '4px';
+    editLink.textContent = 'Sửa ETD/ETA ✎';
+    editLink.onclick = (e)=>{ e.preventDefault(); renderTrackCell(tdTrack, r, {showForm:true}); };
+    tdTrack.appendChild(editLink);
+  }
+}
+
+/** Timeline ETD/ETA chỉ-xem (không có ô sửa, không onclick). */
+function renderTrackCellReadOnly(tdTrack, r){
+  const etd = effectiveEtd(r), eta = effectiveEta(r);
+  const hasAny = etd || eta;
+  const stage = computeStage(etd, eta);
+  if(!hasAny){ tdTrack.innerHTML = '<span style="font-size:12px;color:var(--text-dim)">—</span>'; tdTrack.dataset.ok = '0'; return; }
+  const midClass = stage === 'arrived' ? 'done' : (stage === 'in_transit' ? 'active' : '');
+  const endClass = stage === 'arrived' ? 'done' : '';
+  tdTrack.innerHTML = `
+    <div class="timeline">
+      <div class="tl-row">
+        <div class="tl-pt"><div class="tl-dot done"></div></div>
+        <div class="tl-line ${stage!=='not_started'?'done':''}"></div>
+        <div class="tl-pt"><div class="tl-dot ${midClass}"></div></div>
+        <div class="tl-line ${stage==='arrived'?'done':''}"></div>
+        <div class="tl-pt"><div class="tl-dot ${endClass}"></div></div>
+      </div>
+      <div class="tl-labels"><div>${etd?fmtDate(etd):'—'}</div><div>In transit</div><div>${eta?fmtDate(eta):'—'}</div></div>
+    </div>`;
+  tdTrack.dataset.ok = '1';
+}
+
+function appendDateEditForm(tdTrack, r){
+  const wrap = document.createElement('div');
+  wrap.style.marginTop = '6px';
+  const uid = 'q_' + Math.random().toString(36).slice(2);
+  wrap.innerHTML = `
+    <label style="font-size:10.5px;color:var(--text-dim);">ETD</label>
+    <input type="date" class="cell-input" style="width:150px;display:block;" id="${uid}_etd" value="${toDateInputValue(effectiveEtd(r))}">
+    <label style="font-size:10.5px;color:var(--text-dim);">ETA</label>
+    <input type="date" class="cell-input" style="width:150px;display:block;" id="${uid}_eta" value="${toDateInputValue(effectiveEta(r))}">
+    <button class="btn-primary btn-icon" id="${uid}_save" style="margin-top:4px;">Lưu</button>
+  `;
+  tdTrack.appendChild(wrap);
+  document.getElementById(`${uid}_save`).onclick = ()=>{
+    r.etdOverride = document.getElementById(`${uid}_etd`).value;
+    r.etaOverride = document.getElementById(`${uid}_eta`).value;
+    overlay[r.rowKey] = {...(overlay[r.rowKey]||{}), etdOverride:r.etdOverride, etaOverride:r.etaOverride};
+    saveOverlay();
+    renderTrackCell(tdTrack, r, {showForm:false});
+    refreshProgressCount();
+    toast('Đã lưu ETD/ETA (lưu cục bộ trên trình duyệt)');
+  };
+}
+
+function renderLineNotFound(tdTrack, tdAction, r, updateRowFns){
+  const suggestions = suggestCarriers(r.line);
+  const selId = 'sel_'+Math.random().toString(36).slice(2);
+  tdTrack.innerHTML = `
+    <div class="err-box">
+      <div class="msg msg-err">Line not found</div>
+      <div class="tl-note">Không nhận diện được hãng tàu "${escapeHtml(r.line||'')}". Chọn hãng đúng hoặc nhập lại:</div>
+      <select class="line-suggest" id="${selId}">
+        <option value="">— chọn hãng tàu —</option>
+        ${suggestions.map(c=>`<option value="${escapeHtml(c.aliases[0])}">${escapeHtml(c.name)} (${escapeHtml(c.aliases[0])})</option>`).join('')}
+        <option value="__manual__">Nhập tay…</option>
+      </select>
+    </div>`;
+  tdTrack.dataset.ok = '0';
+  const sel = tdTrack.querySelector('select');
+  sel.onchange = ()=>{
+    if(sel.value === '__manual__'){
+      tdTrack.innerHTML = `<input class="cell-input" id="manualLine_${selId}" placeholder="Nhập ký hiệu hãng tàu">
+        <button class="btn-icon" id="applyManual_${selId}">Áp dụng</button>`;
+      document.getElementById(`applyManual_${selId}`).onclick = ()=>{
+        const v = document.getElementById(`manualLine_${selId}`).value.trim();
+        if(!v) return;
+        applyLineCorrection(r, v, updateRowFns);
+      };
+    }else if(sel.value){
+      applyLineCorrection(r, sel.value, updateRowFns);
+    }
+  };
+}
+
+function applyLineCorrection(r, newLine, updateRowFns){
+  r.line = newLine;
+  overlay[r.rowKey] = {...(overlay[r.rowKey]||{}), booking:r.booking, line:newLine};
+  saveOverlay();
+  updateRowFns.tdLine.textContent = newLine;
+  openTracking(r, updateRowFns.tdBooking, updateRowFns.tdLine, updateRowFns.tdTrack, updateRowFns.tdAction);
+}
+
+function addFixBookingLink(tdTrack, r, tdBooking, tdLine, tdAction){
+  const link = document.createElement('a');
+  link.href = '#';
+  link.className = 'linklike';
+  link.style.display = 'inline-block';
+  link.style.marginTop = '4px';
+  link.textContent = 'Sai số Booking? Sửa lại →';
+  link.onclick = (e)=>{
+    e.preventDefault();
+    tdBooking.innerHTML = `<input class="cell-input" value="${escapeHtml(r.booking||'')}">`;
+    const editBtn = document.createElement('button');
+    editBtn.className = 'btn-primary';
+    editBtn.textContent = 'Lưu số Booking';
+    tdAction.innerHTML = '';
+    tdAction.appendChild(editBtn);
+    editBtn.onclick = ()=>{
+      const v = tdBooking.querySelector('input').value.trim();
+      r.booking = v;
+      overlay[r.rowKey] = {...(overlay[r.rowKey]||{}), booking:v, line:r.line};
+      saveOverlay();
+      tdBooking.textContent = v || '—';
+      renderActionCell(tdAction, r, tdBooking, tdLine, tdTrack);
+    };
+  };
+  tdTrack.appendChild(link);
+}
+
+function openTracking(r, tdBooking, tdLine, tdTrack, tdAction){
+  const bookingNumbers = (r.booking||'').split('&').map(s=>s.trim()).filter(Boolean);
+  const carrier = findCarrier(r.line);
+
+  if(!carrier){
+    renderLineNotFound(tdTrack, tdAction, r, {tdBooking, tdLine, tdTrack, tdAction});
+    return;
+  }
+  if(!bookingNumbers.length){
+    renderTrackCell(tdTrack, r, {showForm:true});
+    addFixBookingLink(tdTrack, r, tdBooking, tdLine, tdAction);
+    return;
+  }
+
+  const url = carrier.url(bookingNumbers[0]);
+  const win = window.open(url, '_blank', 'noopener');
+  if(!win){
+    toast('Trình duyệt đã chặn cửa sổ mới — vui lòng cho phép pop-up cho trang này rồi bấm lại Tracking.');
+  }
+  renderTrackCell(tdTrack, r, {showForm:true});
+  const link = document.createElement('a');
+  link.href = url; link.target = '_blank'; link.rel = 'noopener';
+  link.className = 'linklike';
+  link.style.display = 'inline-block';
+  link.style.marginTop = '4px';
+  link.textContent = `Mở lại trang ${carrier.name} →`;
+  tdTrack.appendChild(link);
+  addFixBookingLink(tdTrack, r, tdBooking, tdLine, tdAction);
+  refreshProgressCount();
+}
+
+const FIELD_TO_GAS = {
+  booking: 'booking', line: 'line', loadDateOverride: 'realLoad',
+  etdOverride: 'etd', etaOverride: 'eta', statusOverride: 'status',
+};
+
+function buildChangesPayload(){
+  const monthVal = MONTH_PICKER.value;
+  const rows = allRows.filter(r=>r.monthKey === monthVal);
+  const changes = [];
+  const touchedRowKeys = [];
+  rows.forEach(r=>{
+    const ov = overlay[r.rowKey];
+    if(!ov) return;
+    let touched = false;
+    Object.keys(FIELD_TO_GAS).forEach(field=>{
+      const raw = ov[field];
+      if(raw == null || raw === '') return;
+      let value = raw;
+      if(field === 'loadDateOverride' || field === 'etdOverride' || field === 'etaOverride'){
+        const d = parseDateInputValue(raw);
+        if(!d) return;
+        value = `${d.getMonth()+1}/${d.getDate()}/${d.getFullYear()}`;
+      }
+      changes.push({sheetRow: r.sheetRow, field: FIELD_TO_GAS[field], value});
+      touched = true;
+    });
+    if(touched) touchedRowKeys.push(r.rowKey);
+  });
+  return {changes, touchedRowKeys};
+}
+
+async function writeChangesToSheet(){
+  const statusEl = document.getElementById('writeStatus');
+  statusEl.className = 'modal-status';
+  statusEl.textContent = '';
+
+  const passcode = document.getElementById('adminPasscode').value.trim();
+  if(!passcode){
+    statusEl.textContent = 'Vui lòng nhập mã admin.';
+    statusEl.className = 'modal-status err';
+    return;
+  }
+
+  const {changes, touchedRowKeys} = buildChangesPayload();
+  if(!changes.length){
+    statusEl.textContent = 'Không có thay đổi nào để ghi.';
+    statusEl.className = 'modal-status err';
+    return;
+  }
+
+  statusEl.textContent = 'Đang ghi vào Google Sheet…';
+  try{
+    const json = await gasCall('stWriteChanges', {passcode, changes});
+    touchedRowKeys.forEach(rk=>{ delete overlay[rk]; });
+    saveOverlay();
+    document.getElementById('adminPasscode').value = '';
+    statusEl.textContent = `Đã ghi ${json.written} ô vào Google Sheet.`;
+    statusEl.className = 'modal-status ok';
+    toast('Đã ghi vào Google Sheet');
+    await loadData();
+    setTimeout(closeUpdateInfoModal, 900);
+  }catch(err){
+    statusEl.textContent = 'Lỗi khi ghi: ' + err.message;
+    statusEl.className = 'modal-status err';
+  }
+}
+
+function buildUpdatePayloadItems(){
+  const monthVal = MONTH_PICKER.value;
+  const rows = allRows.filter(r=>r.monthKey === monthVal);
+  const items = [];
+  rows.forEach(r=>{
+    const ov = overlay[r.rowKey];
+    if(!ov) return;
+    const fields = [];
+    if(ov.booking != null && ov.booking !== '') fields.push(`Booking (cột W): ${ov.booking}`);
+    if(ov.line != null && ov.line !== '') fields.push(`Line (cột X): ${ov.line}`);
+    if(ov.loadDateOverride){
+      const d = parseDateInputValue(ov.loadDateOverride);
+      if(d) fields.push(`Load date (cột L): ${fmtDate(d)}`);
+    }
+    if(ov.etdOverride){
+      const d = parseDateInputValue(ov.etdOverride);
+      if(d) fields.push(`ETD (cột M): ${fmtDate(d)}`);
+    }
+    if(ov.etaOverride){
+      const d = parseDateInputValue(ov.etaOverride);
+      if(d) fields.push(`ETA (cột N): ${fmtDate(d)}`);
+    }
+    if(ov.statusOverride) fields.push(`Status (cột Q): ${ov.statusOverride}`);
+    if(!fields.length) return;
+    const idPart = r.rowKey.startsWith('SO_')
+      ? `SO: ${r.rowKey.slice(3)}`
+      : `không có SO — xác định theo Client "${r.client}", Country "${r.country}", FOB gốc ${r.fobDisplay}`;
+    items.push(`Client: ${r.client} | Country: ${r.country} | ${idPart}\n` + fields.map(f=>'   - '+f).join('\n'));
+  });
+  return items;
+}
+
+function updateInfo(){
+  const items = buildUpdatePayloadItems();
+  if(!items.length){
+    toast('Không có thay đổi nào cần cập nhật trong tháng đang xem.');
+    return;
+  }
+  const header = `Cập nhật Google Sheet "Operations2025" (ID: ${SHEET_ID}), tab "Order" — tháng ${MONTH_PICKER.value}.\nChỉ cập nhật đúng các trường liệt kê bên dưới cho từng dòng, các trường khác giữ nguyên.\n\n`;
+  const body = items.map((it,i)=>`${i+1}. ${it}`).join('\n\n');
+  const text = header + body;
+  if(navigator.clipboard && navigator.clipboard.writeText){
+    navigator.clipboard.writeText(text).catch(()=>{});
+  }
+  openUpdateInfoModal(text);
+}
+
+function openUpdateInfoModal(text){
+  document.getElementById('updateInfoText').value = text;
+  const statusEl = document.getElementById('writeStatus');
+  statusEl.textContent = '';
+  statusEl.className = 'modal-status';
+  document.getElementById('updateInfoOverlay').style.display = 'flex';
+}
+function closeUpdateInfoModal(){
+  document.getElementById('updateInfoOverlay').style.display = 'none';
+}
+
+document.getElementById('updateInfoBtn').addEventListener('click', updateInfo);
+document.getElementById('writeToSheetBtn').addEventListener('click', writeChangesToSheet);
+document.getElementById('copyUpdateInfoBtn').addEventListener('click', ()=>{
+  const text = document.getElementById('updateInfoText').value;
+  if(navigator.clipboard && navigator.clipboard.writeText){
+    navigator.clipboard.writeText(text).then(()=>toast('Đã sao chép.')).catch(()=>toast('Không thể sao chép tự động — hãy bôi đen và copy thủ công.'));
+  }
+});
+document.getElementById('closeUpdateInfoBtn').addEventListener('click', closeUpdateInfoModal);
+document.getElementById('refreshBtn').addEventListener('click', loadData);
+MONTH_PICKER.addEventListener('change', renderForSelectedMonth);
+document.getElementById('prevMonth').addEventListener('click', ()=>{
+  const [y,m] = MONTH_PICKER.value.split('-').map(Number);
+  const d = new Date(y, m-2, 1);
+  MONTH_PICKER.value = `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}`;
+  renderForSelectedMonth();
+});
+document.getElementById('nextMonth').addEventListener('click', ()=>{
+  const [y,m] = MONTH_PICKER.value.split('-').map(Number);
+  const d = new Date(y, m, 1);
+  MONTH_PICKER.value = `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}`;
+  renderForSelectedMonth();
+});
+
+loadData();
+</script>
+</body>
+</html>
