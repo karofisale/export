@@ -3,17 +3,18 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Export Ops Hub — Giới thiệu & Hướng dẫn sử dụng</title>
+<title>Export Ops Hub — Giới thiệu, cấu trúc &amp; Hướng dẫn sử dụng</title>
 <style>
   :root{
     --bg:#f5f7f5; --panel:#ffffff; --sunken:#eef2ee;
-    --ink:#16211d; --ink-soft:#4a574f; --ink-faint:#8593895; --ink-faint:#859389;
+    --ink:#16211d; --ink-soft:#4a574f; --ink-faint:#859389;
     --line:#dde4de; --line-soft:#e9eee9;
     --accent:#0e6e64; --accent-strong:#0a5049; --accent-soft:#e2efeb;
     --warn:#b5691f; --warn-soft:#f6e9d8; --danger:#b3432b;
     --sale:#0e6e64; --lead:#7a5bd0; --tech:#b5691f; --admin:#c0392b; --master:#1f6feb;
+    --on-accent:#fff;
     --radius:12px;
-    --maxw:940px;
+    --maxw:960px;
   }
   @media (prefers-color-scheme:dark){
     :root{
@@ -23,6 +24,7 @@
       --accent:#4fd1a5; --accent-strong:#7fe0c0; --accent-soft:#183028;
       --warn:#e0a35a; --warn-soft:#2c2114; --danger:#e0715a;
       --sale:#4fd1a5; --lead:#b49bf0; --tech:#e0a35a; --admin:#e0715a; --master:#6fa8ff;
+      --on-accent:#08120e;
     }
   }
   :root[data-theme="light"]{
@@ -32,6 +34,7 @@
     --accent:#0e6e64; --accent-strong:#0a5049; --accent-soft:#e2efeb;
     --warn:#b5691f; --warn-soft:#f6e9d8; --danger:#b3432b;
     --sale:#0e6e64; --lead:#7a5bd0; --tech:#b5691f; --admin:#c0392b; --master:#1f6feb;
+    --on-accent:#fff;
   }
   :root[data-theme="dark"]{
     --bg:#121613; --panel:#1a201d; --sunken:#161b18;
@@ -40,6 +43,7 @@
     --accent:#4fd1a5; --accent-strong:#7fe0c0; --accent-soft:#183028;
     --warn:#e0a35a; --warn-soft:#2c2114; --danger:#e0715a;
     --sale:#4fd1a5; --lead:#b49bf0; --tech:#e0a35a; --admin:#e0715a; --master:#6fa8ff;
+    --on-accent:#08120e;
   }
   *{box-sizing:border-box}
   html{scroll-behavior:smooth}
@@ -51,38 +55,33 @@
   }
   .wrap{max-width:var(--maxw); margin:0 auto; padding:0 20px 80px}
 
-  /* Hero */
-  header.hero{
-    max-width:var(--maxw); margin:0 auto; padding:52px 20px 32px;
-  }
+  header.hero{max-width:var(--maxw); margin:0 auto; padding:52px 20px 30px}
   .eyebrow{font-size:12.5px; letter-spacing:.16em; text-transform:uppercase; color:var(--accent); font-weight:700; margin:0 0 10px}
   h1{font-size:clamp(30px,5vw,46px); line-height:1.08; margin:0 0 14px; font-weight:800; letter-spacing:-.02em; text-wrap:balance}
-  .lede{font-size:18px; color:var(--ink-soft); margin:0 0 24px; max-width:62ch}
+  .lede{font-size:18px; color:var(--ink-soft); margin:0 0 24px; max-width:64ch}
   .hero-meta{display:flex; flex-wrap:wrap; gap:10px}
   .chip{display:inline-flex; align-items:center; gap:7px; background:var(--panel); border:1px solid var(--line); border-radius:999px; padding:7px 14px; font-size:13.5px; color:var(--ink-soft)}
   .chip b{color:var(--ink); font-weight:600}
-  .chip a{color:var(--accent); text-decoration:none; font-weight:600}
+  .chip a{color:var(--accent); text-decoration:none; font-weight:600; word-break:break-all}
 
-  /* TOC */
-  nav.toc{
-    background:var(--panel); border:1px solid var(--line); border-radius:var(--radius);
-    padding:18px 20px; margin:8px 0 40px;
-  }
+  nav.toc{background:var(--panel); border:1px solid var(--line); border-radius:var(--radius); padding:18px 20px; margin:8px 0 40px}
   nav.toc .toc-title{font-size:12px; letter-spacing:.12em; text-transform:uppercase; color:var(--ink-faint); font-weight:700; margin-bottom:12px}
-  nav.toc ol{margin:0; padding:0; list-style:none; display:grid; grid-template-columns:repeat(auto-fit,minmax(220px,1fr)); gap:8px 22px; counter-reset:toc}
-  nav.toc li{counter-increment:toc}
-  nav.toc a{display:flex; gap:10px; align-items:baseline; text-decoration:none; color:var(--ink); padding:5px 0; border-bottom:1px solid transparent}
+  nav.toc ol{margin:0; padding:0; list-style:none; display:grid; grid-template-columns:repeat(auto-fit,minmax(230px,1fr)); gap:8px 22px; counter-reset:toc}
+  nav.toc li{counter-increment:toc; margin:0}
+  nav.toc a{display:flex; gap:10px; align-items:baseline; text-decoration:none; color:var(--ink); padding:5px 0}
   nav.toc a:hover{color:var(--accent)}
   nav.toc a::before{content:counter(toc,decimal-leading-zero); font-variant-numeric:tabular-nums; color:var(--accent); font-weight:700; font-size:13px; min-width:24px}
 
-  section{margin:0 0 42px; scroll-margin-top:20px}
-  h2{font-size:26px; font-weight:750; letter-spacing:-.01em; margin:0 0 6px; display:flex; align-items:center; gap:12px; text-wrap:balance}
+  section{margin:0 0 44px; scroll-margin-top:20px}
+  h2{font-size:26px; font-weight:750; letter-spacing:-.01em; margin:0 0 6px; display:flex; align-items:center; gap:12px; flex-wrap:wrap; text-wrap:balance}
   h2 .num{font-size:14px; font-variant-numeric:tabular-nums; color:var(--accent); background:var(--accent-soft); border-radius:8px; padding:3px 9px; font-weight:700}
-  .section-sub{color:var(--ink-soft); margin:0 0 20px; max-width:64ch}
-  h3{font-size:17px; font-weight:700; margin:22px 0 8px; color:var(--ink)}
+  .section-sub{color:var(--ink-soft); margin:0 0 20px; max-width:66ch}
+  h3{font-size:17px; font-weight:700; margin:24px 0 8px; color:var(--ink)}
+  h4{font-size:14.5px; font-weight:700; margin:16px 0 6px; color:var(--ink)}
 
   .card{background:var(--panel); border:1px solid var(--line); border-radius:var(--radius); padding:22px 24px; margin:16px 0}
   .card.tinted{background:var(--accent-soft); border-color:transparent}
+  .card>:last-child{margin-bottom:0}
 
   p{margin:0 0 12px}
   ul,ol{margin:0 0 12px; padding-left:22px}
@@ -90,56 +89,76 @@
   b,strong{font-weight:650}
   a{color:var(--accent)}
   code,.kbd{font-family:"SF Mono",ui-monospace,Consolas,monospace; font-size:.88em; background:var(--sunken); border:1px solid var(--line-soft); border-radius:5px; padding:1px 6px; color:var(--ink)}
-  .btn-ex{display:inline-block; font-weight:600; font-size:.9em; background:var(--accent); color:#fff; border-radius:6px; padding:2px 9px; white-space:nowrap}
-  :root[data-theme="dark"] .btn-ex,@media (prefers-color-scheme:dark){.btn-ex{color:#08120e}}
+  .btn-ex{display:inline-block; font-weight:600; font-size:.9em; background:var(--accent); color:var(--on-accent); border-radius:6px; padding:2px 9px; white-space:nowrap}
+  .btn-ex.dg{background:var(--danger); color:#fff}
 
-  /* role legend */
-  .roles{display:grid; grid-template-columns:repeat(auto-fit,minmax(240px,1fr)); gap:14px}
+  /* Sơ đồ cấu trúc */
+  .arch{display:grid; gap:10px; margin:16px 0}
+  .layer{background:var(--panel); border:1px solid var(--line); border-left:4px solid var(--lc,var(--accent)); border-radius:10px; padding:14px 16px}
+  .layer .lname{font-size:11.5px; letter-spacing:.1em; text-transform:uppercase; font-weight:700; color:var(--lc,var(--accent)); margin-bottom:8px}
+  .layer .boxes{display:flex; flex-wrap:wrap; gap:8px}
+  .box{background:var(--sunken); border:1px solid var(--line-soft); border-radius:8px; padding:7px 11px; font-size:13.5px}
+  .box b{display:block; font-size:13.5px}
+  .box span{display:block; color:var(--ink-faint); font-size:12px}
+  .arrow{text-align:center; color:var(--ink-faint); font-size:15px; line-height:1; margin:-4px 0}
+  .l-fe{--lc:var(--master)} .l-be{--lc:var(--accent)} .l-data{--lc:var(--tech)} .l-ext{--lc:var(--lead)}
+
+  /* Luồng nghiệp vụ */
+  .flow{display:flex; flex-wrap:wrap; gap:8px; align-items:stretch; margin:14px 0}
+  .fstep{flex:1 1 165px; background:var(--panel); border:1px solid var(--line); border-top:3px solid var(--fc,var(--accent)); border-radius:10px; padding:12px 14px}
+  .fstep .fw{font-size:11px; letter-spacing:.08em; text-transform:uppercase; font-weight:700; color:var(--fc,var(--accent))}
+  .fstep .ft{font-weight:650; font-size:14.5px; margin:3px 0 2px}
+  .fstep .fd{font-size:12.5px; color:var(--ink-soft)}
+  .f-sale{--fc:var(--sale)} .f-tech{--fc:var(--tech)} .f-admin{--fc:var(--admin)} .f-ship{--fc:var(--master)}
+
+  .roles{display:grid; grid-template-columns:repeat(auto-fit,minmax(250px,1fr)); gap:14px}
   .role{background:var(--panel); border:1px solid var(--line); border-radius:var(--radius); padding:16px 18px; border-top:3px solid var(--rc,var(--accent))}
   .role .rname{font-weight:750; font-size:15px; color:var(--rc,var(--accent)); display:flex; align-items:center; gap:8px; margin-bottom:4px}
   .role p{font-size:14px; color:var(--ink-soft); margin:0}
   .r-sale{--rc:var(--sale)} .r-lead{--rc:var(--lead)} .r-tech{--rc:var(--tech)} .r-admin{--rc:var(--admin)} .r-master{--rc:var(--master)}
 
-  .rolebadge{display:inline-block; font-size:11.5px; font-weight:700; letter-spacing:.03em; padding:2px 9px; border-radius:999px; color:#fff; vertical-align:middle}
-  @media (prefers-color-scheme:dark){.rolebadge{color:#0d1310}}
-  :root[data-theme="dark"] .rolebadge{color:#0d1310}
-  :root[data-theme="light"] .rolebadge{color:#fff}
-  .b-sale{background:var(--sale)} .b-lead{background:var(--lead)} .b-tech{background:var(--tech)} .b-admin{background:var(--admin)} .b-master{background:var(--master)} .b-all{background:var(--ink-soft)}
+  .rolebadge{display:inline-block; font-size:11.5px; font-weight:700; letter-spacing:.03em; padding:2px 9px; border-radius:999px; color:var(--on-accent); vertical-align:middle}
+  .b-sale{background:var(--sale)} .b-lead{background:var(--lead)} .b-tech{background:var(--tech)} .b-admin{background:var(--admin)} .b-master{background:var(--master)}
 
-  /* steps */
   ol.steps{list-style:none; padding:0; counter-reset:s; margin:14px 0}
   ol.steps>li{counter-increment:s; position:relative; padding:4px 0 14px 44px; margin:0}
-  ol.steps>li::before{content:counter(s); position:absolute; left:0; top:2px; width:28px; height:28px; border-radius:50%; background:var(--accent); color:#fff; font-weight:700; font-size:14px; display:flex; align-items:center; justify-content:center; font-variant-numeric:tabular-nums}
-  @media (prefers-color-scheme:dark){ol.steps>li::before{color:#08120e}}
-  :root[data-theme="dark"] ol.steps>li::before{color:#08120e}
-  :root[data-theme="light"] ol.steps>li::before{color:#fff}
+  ol.steps>li::before{content:counter(s); position:absolute; left:0; top:2px; width:28px; height:28px; border-radius:50%; background:var(--accent); color:var(--on-accent); font-weight:700; font-size:14px; display:flex; align-items:center; justify-content:center; font-variant-numeric:tabular-nums}
   ol.steps>li:not(:last-child)::after{content:""; position:absolute; left:13.5px; top:32px; bottom:2px; width:1px; background:var(--line)}
 
   .note{border-left:3px solid var(--warn); background:var(--warn-soft); padding:12px 16px; border-radius:0 8px 8px 0; margin:14px 0; font-size:14.5px}
   .note b{color:var(--warn)}
+  .note>:last-child{margin-bottom:0}
   .tip{border-left:3px solid var(--accent); background:var(--accent-soft); padding:12px 16px; border-radius:0 8px 8px 0; margin:14px 0; font-size:14.5px}
+  .tip>:last-child{margin-bottom:0}
 
   .divider{height:1px; background:var(--line); border:0; margin:0 0 40px}
   footer{color:var(--ink-faint); font-size:13px; text-align:center; padding-top:24px; border-top:1px solid var(--line)}
 
-  table.feat{width:100%; border-collapse:collapse; font-size:14px; margin:12px 0}
-  table.feat th,table.feat td{text-align:left; padding:9px 12px; border-bottom:1px solid var(--line)}
+  .tbl-wrap{overflow-x:auto; margin:12px 0}
+  table.feat{width:100%; border-collapse:collapse; font-size:14px; min-width:520px}
+  table.feat th,table.feat td{text-align:left; padding:9px 12px; border-bottom:1px solid var(--line); vertical-align:top}
   table.feat th{font-size:12px; text-transform:uppercase; letter-spacing:.05em; color:var(--ink-faint); font-weight:700}
   table.feat td:first-child{white-space:nowrap; font-weight:600}
-  .tbl-wrap{overflow-x:auto}
+  table.matrix{width:100%; border-collapse:collapse; font-size:13.5px; min-width:620px}
+  table.matrix th,table.matrix td{padding:8px 10px; border-bottom:1px solid var(--line); text-align:center}
+  table.matrix th:first-child,table.matrix td:first-child{text-align:left; font-weight:600; white-space:nowrap}
+  table.matrix thead th{font-size:11.5px; text-transform:uppercase; letter-spacing:.04em; color:var(--ink-faint)}
+  table.matrix .y{color:var(--accent); font-weight:700}
+  table.matrix .n{color:var(--ink-faint)}
+  table.matrix tbody tr:hover{background:var(--sunken)}
 </style>
 </head>
 <body>
 
-
 <header class="hero">
   <p class="eyebrow">Phòng Vận hành Kinh doanh · Karofi</p>
   <h1>Export Ops Hub</h1>
-  <p class="lede">Ứng dụng lập báo giá xuất khẩu (PI) trực tuyến: tra cứu khách hàng &amp; lịch sử đơn, dựng báo giá với lợi nhuận tính sẵn, phối hợp giữa Sale — Kỹ thuật — Quản lý theo một quy trình duyệt thống nhất, và xuất chứng từ đúng biểu mẫu công ty.</p>
+  <p class="lede">Nền tảng vận hành đơn hàng xuất khẩu: lập báo giá PI, duyệt kỹ thuật, xác nhận đơn vào hệ theo dõi sản xuất, quản lý danh mục sản phẩm, nhập thông tin lô hàng và xuất trọn bộ chứng từ xuất khẩu — tất cả trên một nguồn dữ liệu duy nhất.</p>
   <div class="hero-meta">
     <span class="chip">🔗 <a href="https://karofisale.github.io/export/pi-app.html">karofisale.github.io/export/pi-app.html</a></span>
     <span class="chip">🔐 Đăng nhập bằng <b>Tên + PIN</b></span>
-    <span class="chip">🚢 Liên kết <b>Shipment Tracking</b></span>
+    <span class="chip">🚢 <b>Shipment Tracking</b></span>
+    <span class="chip">📊 <b>Tiến độ PTSP</b> (live từ Jira)</span>
   </div>
 </header>
 
@@ -149,170 +168,449 @@
     <div class="toc-title">Nội dung</div>
     <ol>
       <li><a href="#gioithieu">App này giải quyết gì</a></li>
-      <li><a href="#vaitro">Vai trò &amp; quyền hạn</a></li>
+      <li><a href="#cautruc">Cấu trúc hệ thống</a></li>
+      <li><a href="#luong">Luồng nghiệp vụ &amp; trạng thái đơn</a></li>
+      <li><a href="#vaitro">Vai trò &amp; ma trận quyền</a></li>
       <li><a href="#batdau">Bắt đầu &amp; đổi mật khẩu</a></li>
       <li><a href="#sale">Dành cho Sale</a></li>
       <li><a href="#technician">Dành cho Kỹ thuật</a></li>
+      <li><a href="#danhmuc">Quản lý danh mục sản phẩm</a></li>
       <li><a href="#lead">Dành cho Trưởng nhóm</a></li>
       <li><a href="#admin">Dành cho Admin / Master</a></li>
+      <li><a href="#lohang">Thông tin lô hàng &amp; Custom Docs</a></li>
+      <li><a href="#ptsp">Tiến độ PTSP (Jira)</a></li>
       <li><a href="#shipment">Shipment Tracking</a></li>
-      <li><a href="#meo">Mẹo &amp; lưu ý</a></li>
+      <li><a href="#chungtu">Bảng chứng từ xuất ra được</a></li>
+      <li><a href="#congthuc">Công thức &amp; quy ước tính toán</a></li>
+      <li><a href="#meo">Mẹo, lưu ý &amp; xử lý sự cố</a></li>
     </ol>
   </nav>
 
   <section id="gioithieu">
     <h2><span class="num">01</span> App này giải quyết gì</h2>
-    <p class="section-sub">Trước đây mỗi sale lập PI trên một file Google Sheet riêng, dữ liệu sản phẩm/giá/khách bị sao chép nhiều bản và lệch nhau. Export Ops Hub đọc <b>trực tiếp</b> từ nguồn gốc và tập trung mọi thao tác vào một nơi.</p>
+    <p class="section-sub">Trước đây mỗi sale lập PI trên một file Google Sheet riêng; dữ liệu sản phẩm, giá vốn, khách hàng bị sao chép nhiều bản và lệch nhau; chứng từ xuất khẩu gõ tay lại từ đầu ở mỗi khâu. Export Ops Hub đọc <b>trực tiếp</b> từ nguồn gốc và gom toàn bộ vòng đời đơn hàng vào một nơi.</p>
     <div class="card">
       <ul>
-        <li><b>Một nguồn dữ liệu duy nhất:</b> sản phẩm, giá vốn, khách hàng lấy thẳng từ hệ thống trung tâm — không còn bản sao lệch phiên bản.</li>
-        <li><b>Báo giá thông minh:</b> gõ vài ký tự ra ngay sản phẩm kèm giá đề xuất và giá bán gần nhất cho chính khách đó; tự tính %lợi nhuận, CBM, số container.</li>
-        <li><b>Quy trình duyệt khép kín:</b> Sale tạo → Kỹ thuật kiểm tra → Admin xác nhận vào hệ theo dõi sản xuất/xuất hàng.</li>
-        <li><b>Xuất chứng từ đúng mẫu:</b> PI (Excel/PDF), Yêu cầu phát triển sản phẩm (R&amp;D), Yêu cầu cấp mã khách hàng.</li>
+        <li><b>Một nguồn dữ liệu duy nhất:</b> sản phẩm, giá thành, BOM, khách hàng, lịch sử đơn — lấy thẳng từ hệ thống trung tâm, không còn bản sao lệch phiên bản.</li>
+        <li><b>Báo giá thông minh:</b> gõ vài ký tự ra ngay sản phẩm kèm giá đề xuất và <b>giá bán gần nhất cho chính khách đó</b>; tự tính thành tiền, %lợi nhuận, CBM, số container.</li>
+        <li><b>Quy trình duyệt khép kín:</b> Sale lập → Kỹ thuật kiểm tra → Admin xác nhận vào hệ theo dõi sản xuất/xuất hàng. Không tồn tại hai bản của cùng một đơn.</li>
+        <li><b>Chứng từ tự sinh đúng biểu mẫu:</b> PI (Excel/PDF), phiếu yêu cầu R&amp;D, yêu cầu cấp mã khách hàng, ĐNXH, Marking carton, và trọn bộ 6 form Custom Docs sau khi ship.</li>
+        <li><b>Danh mục sản phẩm tự phục vụ:</b> kỹ thuật thêm/sửa sản phẩm, model, BOM và cấp mã cho hàng mới ngay trong app — đơn đang soạn cập nhật theo.</li>
+        <li><b>Nhìn được tiến độ:</b> dashboard doanh thu FOB theo tháng cho quản lý; dashboard tiến độ phát triển sản phẩm đọc live từ Jira.</li>
       </ul>
     </div>
-    <div class="tip">Mở app bằng trình duyệt trên máy tính (khuyến nghị Chrome/Edge). Không cần cài đặt gì; chỉ cần đường link ở đầu trang.</div>
+    <div class="tip">Mở app bằng trình duyệt trên máy tính (khuyến nghị Chrome/Edge). Không cần cài đặt gì, chỉ cần đường link ở đầu trang. App dùng được trên máy tính bảng nhưng bảng báo giá nhiều cột nên máy tính là thoải mái nhất.</div>
+  </section>
+
+  <hr class="divider">
+
+  <section id="cautruc">
+    <h2><span class="num">02</span> Cấu trúc hệ thống</h2>
+    <p class="section-sub">Ba tầng tách rời: trang web tĩnh (giao diện) — dịch vụ Apps Script (xử lý &amp; phân quyền) — Google Sheets trên Shared Drive công ty (dữ liệu). Người dùng chỉ tiếp xúc tầng trên cùng.</p>
+
+    <div class="arch">
+      <div class="layer l-fe">
+        <div class="lname">Tầng giao diện — trang web tĩnh (GitHub Pages)</div>
+        <div class="boxes">
+          <div class="box"><b>pi-app.html</b><span>App báo giá PI — màn hình chính</span></div>
+          <div class="box"><b>shipment-tracking.html</b><span>Theo dõi lịch trình vận chuyển</span></div>
+          <div class="box"><b>hdsd.html</b><span>Tài liệu này</span></div>
+        </div>
+      </div>
+      <div class="arrow">▼ &nbsp; gọi API (JSON, có token phiên) &nbsp; ▼</div>
+      <div class="layer l-be">
+        <div class="lname">Tầng xử lý — Google Apps Script (dự án “Export Hub”)</div>
+        <div class="boxes">
+          <div class="box"><b>Đăng nhập &amp; phân quyền</b><span>Tên + PIN, phiên 6 giờ, kiểm quyền mọi yêu cầu</span></div>
+          <div class="box"><b>Đọc dữ liệu</b><span>Sản phẩm, khách, BOM, lịch sử đơn (đệm 5 phút)</span></div>
+          <div class="box"><b>Ghi dữ liệu</b><span>Lưu PI, confirm đơn, cập nhật danh mục, lô hàng</span></div>
+          <div class="box"><b>Sinh chứng từ</b><span>PI, R&amp;D, mã KH, ĐNXH, Marking, Custom Docs</span></div>
+        </div>
+      </div>
+      <div class="arrow">▼</div>
+      <div class="layer l-data">
+        <div class="lname">Tầng dữ liệu — Google Sheets trên Shared Drive “Karofi Export”</div>
+        <div class="boxes">
+          <div class="box"><b>ExportSystem</b><span>Products · Clients · BOM · Model · Packing · Users · PITotal · PIDetails</span></div>
+          <div class="box"><b>Operations2025</b><span>Order · Details — đơn đã xác nhận, đang chạy</span></div>
+          <div class="box"><b>Operations</b><span>Lịch sử đơn 2020–2024 (chỉ đọc)</span></div>
+          <div class="box"><b>Thư mục biểu mẫu</b><span>PI · PYC phát triển SPM · YC mã KH · ĐNXH · Marking · Custom Docs</span></div>
+        </div>
+      </div>
+      <div class="arrow">▼ &nbsp; đọc thêm &nbsp; ▼</div>
+      <div class="layer l-ext">
+        <div class="lname">Hệ thống ngoài</div>
+        <div class="boxes">
+          <div class="box"><b>Jira (jira.karofi.com)</b><span>Tiến độ dự án phát triển sản phẩm — đọc live</span></div>
+          <div class="box"><b>Odoo</b><span>Điều hướng tạo mã khách hàng</span></div>
+        </div>
+      </div>
+    </div>
+
+    <h3>Các màn hình trong app</h3>
+    <div class="tbl-wrap"><table class="feat">
+      <thead><tr><th>Màn hình</th><th>Ai thấy</th><th>Dùng để</th></tr></thead>
+      <tbody>
+        <tr><td>Đơn hàng của tôi</td><td>Sale</td><td>Danh sách đơn của mình theo tháng, mở nhanh một đơn</td></tr>
+        <tr><td>Doanh thu theo tháng</td><td>Lead, Admin, Master</td><td>Tổng FOB tháng, số đơn, số khách + danh sách đơn trong tháng</td></tr>
+        <tr><td>Đơn hàng cần kiểm tra</td><td>Kỹ thuật</td><td>Hàng đợi mọi đơn của các sale đang chờ duyệt kỹ thuật</td></tr>
+        <tr><td>Chi tiết khách &amp; đơn</td><td>Tất cả</td><td>Xem dòng hàng, %LN, Item CBM, Marking, ghi chú; nơi chứa mọi nút hành động</td></tr>
+        <tr><td>Form báo giá</td><td>Sale, Kỹ thuật, Admin, Master</td><td>Soạn/sửa dòng hàng, chiết khấu, đóng gói, tổng CBM &amp; container</td></tr>
+        <tr><td>Quản lý danh mục SP</td><td>Kỹ thuật, Admin, Master</td><td>Sản phẩm · Nhập batch · Model · BOM máy · cấp mã cho hàng mới</td></tr>
+        <tr><td>Thông tin lô hàng</td><td>Admin, Master</td><td>Deposit/ETD/ETA/Invoice/Booking… + Ship Qty + xuất Custom Docs</td></tr>
+        <tr><td>Tiến độ PTSP</td><td>Kỹ thuật, Lead, Admin, Master</td><td>Dashboard dự án phát triển sản phẩm đọc live từ Jira</td></tr>
+        <tr><td>Shipment Tracking</td><td>Tất cả (sửa: Admin/Master)</td><td>Lịch trình vận chuyển, tra cứu vận đơn theo hãng tàu</td></tr>
+      </tbody>
+    </table></div>
+  </section>
+
+  <hr class="divider">
+
+  <section id="luong">
+    <h2><span class="num">03</span> Luồng nghiệp vụ &amp; trạng thái đơn</h2>
+    <p class="section-sub">Một đơn đi qua bốn khâu. Ở mỗi khâu đơn nằm ở một nơi khác nhau, nên bạn luôn biết đơn đang thuộc ai.</p>
+
+    <div class="flow">
+      <div class="fstep f-sale">
+        <div class="fw">Bước 1 · Sale</div>
+        <div class="ft">Lập báo giá</div>
+        <div class="fd">Tạo/sửa/nhân bản PI, xuất PI gửi khách. Đơn lưu ở <b>PITotal/PIDetails</b> của hub.</div>
+      </div>
+      <div class="fstep f-tech">
+        <div class="fw">Bước 2 · Kỹ thuật</div>
+        <div class="ft">Kiểm tra &amp; duyệt</div>
+        <div class="fd">Soát mã mới, đóng gói, kích thước carton, net weight → bấm <b>Xác nhận (reviewed)</b>. Xuất form R&amp;D nếu có hàng mới.</div>
+      </div>
+      <div class="fstep f-admin">
+        <div class="fw">Bước 3 · Admin</div>
+        <div class="ft">Confirm vào Operations2025</div>
+        <div class="fd">Nhập SO + Load Date → đơn <b>chuyển hẳn</b> sang Operations2025, bản nháp trên hub bị xoá. Xuất ĐNXH + Marking gửi nhà máy.</div>
+      </div>
+      <div class="fstep f-ship">
+        <div class="fw">Bước 4 · Admin</div>
+        <div class="ft">Lô hàng &amp; chứng từ</div>
+        <div class="fd">Nhập Deposit/ETD/ETA/Invoice/Booking/phí… + Ship Qty thực giao → xuất bộ <b>Custom Docs</b>.</div>
+      </div>
+    </div>
+
+    <h3>Trạng thái đơn</h3>
+    <div class="tbl-wrap"><table class="feat">
+      <thead><tr><th>Trạng thái</th><th>Nghĩa</th><th>Ai đặt được</th></tr></thead>
+      <tbody>
+        <tr><td><code>targeted</code></td><td>Báo giá mục tiêu, chưa chắc chắn. Mặc định khi tạo mới/nhân bản. Chỉ đơn ở trạng thái này mới xoá được.</td><td>Sale, Admin</td></tr>
+        <tr><td><code>drafted</code></td><td>Đã chốt sơ bộ với khách, chờ kiểm tra kỹ thuật.</td><td>Sale, Admin</td></tr>
+        <tr><td><code>reviewed</code></td><td>Kỹ thuật đã soát mã/đóng gói. Sẵn sàng để Admin confirm.</td><td>Kỹ thuật</td></tr>
+        <tr><td><code>booked</code> / <code>shipped</code> / <code>closed</code></td><td>Đơn đã vào Operations2025 và đang chạy theo tiến độ sản xuất/xuất hàng.</td><td>Admin, Master</td></tr>
+      </tbody>
+    </table></div>
+    <div class="note"><b>Nguyên tắc “một bản duy nhất”:</b> trước khi Confirm, đơn chỉ nằm trên hub (bản nháp của sale). Sau khi Confirm, đơn chỉ nằm trên Operations2025. Không bao giờ có hai bản song song để phải đối chiếu.</div>
   </section>
 
   <section id="vaitro">
-    <h2><span class="num">02</span> Vai trò &amp; quyền hạn</h2>
-    <p class="section-sub">Mỗi tài khoản có một vai trò quyết định những gì nhìn thấy và làm được. Vai trò do quản trị đặt trong hệ thống.</p>
+    <h2><span class="num">04</span> Vai trò &amp; ma trận quyền</h2>
+    <p class="section-sub">Mỗi tài khoản có một vai trò quyết định những gì nhìn thấy và làm được. Vai trò do quản trị đặt trong hệ thống, không tự đổi được.</p>
     <div class="roles">
-      <div class="role r-sale"><div class="rname">● Sale</div><p>Lập báo giá cho khách của mình. Xem đơn của mình theo tháng, tạo/sửa/nhân bản PI, xuất PI, tạo khách mới.</p></div>
-      <div class="role r-lead"><div class="rname">● Trưởng nhóm (Lead)</div><p>Xem toàn bộ khách &amp; đơn (trừ nhóm bảo mật riêng). Trang chủ là dashboard doanh thu FOB theo tháng.</p></div>
-      <div class="role r-tech"><div class="rname">● Kỹ thuật (Technician)</div><p>Kiểm tra mã sản phẩm mới, đóng gói, kích thước thùng. Xác nhận đơn (reviewed) và xuất phiếu yêu cầu R&amp;D.</p></div>
-      <div class="role r-admin"><div class="rname">● Admin</div><p>Toàn quyền sale + sửa mọi đơn, quản lý mã khách, và <b>Xác nhận đơn vào Operations2025</b>.</p></div>
+      <div class="role r-sale"><div class="rname">● Sale</div><p>Lập báo giá cho khách của mình. Xem đơn của mình theo tháng, tạo/sửa/nhân bản/xuất PI, tạo khách mới.</p></div>
+      <div class="role r-lead"><div class="rname">● Trưởng nhóm (Lead)</div><p>Xem toàn bộ khách &amp; đơn. Trang chủ là dashboard doanh thu FOB theo tháng. Xem được tiến độ PTSP.</p></div>
+      <div class="role r-tech"><div class="rname">● Kỹ thuật (Technician)</div><p>Duyệt kỹ thuật, xuất form R&amp;D, và <b>quản lý danh mục sản phẩm / model / BOM / cấp mã</b>.</p></div>
+      <div class="role r-admin"><div class="rname">● Admin</div><p>Toàn quyền vận hành: sửa mọi đơn, mã khách, <b>Confirm</b>, chứng từ nhà máy, thông tin lô hàng, Custom Docs, danh mục SP.</p></div>
       <div class="role r-master"><div class="rname">● Master</div><p>Như Admin và nhìn thấy <b>tất cả</b> khách/đơn không giới hạn.</p></div>
     </div>
+
+    <div class="tbl-wrap"><table class="matrix">
+      <thead><tr>
+        <th>Chức năng</th>
+        <th><span class="rolebadge b-sale">Sale</span></th>
+        <th><span class="rolebadge b-lead">Lead</span></th>
+        <th><span class="rolebadge b-tech">Tech</span></th>
+        <th><span class="rolebadge b-admin">Admin</span></th>
+        <th><span class="rolebadge b-master">Master</span></th>
+      </tr></thead>
+      <tbody>
+        <tr><td>Xem khách &amp; đơn</td><td>của mình</td><td class="y">toàn bộ</td><td class="y">toàn bộ</td><td class="y">toàn bộ</td><td class="y">tất cả</td></tr>
+        <tr><td>Tạo / nhân bản đơn</td><td class="y">✔</td><td class="n">—</td><td class="n">—</td><td class="y">✔</td><td class="y">✔</td></tr>
+        <tr><td>Sửa dòng hàng</td><td>đơn của mình</td><td class="n">—</td><td class="y">mọi đơn</td><td class="y">mọi đơn</td><td class="y">mọi đơn</td></tr>
+        <tr><td>Xuất PI (Excel/PDF)</td><td class="y">✔</td><td class="y">✔</td><td class="y">✔</td><td class="y">✔</td><td class="y">✔</td></tr>
+        <tr><td>Xoá PI (<code>targeted</code>)</td><td>của mình</td><td class="n">—</td><td class="n">—</td><td class="y">✔</td><td class="y">✔</td></tr>
+        <tr><td>Xác nhận (reviewed)</td><td class="n">—</td><td class="n">—</td><td class="y">✔</td><td class="n">—</td><td class="n">—</td></tr>
+        <tr><td>Xuất form R&amp;D</td><td class="n">—</td><td class="n">—</td><td class="y">✔</td><td class="y">✔</td><td class="y">✔</td></tr>
+        <tr><td>Confirm → Operations2025</td><td class="n">—</td><td class="n">—</td><td class="n">—</td><td class="y">✔</td><td class="y">✔</td></tr>
+        <tr><td>Mã khách / YC tạo mã KH</td><td class="n">—</td><td class="n">—</td><td class="n">—</td><td class="y">✔</td><td class="y">✔</td></tr>
+        <tr><td>Chứng từ NM (ĐNXH + Marking)</td><td class="n">—</td><td class="n">—</td><td class="n">—</td><td class="y">✔</td><td class="y">✔</td></tr>
+        <tr><td>Thông tin lô hàng + Custom Docs</td><td class="n">—</td><td class="n">—</td><td class="n">—</td><td class="y">✔</td><td class="y">✔</td></tr>
+        <tr><td>Quản lý danh mục SP</td><td class="n">—</td><td class="n">—</td><td class="y">✔</td><td class="y">✔</td><td class="y">✔</td></tr>
+        <tr><td>Dashboard tiến độ PTSP</td><td class="n">—</td><td class="y">✔</td><td class="y">✔</td><td class="y">✔</td><td class="y">✔</td></tr>
+        <tr><td>Sửa Shipment Tracking</td><td class="n">chỉ xem</td><td class="n">chỉ xem</td><td class="n">chỉ xem</td><td class="y">✔</td><td class="y">✔</td></tr>
+      </tbody>
+    </table></div>
   </section>
 
   <hr class="divider">
 
   <section id="batdau">
-    <h2><span class="num">03</span> Bắt đầu &amp; đổi mật khẩu</h2>
+    <h2><span class="num">05</span> Bắt đầu &amp; đổi mật khẩu</h2>
     <ol class="steps">
       <li>Mở link app, chọn <b>tên của bạn</b> trong danh sách và nhập <b>PIN</b>. Đăng nhập một lần, các lần sau tự vào (phiên giữ 6 giờ).</li>
       <li>Đổi PIN: bấm <span class="btn-ex">🔑 Đổi mật khẩu</span> ở thanh trên → nhập PIN hiện tại, PIN mới (tối thiểu 4 ký tự), nhập lại → Lưu.</li>
       <li>Dùng máy chung? Bấm <b>Đăng xuất</b> khi xong để xoá phiên khỏi máy đó.</li>
     </ol>
-    <div class="note"><b>Quên PIN?</b> Liên hệ quản trị để đặt lại. <b>Làm mới dữ liệu:</b> nếu vừa cập nhật giá/sản phẩm ở hệ thống trung tâm mà app chưa thấy, bấm <span class="btn-ex">⟳ Làm mới</span> (app tự làm mới mỗi 5 phút).</div>
+    <h3>Thanh công cụ trên cùng</h3>
+    <div class="tbl-wrap"><table class="feat">
+      <tbody>
+        <tr><td><span class="btn-ex">🧩 Danh mục SP</span></td><td>Mở màn hình quản lý sản phẩm / model / BOM / cấp mã <span class="rolebadge b-tech">Tech</span> <span class="rolebadge b-admin">Admin</span> <span class="rolebadge b-master">Master</span></td></tr>
+        <tr><td><span class="btn-ex">📊 Tiến độ PTSP</span></td><td>Dashboard dự án phát triển sản phẩm đọc live từ Jira <span class="rolebadge b-lead">Lead</span> <span class="rolebadge b-tech">Tech</span> <span class="rolebadge b-admin">Admin</span> <span class="rolebadge b-master">Master</span></td></tr>
+        <tr><td><span class="btn-ex">🚢 Shipment</span></td><td>Mở trang theo dõi lịch trình vận chuyển (tab mới)</td></tr>
+        <tr><td><span class="btn-ex">⟳ Làm mới</span></td><td>Xoá bộ đệm, nạp lại dữ liệu mới nhất từ Google Sheets</td></tr>
+        <tr><td><span class="btn-ex">📘 Hướng dẫn</span></td><td>Mở tài liệu này</td></tr>
+      </tbody>
+    </table></div>
+    <div class="note"><b>Quên PIN?</b> Liên hệ quản trị để đặt lại. <b>Vừa sửa giá/sản phẩm trên Sheet mà app chưa thấy?</b> Bấm ⟳ Làm mới (app tự làm mới mỗi 5 phút).</div>
   </section>
 
   <section id="sale">
-    <h2><span class="num">04</span> Dành cho Sale <span class="rolebadge b-sale">Sale</span></h2>
+    <h2><span class="num">06</span> Dành cho Sale <span class="rolebadge b-sale">Sale</span></h2>
     <p class="section-sub">Đăng nhập xong bạn thấy ngay <b>Đơn hàng của tôi theo tháng</b>. Bấm ◀ ▶ để đổi tháng; bấm một dòng để mở chi tiết. Chọn khách ở cột trái để lập báo giá mới.</p>
 
     <h3>Xem &amp; chọn đơn của một khách</h3>
-    <p>Chọn khách ở cột trái (có ô tìm kiếm và sắp xếp theo Tên/Quốc gia). Màn hình hiện đơn mới nhất; đổi đơn khác ở ô <b>Đơn hàng</b>. Dòng tổng hiện PI, SO, Load Date, FOB, %LN tổng, trạng thái.</p>
+    <p>Chọn khách ở cột trái (có ô tìm kiếm, sắp xếp theo Tên/Quốc gia, danh sách cuộn được). Màn hình hiện đơn mới nhất; đổi đơn khác ở ô <b>Đơn hàng</b>. Dòng tổng hiện PI, SO, Load Date, FOB, %LN tổng, trạng thái.</p>
+    <p>Bảng chi tiết đơn gồm: <b>Code · Sản phẩm · Qty · Đơn giá · Thành tiền · %LN · Item CBM · Marking · Ghi chú</b>. Hai nút nhỏ phía trên bảng:</p>
+    <ul>
+      <li><span class="btn-ex">🌐 Tên: VI</span> — đổi cả cột tên sản phẩm sang <b>tiếng Anh</b> (và ngược lại), tiện khi trao đổi với khách.</li>
+      <li><span class="btn-ex">📋 Copy bảng</span> — copy bảng ở dạng cột, dán trực tiếp vào Excel là ra đúng bảng.</li>
+    </ul>
 
     <h3>Ba cách tạo báo giá</h3>
     <div class="tbl-wrap"><table class="feat">
-      <tr><th>Nút</th><th>Dùng khi</th></tr>
-      <tr><td><span class="btn-ex">✎ Edit Details</span></td><td>Sửa đơn đang có (chỉ đơn ở trạng thái cho sửa).</td></tr>
-      <tr><td><span class="btn-ex">⧉ Clone</span></td><td>Lấy cấu hình đơn hiện tại làm đơn mới — <b>có thể chọn khách khác</b> cho đơn nhân bản.</td></tr>
-      <tr><td><span class="btn-ex">+ Create New</span></td><td>Tạo đơn mới: app nạp sẵn tất cả mã khách từng đặt để bạn xoá/sửa/thêm.</td></tr>
+      <thead><tr><th>Nút</th><th>Dùng khi</th></tr></thead>
+      <tbody>
+        <tr><td><span class="btn-ex">✎ Edit Details</span></td><td>Sửa đơn đang có (chỉ đơn ở trạng thái cho sửa).</td></tr>
+        <tr><td><span class="btn-ex">⧉ Clone</span></td><td>Lấy cấu hình đơn hiện tại làm đơn mới — <b>có thể chọn khách khác</b> cho đơn nhân bản.</td></tr>
+        <tr><td><span class="btn-ex">+ Create New</span></td><td>Tạo đơn mới: app nạp sẵn tất cả mã khách từng đặt (<b>sắp xếp theo mã</b>) để bạn xoá/sửa/thêm.</td></tr>
+      </tbody>
     </table></div>
 
     <h3>Form báo giá</h3>
     <ul>
       <li><b>Thêm/đổi sản phẩm:</b> bấm vào ô mã → gõ vài ký tự vào ô tìm nhanh 🔍, dropdown hiện mã + tên + <b>giá đề xuất</b> và <b>giá bán gần nhất cho khách này</b>. Hoặc chọn theo nhóm Category → Model → Mã.</li>
-      <li><b>Cột tự tính:</b> Thành tiền, <b>%LN</b> (đỏ nếu âm, vàng nếu dưới mức tối thiểu), Qty/CT, CT CBM, Item CBM.</li>
-      <li><b>Phần tổng phía trên:</b> Tổng giá trị, Discount (nhập % hoặc số tiền — tự suy ra ô kia), Other charges, Grand total, %LN tổng, tổng CBM và <b>ước tính container</b> (40′=67 CBM, 20′=27–28 CBM, dưới 20 CBM → gợi ý LCL).</li>
-      <li><b>Sửa L/W/H:</b> sửa trực tiếp trên dòng, CBM cập nhật theo.</li>
+      <li><b>Cột sửa được:</b> Qty, Đơn giá, <b>Qty/CT</b>, L, W, H, <b>NW</b> (net weight), <b>Marking</b> (Y/N), <b>Ghi chú</b> từng dòng. Ô <b>Ghi chú đơn</b> ở đầu form là ghi chú chung cho cả đơn.</li>
+      <li><b>Cột tự tính:</b> Thành tiền, <b>%LN</b> (đỏ nếu âm, vàng nếu dưới mức tối thiểu), <b>Item CBM</b>.</li>
+      <li><b>Phần tổng phía trên:</b> Tổng giá trị, Discount (nhập % hoặc số tiền — tự suy ra ô kia), Other charges, Grand total, %LN tổng, <b>tổng CBM</b> và <b>ước tính container</b> (40′ ≈ 67 CBM, 20′ ≈ 27–28 CBM, dưới 20 CBM → gợi ý LCL).</li>
+      <li><span class="btn-ex">📋 Copy bảng</span> ở cuối form: copy toàn bộ dòng hàng để dán vào Excel.</li>
     </ul>
 
-    <h3>Sản phẩm mới &amp; máy tùy chỉnh</h3>
+    <h4>Máy có bình áp rời</h4>
+    <p>Với máy được cấu hình bình áp tách rời, dưới ô sản phẩm hiện ô tích <b>🛢 Tách bình áp rời</b>. Tích vào, app tự thêm một dòng mã bình áp tương ứng với <b>giá = 0, giá đề xuất = 0, số lượng = số máy</b> (không tìm thấy mã thì dùng <code>Tank01</code>). Đổi số lượng máy thì dòng bình áp đổi theo; bỏ tích thì dòng bị xoá.</p>
+
+    <h4>Sản phẩm mới &amp; máy tùy chỉnh</h4>
     <p>Trong ô chọn mã, chọn <b>🆕 New Product</b>:</p>
     <ul>
       <li><b>Spare Part</b> — linh kiện lẻ: app tự đánh mã tạm <code>Spare&lt;n&gt;</code>, bạn điền tên/brand/giá.</li>
       <li><b>Machine</b> — máy mới: mã tạm <code>NewRO&lt;n&gt;</code> rồi mở <b>BOM Customize</b> để chọn Model/Filter Housing/Pump/Tank/Membrane/Adaptor/Post Filter/Carton… → bấm <b>Check giá</b> ra giá đề xuất → <b>Submit</b>.</li>
       <li><b>Xem BOM của máy có sẵn:</b> double-click vào mã máy (mã bắt đầu bằng số 1) để mở <b>View BOM</b> — xem cấu hình, hoặc Edit BOM để đổi linh kiện và tính lại giá.</li>
     </ul>
-    <div class="note"><b>Mã tạm</b> (Spare/NewRO) sẽ hiện ở ô "Sản phẩm chờ cấp mã" để kỹ thuật/quản trị cấp mã chính thức. Đơn còn mã tạm <b>chưa thể</b> được Admin xác nhận vào hệ thống.</div>
+    <div class="note"><b>Mã tạm</b> (Spare/NewRO) hiện ở ô “Sản phẩm chờ cấp mã” bên cột trái, và ở đầu màn hình <b>Danh mục SP</b> của kỹ thuật để cấp mã chính thức. Đơn còn mã tạm <b>chưa thể</b> được Admin Confirm.</div>
 
-    <h3>Trạng thái, lưu &amp; xuất</h3>
+    <h3>Lưu &amp; xuất</h3>
     <ul>
       <li>Đơn tạo mới/nhân bản mặc định trạng thái <b>targeted</b>; chọn <b>Expected Loading</b> (ngày dự kiến đóng hàng). Có thể chuyển qua lại <b>targeted ↔ drafted</b> và sửa Load Date bất cứ lúc nào.</li>
       <li><span class="btn-ex">💾 Lưu đơn</span> — lưu báo giá của bạn. App <b>tự lưu nháp</b> khi đang soạn; mở lại sẽ hỏi khôi phục nếu có bản chưa lưu.</li>
-      <li><span class="btn-ex">⬇ Export PI</span> — xuất chứng từ PI ra <b>Excel</b> hoặc <b>PDF</b> đúng biểu mẫu công ty (khổ ngang); tên sản phẩm dùng tên tiếng Anh. Điền nhanh Trade terms/POL/POD/Payment trước khi xuất.</li>
-      <li><span class="btn-ex" style="background:var(--danger)">🗑 Xóa PI</span> — xoá hẳn đơn <b>targeted</b> của bạn (có hỏi xác nhận).</li>
+      <li><span class="btn-ex">⬇ Export PI</span> — xuất PI ra <b>Excel</b> hoặc <b>PDF</b> đúng biểu mẫu công ty (khổ ngang); tên sản phẩm dùng tên tiếng Anh. Điền nhanh Trade terms / POL / POD / Payment trước khi xuất.</li>
+      <li><span class="btn-ex dg">🗑 Xóa PI</span> — xoá hẳn đơn <b>targeted</b> của bạn (có hỏi xác nhận).</li>
     </ul>
 
     <h3>Khách hàng mới</h3>
-    <p>Bấm <span class="btn-ex">+ Khách mới</span> ở cột trái, điền thông tin → lưu. Khách mới được ghi vào danh mục khách trung tâm và xuất hiện ngay trong danh sách của bạn.</p>
+    <p>Bấm <span class="btn-ex">+ Khách mới</span> ở cột trái, điền thông tin (tên, tên đầy đủ, quốc gia, địa chỉ, tel, cảng, incoterm, margin) → lưu. Khách mới ghi vào danh mục khách trung tâm và xuất hiện ngay trong danh sách của bạn.</p>
   </section>
 
   <hr class="divider">
 
   <section id="technician">
-    <h2><span class="num">05</span> Dành cho Kỹ thuật <span class="rolebadge b-tech">Technician</span></h2>
-    <p class="section-sub">Đăng nhập xong bạn thấy ngay <b>Hàng đợi cần kiểm tra</b> — mọi đơn của các sale đang chờ xử lý, kèm ô lọc theo khách/PI/SO. Bấm một dòng để mở đơn.</p>
+    <h2><span class="num">07</span> Dành cho Kỹ thuật <span class="rolebadge b-tech">Technician</span></h2>
+    <p class="section-sub">Đăng nhập xong bạn thấy ngay <b>Đơn hàng cần kiểm tra</b> — mọi đơn của các sale đang chờ xử lý, kèm ô lọc theo khách/PI/SO. Bấm một dòng để mở đơn.</p>
     <ol class="steps">
-      <li><b>Kiểm tra &amp; sửa:</b> mở đơn → <span class="btn-ex">✎ Edit Details</span> → đối chiếu và sửa <b>mã sản phẩm mới, quy cách đóng gói, kích thước carton</b> (đổi mã tạm sang mã thật, sửa L/W/H…). Đơn vẫn giữ tên sale gốc.</li>
+      <li><b>Kiểm tra &amp; sửa:</b> mở đơn → <span class="btn-ex">✎ Edit Details</span> → đối chiếu và sửa <b>mã sản phẩm mới, quy cách đóng gói, Qty/CT, kích thước carton L/W/H, net weight</b>. Đơn vẫn giữ tên sale gốc.</li>
       <li><b>Xác nhận:</b> bấm <span class="btn-ex">✔ Xác nhận (reviewed)</span> — chuyển đơn sang trạng thái <b>reviewed</b> để Admin duyệt tiếp. Bạn vẫn mở lại sửa được sau đó.</li>
       <li><b>Yêu cầu R&amp;D:</b> với đơn có mã mới hoặc máy đã đổi BOM, bấm <span class="btn-ex">⬇ Form RD</span> để xuất <b>Yêu cầu phát triển sản phẩm mới</b> (mỗi mã một trang, đã điền sẵn cấu hình/lõi/màng/giá) gửi bộ phận R&amp;D.</li>
+      <li><b>Cấp mã &amp; cập nhật danh mục:</b> bấm <span class="btn-ex">🧩 Danh mục SP</span> — xem mục 08 bên dưới.</li>
     </ol>
-    <div class="tip">Kỹ thuật chỉ kiểm tra/duyệt, <b>không</b> tạo hay nhân bản đơn mới.</div>
+    <div class="tip">Kỹ thuật kiểm tra/duyệt và quản lý danh mục, <b>không</b> tạo hay nhân bản đơn mới.</div>
+  </section>
+
+  <section id="danhmuc">
+    <h2><span class="num">08</span> Quản lý danh mục sản phẩm <span class="rolebadge b-tech">Tech</span> <span class="rolebadge b-admin">Admin</span> <span class="rolebadge b-master">Master</span></h2>
+    <p class="section-sub">Bấm <span class="btn-ex">🧩 Danh mục SP</span> trên thanh công cụ. Mọi thay đổi ghi trực tiếp vào hub ExportSystem và <b>có hiệu lực ngay</b> với đơn đang soạn. Bấm <span class="btn-ex">⟵ Trang đầu</span> để quay lại.</p>
+
+    <h3>⏳ Mã tạm chờ cấp mã chính thức</h3>
+    <p>Bảng ở đầu màn hình liệt kê mọi mã tạm (<code>Spare*</code>, <code>NewRO*</code>) đang nằm trên các đơn: mã tạm, mô tả/cấu hình, đơn PI, số lượng. Bấm một dòng → app mở tab <b>Sản phẩm</b> và <b>điền sẵn</b> cấu hình đã biết; bạn gõ mã chính thức và lưu. Sau khi lưu, <b>mã trên đơn hàng tự đổi theo</b> — sale không phải sửa lại.</p>
+
+    <h3>Bốn tab</h3>
+    <h4>📦 Sản phẩm — thêm/sửa từng mã</h4>
+    <ul>
+      <li>Ô <b>🔍 Tìm sản phẩm có sẵn để sửa</b> (từ 2 ký tự, theo mã hoặc tên) → chọn để nạp toàn bộ dữ liệu vào form.</li>
+      <li>Trường: Code*, Factory_name* (tên tiếng Việt), International_name (tên tiếng Anh dùng trên PI), Category, Option, Model, Brand, Pack_Type, Qty/ct, L, W, H, NetWeight, Type, Technology.</li>
+      <li><b>Chọn Category</b> → ô <b>Model</b> chỉ còn model thuộc category đó.</li>
+      <li><b>Chọn Pack_Type</b> → app tự điền <b>Qty/ct, L, W, H</b> từ bảng Packing (để trống nếu chưa có dữ liệu), vẫn sửa lại được.</li>
+      <li>Mã đã tồn tại → cập nhật; mã mới → thêm dòng mới, giữ nguyên công thức của bảng.</li>
+    </ul>
+    <div class="note"><b>Không có ô Price:</b> giá trên bảng Products là công thức tính từ BOM/Model_Cost, app không ghi đè. Muốn đổi giá thì sửa BOM hoặc Model_Cost.</div>
+
+    <h4>📋 Nhập batch — dán nhiều dòng từ Excel</h4>
+    <p>Dán trực tiếp từ Excel (mỗi dòng một sản phẩm, cột cách nhau bằng Tab). Thứ tự cột: <code>Code · Factory_name · International_name · Category · Option · Model · Brand · Pack_Type · Qty/ct · Length · Width · Height · (Price — bỏ qua) · Type · Technology · NetWeight</code>. Bấm <span class="btn-ex">👁 Kiểm tra trước</span> để soát rồi <span class="btn-ex">💾 Lưu batch</span>. Tối đa <b>300 dòng/lần</b>; mã đã có sẽ được cập nhật.</p>
+
+    <h4>🏷 Model — thêm/sửa model</h4>
+    <p>Category, Model*, Model descriptions, Model_Cost (VND). Model mới xuất hiện ngay trong bộ chọn Category → Model của form sản phẩm và của BOM Customize.</p>
+
+    <h4>🔧 BOM máy — cấu hình linh kiện</h4>
+    <p>Nhập mã máy → <span class="btn-ex">↧ Nạp BOM hiện có</span> → sửa/thêm dòng linh kiện (Component, Component_name, Qty, Value VND, Category, Option) → <span class="btn-ex">💾 Lưu BOM (thay toàn bộ)</span>.</p>
+    <div class="note"><b>Lưu BOM thay toàn bộ khối BOM của máy đó</b>, không phải thêm dồn. Hãy nạp BOM hiện có trước khi sửa để không mất linh kiện.</div>
   </section>
 
   <section id="lead">
-    <h2><span class="num">06</span> Dành cho Trưởng nhóm <span class="rolebadge b-lead">Lead</span></h2>
-    <p class="section-sub">Trang chủ là <b>Doanh thu FOB theo tháng</b> — tính trên các đơn đã vào Operations2025 theo tháng Load Date.</p>
+    <h2><span class="num">09</span> Dành cho Trưởng nhóm <span class="rolebadge b-lead">Lead</span></h2>
+    <p class="section-sub">Trang chủ là <b>Doanh thu theo tháng</b> — tính trên các đơn đã vào Operations2025 theo tháng Load Date.</p>
     <ul>
-      <li>Xem tổng FOB tháng, số đơn, số khách; đổi tháng bằng ◀ ▶.</li>
-      <li><b>Gom nhóm</b> theo <b>Sale / Khách hàng / Thị trường</b> để thấy tỷ trọng đóng góp.</li>
-      <li><b>Danh sách đơn trong tháng</b> (PI, SO, ngày load, FOB, trạng thái) — bấm một dòng để xem chi tiết ngay, không cần chọn khách trước.</li>
+      <li>Ba chỉ số tháng: <b>Tổng FOB</b>, <b>Số đơn</b>, <b>Số khách</b>. Đổi tháng bằng ◀ ▶.</li>
+      <li><b>Danh sách đơn trong tháng</b>: Khách · <b>Thị trường</b> · SO · Ngày load · FOB · Status — bấm một dòng để xem chi tiết ngay, không cần chọn khách trước. Trong chi tiết có nút <span class="btn-ex">⟵ Doanh thu theo tháng</span> để quay lại.</li>
       <li>Vẫn có cột khách bên trái để mở chi tiết một khách như thường.</li>
+      <li>Xem được <span class="btn-ex">📊 Tiến độ PTSP</span> và <span class="btn-ex">🚢 Shipment</span> (chỉ xem).</li>
     </ul>
-  </section>
-
-  <section id="admin">
-    <h2><span class="num">07</span> Dành cho Admin / Master <span class="rolebadge b-admin">Admin</span> <span class="rolebadge b-master">Master</span></h2>
-    <p class="section-sub">Admin có toàn quyền vận hành đơn. Master thêm quyền nhìn thấy tất cả khách/đơn không giới hạn.</p>
-    <h3>Sửa đơn &amp; mã khách hàng</h3>
-    <ul>
-      <li>Sửa được đơn của mọi sale (đơn vẫn giữ tên sale gốc).</li>
-      <li>Khi sửa đơn, ô <b>Mã KH</b> cho phép cập nhật/bổ sung mã khách — mã này ghi thẳng vào danh mục khách trung tâm.</li>
-      <li>Khách chưa có mã: bấm <span class="btn-ex">⬇ YC tạo mã KH</span> để xuất phiếu <b>Yêu cầu cấp mã khách hàng</b> đúng biểu mẫu (tự điền thông tin khách, mã quốc gia, công ty/phòng ban theo nhóm).</li>
-    </ul>
-    <h3>Xác nhận đơn vào Operations2025</h3>
-    <ol class="steps">
-      <li>Mở đơn của sale (đã reviewed hoặc targeted/drafted) → <span class="btn-ex">✔ Confirm → Operations2025</span>.</li>
-      <li>Nhập <b>Số SO</b> và <b>Load Date</b> (bắt buộc), chọn trạng thái và tháng.</li>
-      <li>App ghi đơn vào Operations2025 (giữ nguyên các công thức của bảng), rồi <b>xoá bản nháp khỏi file sale</b> — đơn "chuyển nhà" hẳn, không tồn tại hai bản.</li>
-    </ol>
-    <div class="note"><b>Bị chặn khi:</b> đơn còn mã tạm (Spare/NewRO) chưa cấp mã, hoặc số SO đã tồn tại. Xử lý xong mới confirm lại được.</div>
   </section>
 
   <hr class="divider">
 
+  <section id="admin">
+    <h2><span class="num">10</span> Dành cho Admin / Master <span class="rolebadge b-admin">Admin</span> <span class="rolebadge b-master">Master</span></h2>
+    <p class="section-sub">Admin có toàn quyền vận hành đơn. Master thêm quyền nhìn thấy tất cả khách/đơn không giới hạn.</p>
+
+    <h3>Sửa đơn &amp; mã khách hàng</h3>
+    <ul>
+      <li>Sửa được đơn của mọi sale (đơn vẫn giữ tên sale gốc).</li>
+      <li>Khi sửa đơn, ô <b>Mã KH</b> cho phép cập nhật/bổ sung mã khách — ghi thẳng vào danh mục khách trung tâm.</li>
+      <li>Khách chưa có mã: bấm <span class="btn-ex">⬇ YC tạo mã KH</span> → app xuất phiếu <b>Yêu cầu cấp mã khách hàng</b> đúng biểu mẫu <b>và</b> mở hộp thoại <b>Tạo mã khách trên Odoo</b>: bảng thông tin khách để <span class="btn-ex">📋 Copy</span> dán sang Odoo, kèm nút <span class="btn-ex">↗ Mở Odoo</span> tới đúng form tạo khách.</li>
+    </ul>
+
+    <h3>Confirm đơn vào Operations2025</h3>
+    <ol class="steps">
+      <li>Mở đơn của sale (đã reviewed hoặc targeted/drafted) → <span class="btn-ex">✔ Confirm → Operations2025</span>.</li>
+      <li>Nhập <b>Số SO</b> và <b>Load Date</b> (bắt buộc), chọn trạng thái và tháng.</li>
+      <li>App ghi đơn vào Operations2025 (giữ nguyên mọi công thức của bảng), rồi <b>xoá bản nháp khỏi hub</b> — đơn “chuyển nhà” hẳn.</li>
+      <li>App hỏi luôn: <b>“Xuất chứng từ gửi nhà máy?”</b> → đồng ý để tải <b>ĐNXH</b> + <b>form Marking</b> cho các mã có Marking = Y. (Đơn không có mã nào Y thì chỉ tải ĐNXH.)</li>
+    </ol>
+    <div class="note"><b>Bị chặn khi:</b> đơn còn mã tạm (Spare/NewRO) chưa cấp mã, hoặc số SO đã tồn tại. Xử lý xong mới confirm lại được.</div>
+    <p>Cần xuất lại chứng từ nhà máy sau này: mở đơn (bản đã vào Operations2025) → <span class="btn-ex">⬇ Chứng từ NM</span>.</p>
+  </section>
+
+  <section id="lohang">
+    <h2><span class="num">11</span> Thông tin lô hàng &amp; Custom Docs <span class="rolebadge b-admin">Admin</span> <span class="rolebadge b-master">Master</span></h2>
+    <p class="section-sub">Mở đơn đã Confirm → <span class="btn-ex">🚢 Thông tin lô hàng</span>. Đây là nơi cập nhật tiến độ thanh toán/vận chuyển và xuất trọn bộ chứng từ xuất khẩu. Dữ liệu ghi vào tab <b>Order</b> và <b>Details</b> của Operations2025.</p>
+
+    <h3>Nhập thông tin lô hàng</h3>
+    <div class="tbl-wrap"><table class="feat">
+      <thead><tr><th>Nhóm</th><th>Trường</th></tr></thead>
+      <tbody>
+        <tr><td>Thanh toán</td><td>Deposit ($) · Ngày cọc · Payment ($) · Ngày TT</td></tr>
+        <tr><td>Lịch trình</td><td>RealLoad · ETD · ETA · Status</td></tr>
+        <tr><td>Chứng từ</td><td>INVOICE# · INV Date · Số TK · Ngày TK</td></tr>
+        <tr><td>Vận chuyển</td><td>Booking · Line · Loading point · Shipment No.</td></tr>
+        <tr><td>Chi phí</td><td>Trucking (VND) · LCC (VND) · Cước ($)</td></tr>
+      </tbody>
+    </table></div>
+    <p>Bấm <span class="btn-ex">💾 Lưu thông tin lô hàng</span> để ghi, <span class="btn-ex">⟳ Nạp lại</span> để lấy lại số hiện có trên sheet.</p>
+    <div class="note"><b>Ô bị khoá:</b> một số cột trên Operations2025 là <b>công thức</b> (Balance, CBM, Machine…). App không ghi đè chúng và sẽ liệt kê ngay dưới form những trường đang bị khoá. Muốn đổi thì sửa trực tiếp trên sheet.</div>
+
+    <h3>Số lượng giao thực tế (Ship Qty)</h3>
+    <p>Bảng dưới liệt kê từng dòng hàng: Code · Sản phẩm · Order Qty · <b>Ship Qty</b> · Marking · Ghi chú. Sửa Ship Qty cho từng dòng, hoặc bấm <span class="btn-ex">= Order Qty</span> để điền toàn bộ bằng Order Qty. Ship Qty là số dùng cho Packing List, VGM và Invoice.</p>
+
+    <h3>Xuất bộ Custom Docs</h3>
+    <p>Chọn <b>Loại container</b> (20GP / 40GP / 40HC), <b>Tare cont (kg)</b>, <b>Container No. / Seal</b>, <b>Order ref (PO)</b> → bấm <span class="btn-ex">⬇ Xuất Custom Docs</span>. App trả về <b>một file Excel gồm 6 form</b>:</p>
+    <ul>
+      <li><b>PO</b> — đơn đặt hàng nhà máy</li>
+      <li><b>Invoice tạo SO</b> — hoá đơn nội bộ để tạo SO</li>
+      <li><b>PKG — Packing List</b></li>
+      <li><b>VGM</b> — phiếu khai khối lượng toàn bộ</li>
+      <li><b>SI — Shipping Instruction</b></li>
+      <li><b>INV FOR CUSTOMER</b> — hoá đơn gửi khách</li>
+    </ul>
+    <div class="tip"><b>App tự tính:</b> Gross = Net × 1.05 · VGM = Gross + tare container · HS Code tự sinh (máy <code>84212111</code>, linh kiện <code>84219994</code>) · số tiền bằng chữ (In words) trên Invoice. Tare mặc định: 20GP 2210 kg · 40GP 3750 kg · 40HC 3900 kg — sửa được nếu hãng tàu cho số khác.</div>
+  </section>
+
+  <hr class="divider">
+
+  <section id="ptsp">
+    <h2><span class="num">12</span> Tiến độ PTSP (đọc live từ Jira) <span class="rolebadge b-lead">Lead</span> <span class="rolebadge b-tech">Tech</span> <span class="rolebadge b-admin">Admin</span> <span class="rolebadge b-master">Master</span></h2>
+    <p class="section-sub">Bấm <span class="btn-ex">📊 Tiến độ PTSP</span>. Dashboard đọc <b>trực tiếp</b> từ Jira nội bộ (jira.karofi.com) — không phải bản chụp tay, nên số liệu luôn khớp với Jira.</p>
+    <ul>
+      <li><b>Sáu chỉ số tổng:</b> Hoàn thành chung (%), Số dự án, Tổng đầu việc, Đã xong, Đang làm, Chưa làm.</li>
+      <li><b>Danh mục dự án</b> (dự án % thấp lên trước): Mã · Dự án · <b>Ngày bắt đầu</b> · <b>Ngày kết thúc</b> · Xong · Đang làm · Chưa làm · % Hoàn thành · thanh tiến độ.</li>
+      <li><b>Bấm vào một dòng dự án</b> → xổ ra ngay danh sách công việc của dự án đó, sắp xếp <b>Chưa làm → Đang làm → Xong</b>, kèm ngày bắt đầu / ngày kết thúc. Bấm lại để đóng.</li>
+      <li><b>🔍 Tìm dự án</b> theo tên hoặc mã SPM; <span class="btn-ex">⟳ Làm mới</span> để lấy lại dữ liệu mới nhất; <span class="btn-ex">⟵ Trang đầu</span> để quay lại.</li>
+    </ul>
+    <div class="note"><b>Đây là dữ liệu roadmap nội bộ.</b> Không chụp lại và chia sẻ ra ngoài công ty.</div>
+  </section>
+
   <section id="shipment">
-    <h2><span class="num">08</span> Shipment Tracking</h2>
+    <h2><span class="num">13</span> Shipment Tracking</h2>
     <p class="section-sub">Trang theo dõi lịch trình vận chuyển, liên kết hai chiều với app báo giá.</p>
     <ul>
       <li>Từ app báo giá bấm <span class="btn-ex">🚢 Shipment</span> để mở. Đã đăng nhập app rồi thì <b>xem được ngay, không cần mật khẩu</b>.</li>
-      <li><b>Sale/Lead: chỉ xem</b> (Load date, ETD/ETA, trạng thái, tra cứu vận đơn theo hãng tàu). <b>Chỉ Admin/Master mới sửa</b> được lịch trình.</li>
+      <li><b>Sale/Lead/Kỹ thuật: chỉ xem</b> (Load date, ETD/ETA, trạng thái, tra cứu vận đơn theo hãng tàu). <b>Chỉ Admin/Master mới sửa</b> được lịch trình.</li>
       <li><b>Double-click số SO</b> trên trang Shipment để mở thẳng đơn đó bên app báo giá (theo phân quyền của bạn).</li>
       <li>Phía trên bảng có <b>tổng FOB theo tháng</b>; đổi tháng bằng ô chọn tháng.</li>
     </ul>
   </section>
 
+  <section id="chungtu">
+    <h2><span class="num">14</span> Bảng chứng từ xuất ra được</h2>
+    <p class="section-sub">Toàn bộ chứng từ đều điền vào <b>biểu mẫu gốc của công ty</b> đặt trên Shared Drive — đúng định dạng, không phải gõ lại.</p>
+    <div class="tbl-wrap"><table class="feat">
+      <thead><tr><th>Chứng từ</th><th>Nút</th><th>Ai xuất</th><th>Định dạng</th></tr></thead>
+      <tbody>
+        <tr><td>Proforma Invoice (PI)</td><td>⬇ Export PI</td><td>Tất cả</td><td>Excel / PDF</td></tr>
+        <tr><td>YC phát triển sản phẩm (R&amp;D)</td><td>⬇ Form RD</td><td>Tech, Admin, Master</td><td>Excel (mỗi mã một trang)</td></tr>
+        <tr><td>YC cấp mã khách hàng</td><td>⬇ YC tạo mã KH</td><td>Admin, Master</td><td>Excel + hộp thoại Odoo</td></tr>
+        <tr><td>ĐNXH (Đề nghị xuất hàng)</td><td>⬇ Chứng từ NM / sau Confirm</td><td>Admin, Master</td><td>Excel</td></tr>
+        <tr><td>Marking carton</td><td>⬇ Chứng từ NM / sau Confirm</td><td>Admin, Master</td><td>Excel (các mã Marking = Y)</td></tr>
+        <tr><td>Custom Docs (6 form)</td><td>⬇ Xuất Custom Docs</td><td>Admin, Master</td><td>Excel nhiều tab</td></tr>
+      </tbody>
+    </table></div>
+  </section>
+
+  <hr class="divider">
+
+  <section id="congthuc">
+    <h2><span class="num">15</span> Công thức &amp; quy ước tính toán</h2>
+    <p class="section-sub">Để mọi người đọc cùng một con số theo cùng một cách.</p>
+    <div class="card">
+      <ul>
+        <li><b>CBM (một thùng carton)</b> = L × W × H ÷ 10<sup>9</sup> &nbsp;<span style="color:var(--ink-faint)">(L/W/H tính bằng mm)</span></li>
+        <li><b>Item CBM (cả dòng hàng)</b> = Ship Qty × CBM ÷ (Qty/ct). Khi chưa có Ship Qty thì <b>Ship Qty mặc định = Order Qty</b>.</li>
+        <li><b>Tổng CBM đơn</b> = tổng Item CBM của mọi dòng. Ước tính container: 40′ ≈ 67 CBM · 20′ ≈ 27–28 CBM · dưới 20 CBM → nên đi hàng lẻ (LCL).</li>
+        <li><b>%LN dòng hàng</b> so đơn giá bán với giá đề xuất (Proposed). <b>Đỏ</b> = lỗ so với giá đề xuất; <b>vàng</b> = dưới mức lợi nhuận tối thiểu của khách.</li>
+        <li><b>Gross weight</b> = Net weight × 1.05 · <b>VGM</b> = Gross + tare container.</li>
+        <li><b>Marking = Y</b> nghĩa là mã hàng đó cần in nhãn dán thùng; chỉ những mã Y mới có trong file Marking.</li>
+      </ul>
+    </div>
+    <div class="note"><b>Cột là công thức thì app không ghi:</b> Price (Products), Balance/CBM/Machine (Operations2025)… App đọc và hiển thị nhưng không ghi đè, để không phá công thức của sheet. Cần đổi thì sửa nguồn (BOM, Model_Cost) hoặc sửa trực tiếp trên sheet.</div>
+  </section>
+
   <section id="meo">
-    <h2><span class="num">09</span> Mẹo &amp; lưu ý</h2>
+    <h2><span class="num">16</span> Mẹo, lưu ý &amp; xử lý sự cố</h2>
     <div class="card">
       <ul>
         <li><b>Tự lưu nháp:</b> đang soạn báo giá mà đóng nhầm/mất mạng — mở lại app sẽ hỏi khôi phục bản nháp.</li>
-        <li><b>Dữ liệu trễ tối đa 5 phút</b> (do bộ nhớ đệm tăng tốc). Cần số mới ngay thì bấm ⟳ Làm mới.</li>
-        <li><b>%LN màu đỏ</b> = lỗ so với giá đề xuất; <b>màu vàng</b> = dưới mức lợi nhuận tối thiểu. Cân nhắc trước khi chốt giá.</li>
-        <li><b>Container:</b> con số ước tính giúp bạn gợi ý khách gom đủ cont; dưới 20 CBM nên đi hàng lẻ (LCL).</li>
-        <li><b>Bảo mật:</b> đăng nhập là kiểm soát nội bộ theo tên + PIN — không chia sẻ PIN, đổi PIN định kỳ, đăng xuất khi dùng máy chung.</li>
+        <li><b>Copy bảng sang Excel:</b> mọi bảng lớn đều có nút <span class="btn-ex">📋 Copy bảng</span> — dán vào Excel là ra đúng cột, không cần gõ lại.</li>
+        <li><b>Dữ liệu trễ tối đa 5 phút</b> (do bộ đệm tăng tốc). Cần số mới ngay thì bấm <span class="btn-ex">⟳ Làm mới</span>.</li>
+        <li><b>Không thấy nút mình cần?</b> Nút chỉ hiện với vai trò và trạng thái đơn phù hợp — xem lại ma trận quyền ở mục 04 và trạng thái đơn ở mục 03.</li>
+        <li><b>Confirm bị chặn?</b> Kiểm tra đơn còn mã tạm Spare/NewRO không, và số SO có bị trùng không.</li>
+        <li><b>Xuất chứng từ báo “chưa có biểu mẫu”?</b> Biểu mẫu gốc trên Shared Drive bị đổi tên/di chuyển hoặc chưa được cấu hình — báo quản trị app.</li>
+        <li><b>Bảo mật:</b> đăng nhập là kiểm soát nội bộ theo Tên + PIN — không chia sẻ PIN, đổi PIN định kỳ, đăng xuất khi dùng máy chung. Dữ liệu giá vốn, %LN và roadmap PTSP là thông tin nội bộ.</li>
       </ul>
     </div>
   </section>
 
   <footer>
     Export Ops Hub · Phòng Vận hành Kinh doanh — Công ty CP Tập đoàn Karofi<br>
-    Tài liệu hướng dẫn nội bộ · cập nhật 2026
+    Tài liệu hướng dẫn nội bộ · cập nhật 04/08/2026
   </footer>
 
 </div>
