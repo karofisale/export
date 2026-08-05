@@ -795,7 +795,7 @@ h1, h2, h3 { margin: 0 0 12px; font-weight: 600; }
 <div class="overlay" id="spOverlay" style="display:none">
   <div class="modal wide" style="width:900px">
     <h3>Tách đơn <span id="spPiNo" class="code-chip"></span> thành nhiều đơn</h3>
-    <div class="vb-subtitle">
+    <div class="vb-subtitle" id="spSubtitle">
       Mỗi đơn tách ra là một PI riêng để nhập <b>một SO riêng</b> lên SAP và giao hàng thành nhiều lần.
       Dòng có Qty &gt; 1 chia được số lượng cho nhiều đơn. PI gốc sẽ bị xóa sau khi tách.
     </div>
@@ -2319,6 +2319,8 @@ function saveDraft() {
           ownerPic: S.editor.ownerPic || '',
           source: S.editor.source || '',
           origPiNumber: S.editor.origPiNumber || '',
+          origSo: S.editor.origSo || '',
+          origStatus: S.editor.origStatus || '',
           lines: S.editor.lines,
           discountPct: S.editor.discountPct,
           discountVal: S.editor.discountVal,
@@ -2411,6 +2413,7 @@ function restoreDraft(client, ed) {
     mode: ed.mode, piNumber: ed.piNumber, piDate: ed.piDate, status: ed.status,
     expectedLoad: ed.expectedLoad || '',
     source: ed.source || '', origPiNumber: ed.origPiNumber || '',
+    origSo: ed.origSo || '', origStatus: ed.origStatus || '',
     ownerPic: ed.ownerPic || '', clientObj: client,
     lines: ed.lines || [],
     note: ed.note || '',
@@ -2473,6 +2476,9 @@ function openEditor(mode, piNumber, lines, existingOrder) {
     // nguồn của đơn gốc ('sale' = bản nháp trên hub, 'ops2025' = đã Confirm) — quyết định có cho Tách đơn không
     source: (mode === 'edit' && existingOrder) ? (existingOrder.source || '') : '',
     origPiNumber: (mode === 'edit' && existingOrder) ? (existingOrder.piNumber || existingOrder.so || '') : '',
+    // riêng cho Tách đơn trên Operations2025: SO gốc (khoá thật của Order/Details) + status gốc (để chặn closed)
+    origSo: (mode === 'edit' && existingOrder) ? (existingOrder.so || '') : '',
+    origStatus: (mode === 'edit' && existingOrder) ? (existingOrder.status || '') : '',
     expectedLoad: (mode === 'edit' && existingOrder) ? (existingOrder.realLoad || '') : '',
     // admin/technician sửa đơn của sale khác: giữ PIC gốc (server chỉ tôn trọng khi role admin/technician)
     ownerPic: mode === 'edit' && existingOrder ? (existingOrder.pic || '') : '',
@@ -2787,17 +2793,28 @@ $('edSaveBtn').addEventListener('click', function () {
  * Mục đích: mỗi đơn tách ra được Confirm thành MỘT SO riêng để nhập SAP và giao hàng nhiều lần.
  * Chỉ tách đơn CHƯA Confirm (bản nháp trên hub) — SO chỉ sinh ra ở bước Confirm. */
 
+/** Tách được: bản nháp trên hub (source 'sale') hoặc đơn đã Confirm trên Operations2025 (source
+ *  'ops2025') MIỄN LÀ chưa 'closed' — closed nghĩa là lô đã xong, không còn gì để tách nữa. */
+function splitEligible(ed) {
+  if (!ed) return false;
+  if (ed.source === 'sale') return true;
+  if (ed.source === 'ops2025') return String(ed.origStatus || '').trim().toLowerCase() !== 'closed';
+  return false;
+}
+
 function updateSplitBtn() {
   var btn = $('edSplitBtn'), ed = S.editor;
   if (!btn) return;
   var show = !!ed && isAdminLevel() && ed.mode === 'edit';
   btn.style.display = show ? '' : 'none';
   if (!show) return;
-  var isDraft = ed.source === 'sale';
-  btn.disabled = !isDraft;
-  btn.title = isDraft
-    ? 'Tách PI này thành nhiều đơn để tách SO khi nhập SAP / giao hàng nhiều lần'
-    : 'Đơn đã vào Operations2025 (đã có SO) — chỉ tách được đơn chưa Confirm';
+  var eligible = splitEligible(ed);
+  btn.disabled = !eligible;
+  btn.title = eligible
+    ? (ed.source === 'ops2025'
+      ? 'Tách SO này thành nhiều SO riêng trên Operations2025 để giao hàng nhiều lần'
+      : 'Tách PI này thành nhiều đơn để tách SO khi nhập SAP / giao hàng nhiều lần')
+    : 'Đơn đã ở trạng thái closed — không tách được nữa';
 }
 
 /** Các dòng đủ điều kiện tách: có mã + Qty > 0. */
@@ -2808,31 +2825,43 @@ function splitSrcLines() {
 $('edSplitBtn').addEventListener('click', function () {
   var ed = S.editor;
   if (!ed || !isAdminLevel()) { toast('Chỉ admin/master mới tách đơn.'); return; }
-  if (ed.source !== 'sale') { toast('Đơn này đã vào Operations2025 — cần tách trước khi Confirm.'); return; }
+  if (!splitEligible(ed)) { toast('Đơn đã ở trạng thái closed — không tách được nữa.'); return; }
   var lines = splitSrcLines();
   if (lines.length < 1) { toast('Đơn chưa có dòng nào (cần Code + Qty > 0).'); return; }
   ed.piNumber = $('edPiNumber').value.trim() || ed.piNumber;
   ed.expectedLoad = $('edLoadDate').value || '';
-  S.split = { lines: lines, n: 2, heads: [], qty: [] };
+  var isOps = ed.source === 'ops2025';
+  // isOps: khoá thật là SO trên Operations2025 (Order/Details) — tách ra thì mỗi phần cần 1 SO riêng.
+  // !isOps (bản nháp trên hub): khoá là số PI — mỗi phần cần 1 số PI riêng.
+  var baseNo = isOps ? (ed.origSo || ed.piNumber) : ed.piNumber;
+  S.split = { source: ed.source, noLabel: isOps ? 'Số SO mới' : 'Số PI', baseNo: baseNo, lines: lines, n: 2, heads: [], qty: [] };
   splitSetCount(2);
-  $('spPiNo').textContent = ed.piNumber;
+  $('spPiNo').textContent = baseNo;
   var opt = '';
   for (var i = 2; i <= SPLIT_MAX; i++) opt += '<option value="' + i + '">' + i + ' đơn</option>';
   $('spCount').innerHTML = opt;
   $('spCount').value = '2';
   $('spError').textContent = '';
+  var subtitleEl = $('spSubtitle');
+  if (subtitleEl) {
+    subtitleEl.innerHTML = isOps
+      ? 'Mỗi đơn tách ra là một <b>SO riêng trên Operations2025</b> để giao hàng thành nhiều lần. ' +
+        'Dòng có Qty &gt; 1 chia được số lượng cho nhiều đơn. SO gốc sẽ bị xóa sau khi tách.'
+      : 'Mỗi đơn tách ra là một PI riêng để nhập <b>một SO riêng</b> lên SAP và giao hàng thành nhiều lần. ' +
+        'Dòng có Qty &gt; 1 chia được số lượng cho nhiều đơn. PI gốc sẽ bị xóa sau khi tách.';
+  }
   renderSplitHeads();
   renderSplitTable();
   $('spOverlay').style.display = 'flex';
 });
 
-/** Đặt số đơn tách: giữ số PI/ngày đã nhập, giữ các cột SL còn lại, phần lệch dồn về Đơn 1. */
+/** Đặt số đơn tách: giữ số hiệu/ngày đã nhập, giữ các cột SL còn lại, phần lệch dồn về Đơn 1. */
 function splitSetCount(n) {
-  var ed = S.editor, sp = S.split;
+  var sp = S.split;
   sp.n = Math.max(2, Math.min(SPLIT_MAX, n));
   var heads = [];
   for (var p = 0; p < sp.n; p++) {
-    heads.push(sp.heads[p] || { piNumber: ed.piNumber + '-' + (p + 1), load: ed.expectedLoad || '' });
+    heads.push(sp.heads[p] || { no: sp.baseNo + '-' + (p + 1), load: S.editor.expectedLoad || '' });
   }
   sp.heads = heads;
   sp.qty = sp.lines.map(function (l, i) {
@@ -2852,14 +2881,14 @@ function renderSplitHeads() {
   $('spHeads').innerHTML = sp.heads.map(function (hd, p) {
     return '<div style="border:1px solid var(--line);border-radius:8px;padding:10px 12px">' +
       '<div style="font-weight:600;font-size:13px;margin-bottom:6px">Đơn ' + (p + 1) + '</div>' +
-      '<label>Số PI * <input type="text" data-sp-pi="' + p + '" value="' + esc(hd.piNumber) + '"></label>' +
+      '<label>' + esc(sp.noLabel) + ' * <input type="text" data-sp-no="' + p + '" value="' + esc(hd.no) + '"></label>' +
       '<label style="margin-top:6px">Expected Loading <input type="date" data-sp-load="' + p + '" value="' + esc(hd.load || '') + '"></label>' +
       '<div style="margin-top:6px;font-size:12px;color:var(--muted)" id="spSub' + p + '">—</div>' +
       '</div>';
   }).join('');
-  $('spHeads').querySelectorAll('[data-sp-pi]').forEach(function (inp) {
+  $('spHeads').querySelectorAll('[data-sp-no]').forEach(function (inp) {
     inp.addEventListener('input', function () {
-      S.split.heads[+this.getAttribute('data-sp-pi')].piNumber = this.value;
+      S.split.heads[+this.getAttribute('data-sp-no')].no = this.value;
     });
   });
   $('spHeads').querySelectorAll('[data-sp-load]').forEach(function (inp) {
@@ -2944,7 +2973,7 @@ function splitComputeParts() {
       });
     })(p);
     parts.push({
-      piNumber: String(sp.heads[p].piNumber || '').trim(),
+      no: String(sp.heads[p].no || '').trim(),
       expectedLoad: sp.heads[p].load || '',
       lines: lines,
       subtotal: Math.round(sub * 100) / 100
@@ -3007,20 +3036,25 @@ $('spOkBtn').addEventListener('click', function () {
     $('spError').textContent = 'Còn dòng chưa chia hết số lượng — đưa cột “Còn lại” về 0 trước khi tách.';
     return;
   }
+  var isOps = ed.source === 'ops2025';
+  var noWord = isOps ? 'SO' : 'PI';
   var parts = splitComputeParts(), seen = {};
   for (var p = 0; p < parts.length; p++) {
-    if (!parts[p].piNumber) { $('spError').textContent = 'Đơn ' + (p + 1) + ' chưa có số PI.'; return; }
-    var k = parts[p].piNumber.toLowerCase();
-    if (seen[k]) { $('spError').textContent = 'Số PI "' + parts[p].piNumber + '" bị trùng giữa các đơn tách.'; return; }
+    if (!parts[p].no) { $('spError').textContent = 'Đơn ' + (p + 1) + ' chưa có số ' + noWord + '.'; return; }
+    var k = parts[p].no.toLowerCase();
+    if (seen[k]) { $('spError').textContent = 'Số ' + noWord + ' "' + parts[p].no + '" bị trùng giữa các đơn tách.'; return; }
     seen[k] = true;
     if (!parts[p].lines.length) {
-      $('spError').textContent = 'Đơn ' + (p + 1) + ' (' + parts[p].piNumber + ') chưa được chia dòng hàng nào.';
+      $('spError').textContent = 'Đơn ' + (p + 1) + ' (' + parts[p].no + ') chưa được chia dòng hàng nào.';
       return;
     }
   }
   var clientObj = ed.clientObj || S.currentClient;
+  var origNo = isOps ? (ed.origSo || sp.baseNo) : (ed.origPiNumber || ed.piNumber);
   var payload = {
+    source: isOps ? 'ops2025' : 'sale',
     origPiNumber: ed.origPiNumber || ed.piNumber,
+    origSo: ed.origSo || '',
     client: clientObj.name,
     piDate: $('edPiDate').value || ed.piDate,
     status: $('edStatusSel').value || ed.status,
@@ -3029,10 +3063,12 @@ $('spOkBtn').addEventListener('click', function () {
     // dòng hàng đang mở trên form — server đối chiếu tổng SL từng mã để không thất thoát hàng khi tách
     origLines: sp.lines.map(function (l) { return { code: l.code, qty: l.qty }; }),
     parts: parts.map(function (pt) {
-      return {
-        piNumber: pt.piNumber, expectedLoad: pt.expectedLoad,
+      var partObj = {
+        expectedLoad: pt.expectedLoad,
         fob: pt.fob, discount: pt.discount, freight: pt.freight, lines: pt.lines
       };
+      if (isOps) partObj.so = pt.no; else partObj.piNumber = pt.no;
+      return partObj;
     })
   };
   loading(true);
@@ -3041,7 +3077,7 @@ $('spOkBtn').addEventListener('click', function () {
     $('spOverlay').style.display = 'none';
     $('editorView').style.display = 'none';
     toast('Đã tách thành ' + (res.parts || []).length + ' đơn: ' + (res.parts || []).join(', ') +
-      (res.deletedOriginal ? ' — đã xóa PI gốc ' + payload.origPiNumber + '.' : '.'));
+      (res.deletedOriginal ? ' — đã xóa ' + noWord + ' gốc ' + origNo + '.' : '.'));
     S.currentClient = clientObj;
     selectClient(clientObj);
   }).catch(function (e) { $('spError').textContent = e.message; })
