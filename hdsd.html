@@ -175,7 +175,7 @@
       <li><a href="#sale">Dành cho Sale</a></li>
       <li><a href="#technician">Dành cho Kỹ thuật</a></li>
       <li><a href="#danhmuc">Quản lý danh mục sản phẩm</a></li>
-      <li><a href="#lead">Dành cho Trưởng nhóm</a></li>
+      <li><a href="#lead">Doanh thu theo tháng</a></li>
       <li><a href="#admin">Dành cho Admin / Master</a></li>
       <li><a href="#lohang">Thông tin lô hàng &amp; Custom Docs</a></li>
       <li><a href="#ptsp">Tiến độ PTSP (Jira)</a></li>
@@ -252,10 +252,10 @@
       <thead><tr><th>Màn hình</th><th>Ai thấy</th><th>Dùng để</th></tr></thead>
       <tbody>
         <tr><td>Đơn hàng của tôi</td><td>Sale</td><td>Danh sách đơn của mình theo tháng, mở nhanh một đơn</td></tr>
-        <tr><td>Doanh thu theo tháng</td><td>Lead, Admin, Master</td><td>Tổng FOB tháng, số đơn, số khách + danh sách đơn trong tháng</td></tr>
+        <tr><td>Doanh thu theo tháng</td><td>Lead, Admin, Master</td><td>Tổng FOB tháng, số đơn, số khách + danh sách đơn trong tháng (trang chủ của 3 vai trò này)</td></tr>
         <tr><td>Đơn hàng cần kiểm tra</td><td>Kỹ thuật</td><td>Hàng đợi mọi đơn của các sale đang chờ duyệt kỹ thuật</td></tr>
         <tr><td>Chi tiết khách &amp; đơn</td><td>Tất cả</td><td>Xem dòng hàng, %LN, Item CBM, Marking, ghi chú; nơi chứa mọi nút hành động</td></tr>
-        <tr><td>Form báo giá</td><td>Sale, Kỹ thuật, Admin, Master</td><td>Soạn/sửa dòng hàng, chiết khấu, đóng gói, tổng CBM &amp; container</td></tr>
+        <tr><td>Form báo giá</td><td>Sale, Kỹ thuật, Admin, Master</td><td>Soạn/sửa dòng hàng, chiết khấu, đóng gói, tổng CBM &amp; container; Admin tách 1 PI thành nhiều đơn</td></tr>
         <tr><td>Quản lý danh mục SP</td><td>Kỹ thuật, Admin, Master</td><td>Sản phẩm · Nhập batch · Model · BOM máy · cấp mã cho hàng mới</td></tr>
         <tr><td>Thông tin lô hàng</td><td>Admin, Master</td><td>Deposit/ETD/ETA/Invoice/Booking… + Ship Qty + xuất Custom Docs</td></tr>
         <tr><td>Tiến độ PTSP</td><td>Kỹ thuật, Lead, Admin, Master</td><td>Dashboard dự án phát triển sản phẩm đọc live từ Jira</td></tr>
@@ -297,13 +297,14 @@
     <div class="tbl-wrap"><table class="feat">
       <thead><tr><th>Trạng thái</th><th>Nghĩa</th><th>Ai đặt được</th></tr></thead>
       <tbody>
-        <tr><td><code>targeted</code></td><td>Báo giá mục tiêu, chưa chắc chắn. Mặc định khi tạo mới/nhân bản. Chỉ đơn ở trạng thái này mới xoá được.</td><td>Sale, Admin</td></tr>
-        <tr><td><code>drafted</code></td><td>Đã chốt sơ bộ với khách, chờ kiểm tra kỹ thuật.</td><td>Sale, Admin</td></tr>
-        <tr><td><code>reviewed</code></td><td>Kỹ thuật đã soát mã/đóng gói. Sẵn sàng để Admin confirm.</td><td>Kỹ thuật</td></tr>
+        <tr><td><code>targeted</code></td><td>Báo giá mục tiêu, chưa chắc chắn. Mặc định khi tạo mới/nhân bản. Chỉ đơn ở trạng thái này mới xoá được.</td><td>Sale, Kỹ thuật, Admin</td></tr>
+        <tr><td><code>drafted</code></td><td>Đã chốt sơ bộ với khách, chờ kiểm tra kỹ thuật.</td><td>Sale, Kỹ thuật, Admin</td></tr>
+        <tr><td><code>reviewed</code></td><td>Kỹ thuật đã soát mã/đóng gói. Sẵn sàng để Admin confirm.</td><td>Kỹ thuật, Admin</td></tr>
         <tr><td><code>booked</code> / <code>shipped</code> / <code>closed</code></td><td>Đơn đã vào Operations2025 và đang chạy theo tiến độ sản xuất/xuất hàng.</td><td>Admin, Master</td></tr>
       </tbody>
     </table></div>
-    <div class="note"><b>Nguyên tắc “một bản duy nhất”:</b> trước khi Confirm, đơn chỉ nằm trên hub (bản nháp của sale). Sau khi Confirm, đơn chỉ nằm trên Operations2025. Không bao giờ có hai bản song song để phải đối chiếu.</div>
+    <div class="note"><b>Nguyên tắc “một bản duy nhất”:</b> trước khi Confirm, đơn chỉ nằm trên hub (bản nháp của sale). Sau khi Confirm, đơn chỉ nằm trên Operations2025. Không bao giờ có hai bản song song để phải đối chiếu.
+    <br><b>Ai sửa được trạng thái nào:</b> Sale/Lead chỉ sửa đơn ở trạng thái mở (targeted, drafted, Sale Edited, New Created) và chỉ chuyển được targeted ↔ drafted. <b>Kỹ thuật, Admin và Master sửa được mọi đơn ở mọi trạng thái</b>; riêng Admin/Master còn đặt được trạng thái bất kỳ.</div>
   </section>
 
   <section id="vaitro">
@@ -312,8 +313,8 @@
     <div class="roles">
       <div class="role r-sale"><div class="rname">● Sale</div><p>Lập báo giá cho khách của mình. Xem đơn của mình theo tháng, tạo/sửa/nhân bản/xuất PI, tạo khách mới.</p></div>
       <div class="role r-lead"><div class="rname">● Trưởng nhóm (Lead)</div><p>Xem toàn bộ khách &amp; đơn. Trang chủ là dashboard doanh thu FOB theo tháng. Xem được tiến độ PTSP.</p></div>
-      <div class="role r-tech"><div class="rname">● Kỹ thuật (Technician)</div><p>Duyệt kỹ thuật, xuất form R&amp;D, và <b>quản lý danh mục sản phẩm / model / BOM / cấp mã</b>.</p></div>
-      <div class="role r-admin"><div class="rname">● Admin</div><p>Toàn quyền vận hành: sửa mọi đơn, mã khách, <b>Confirm</b>, chứng từ nhà máy, thông tin lô hàng, Custom Docs, danh mục SP.</p></div>
+      <div class="role r-tech"><div class="rname">● Kỹ thuật (Technician)</div><p>Duyệt kỹ thuật, sửa được <b>mọi đơn ở mọi trạng thái</b>, xuất form R&amp;D, và <b>quản lý danh mục sản phẩm / model / BOM / cấp mã</b>.</p></div>
+      <div class="role r-admin"><div class="rname">● Admin</div><p>Toàn quyền vận hành: sửa <b>mọi đơn ở mọi trạng thái</b>, <b>tách đơn</b>, mã khách, <b>Confirm</b>, chứng từ nhà máy, thông tin lô hàng, Custom Docs, danh mục SP. Trang chủ là dashboard doanh thu theo tháng.</p></div>
       <div class="role r-master"><div class="rname">● Master</div><p>Như Admin và nhìn thấy <b>tất cả</b> khách/đơn không giới hạn.</p></div>
     </div>
 
@@ -328,8 +329,11 @@
       </tr></thead>
       <tbody>
         <tr><td>Xem khách &amp; đơn</td><td>của mình</td><td class="y">toàn bộ</td><td class="y">toàn bộ</td><td class="y">toàn bộ</td><td class="y">tất cả</td></tr>
+        <tr><td>Bảng đơn hàng theo tháng</td><td>đơn của mình</td><td class="y">✔</td><td class="n">—</td><td class="y">✔</td><td class="y">✔</td></tr>
         <tr><td>Tạo / nhân bản đơn</td><td class="y">✔</td><td class="n">—</td><td class="n">—</td><td class="y">✔</td><td class="y">✔</td></tr>
-        <tr><td>Sửa dòng hàng</td><td>đơn của mình</td><td class="n">—</td><td class="y">mọi đơn</td><td class="y">mọi đơn</td><td class="y">mọi đơn</td></tr>
+        <tr><td>Sửa dòng hàng</td><td>đơn của mình,<br>trạng thái mở</td><td class="n">—</td><td class="y">mọi đơn,<br>mọi trạng thái</td><td class="y">mọi đơn,<br>mọi trạng thái</td><td class="y">mọi đơn,<br>mọi trạng thái</td></tr>
+        <tr><td>Đổi trạng thái đơn</td><td>targeted ↔ drafted</td><td class="n">—</td><td>targeted ↔ drafted</td><td class="y">mọi trạng thái</td><td class="y">mọi trạng thái</td></tr>
+        <tr><td>Tách 1 PI thành nhiều đơn</td><td class="n">—</td><td class="n">—</td><td class="n">—</td><td class="y">✔</td><td class="y">✔</td></tr>
         <tr><td>Xuất PI (Excel/PDF)</td><td class="y">✔</td><td class="y">✔</td><td class="y">✔</td><td class="y">✔</td><td class="y">✔</td></tr>
         <tr><td>Xoá PI (<code>targeted</code>)</td><td>của mình</td><td class="n">—</td><td class="n">—</td><td class="y">✔</td><td class="y">✔</td></tr>
         <tr><td>Xác nhận (reviewed)</td><td class="n">—</td><td class="n">—</td><td class="y">✔</td><td class="n">—</td><td class="n">—</td></tr>
@@ -428,7 +432,7 @@
     <h2><span class="num">07</span> Dành cho Kỹ thuật <span class="rolebadge b-tech">Technician</span></h2>
     <p class="section-sub">Đăng nhập xong bạn thấy ngay <b>Đơn hàng cần kiểm tra</b> — mọi đơn của các sale đang chờ xử lý, kèm ô lọc theo khách/PI/SO. Bấm một dòng để mở đơn.</p>
     <ol class="steps">
-      <li><b>Kiểm tra &amp; sửa:</b> mở đơn → <span class="btn-ex">✎ Edit Details</span> → đối chiếu và sửa <b>mã sản phẩm mới, quy cách đóng gói, Qty/CT, kích thước carton L/W/H, net weight</b>. Đơn vẫn giữ tên sale gốc.</li>
+      <li><b>Kiểm tra &amp; sửa:</b> mở đơn → <span class="btn-ex">✎ Edit Details</span> → đối chiếu và sửa <b>mã sản phẩm mới, quy cách đóng gói, Qty/CT, kích thước carton L/W/H, net weight</b>. Sửa được <b>mọi đơn ở mọi trạng thái</b>, kể cả đơn đã Confirm. Đơn vẫn giữ tên sale gốc.</li>
       <li><b>Xác nhận:</b> bấm <span class="btn-ex">✔ Xác nhận (reviewed)</span> — chuyển đơn sang trạng thái <b>reviewed</b> để Admin duyệt tiếp. Bạn vẫn mở lại sửa được sau đó.</li>
       <li><b>Yêu cầu R&amp;D:</b> với đơn có mã mới hoặc máy đã đổi BOM, bấm <span class="btn-ex">⬇ Form RD</span> để xuất <b>Yêu cầu phát triển sản phẩm mới</b> (mỗi mã một trang, đã điền sẵn cấu hình/lõi/màng/giá) gửi bộ phận R&amp;D.</li>
       <li><b>Cấp mã &amp; cập nhật danh mục:</b> bấm <span class="btn-ex">🧩 Danh mục SP</span> — xem mục 08 bên dưới.</li>
@@ -466,8 +470,8 @@
   </section>
 
   <section id="lead">
-    <h2><span class="num">09</span> Dành cho Trưởng nhóm <span class="rolebadge b-lead">Lead</span></h2>
-    <p class="section-sub">Trang chủ là <b>Doanh thu theo tháng</b> — tính trên các đơn đã vào Operations2025 theo tháng Load Date.</p>
+    <h2><span class="num">09</span> Doanh thu theo tháng <span class="rolebadge b-lead">Lead</span> <span class="rolebadge b-admin">Admin</span> <span class="rolebadge b-master">Master</span></h2>
+    <p class="section-sub">Trang chủ của Lead, Admin và Master là <b>Doanh thu theo tháng</b> — tính trên các đơn đã vào Operations2025 theo tháng Load Date. (Sale thấy cùng bảng này nhưng chỉ gồm đơn của mình, tên là “Đơn hàng của tôi theo tháng”.)</p>
     <ul>
       <li>Ba chỉ số tháng: <b>Tổng FOB</b>, <b>Số đơn</b>, <b>Số khách</b>. Đổi tháng bằng ◀ ▶.</li>
       <li><b>Danh sách đơn trong tháng</b>: Khách · <b>Thị trường</b> · SO · Ngày load · FOB · Status — bấm một dòng để xem chi tiết ngay, không cần chọn khách trước. Trong chi tiết có nút <span class="btn-ex">⟵ Doanh thu theo tháng</span> để quay lại.</li>
@@ -484,10 +488,24 @@
 
     <h3>Sửa đơn &amp; mã khách hàng</h3>
     <ul>
-      <li>Sửa được đơn của mọi sale (đơn vẫn giữ tên sale gốc).</li>
+      <li>Sửa được đơn của mọi sale, ở <b>mọi trạng thái</b> — kể cả đơn đã Confirm (<code>booked</code>, <code>shipped</code>, <code>closed</code>). Đơn vẫn giữ tên sale gốc.</li>
+      <li>Ô <b>Trạng thái</b> trong form báo giá mở đầy đủ cho Admin/Master: targeted · drafted · reviewed · booked · shipped · closed.</li>
+      <li>Sửa đơn đã vào Operations2025: đơn thành bản nháp <code>Sale Edited</code> trên hub; bấm <b>Confirm</b> lần nữa để ghi ngược cập nhật vào đúng SO đó.</li>
       <li>Khi sửa đơn, ô <b>Mã KH</b> cho phép cập nhật/bổ sung mã khách — ghi thẳng vào danh mục khách trung tâm.</li>
       <li>Khách chưa có mã: bấm <span class="btn-ex">⬇ YC tạo mã KH</span> → app xuất phiếu <b>Yêu cầu cấp mã khách hàng</b> đúng biểu mẫu <b>và</b> mở hộp thoại <b>Tạo mã khách trên Odoo</b>: bảng thông tin khách để <span class="btn-ex">📋 Copy</span> dán sang Odoo, kèm nút <span class="btn-ex">↗ Mở Odoo</span> tới đúng form tạo khách.</li>
     </ul>
+
+    <h3>⑂ Tách đơn — 1 PI thành nhiều đơn</h3>
+    <p>Dùng khi một PI cần <b>nhiều SO riêng</b> trên SAP để giao hàng thành nhiều lần. Mỗi đơn tách ra là một PI độc lập, sau đó Confirm từng đơn để lấy SO riêng.</p>
+    <ol class="steps">
+      <li>Mở đơn (bản nháp <b>chưa Confirm</b>) → <span class="btn-ex">✎ Edit Details</span> → <span class="btn-ex">⑂ Tách đơn</span>.</li>
+      <li>Chọn <b>Số đơn cần tách</b> (2–6). App gợi ý số PI <code>&lt;PI gốc&gt;-1</code>, <code>-2</code>… — <b>sửa lại được</b>. Mỗi đơn có <b>Expected Loading</b> riêng (đây là chỗ đặt các mốc giao hàng khác nhau).</li>
+      <li>Chia số lượng: mỗi dòng hàng có một ô cho từng đơn. Dòng có Qty &gt; 1 <b>chia được số lượng cho nhiều đơn</b>. Nút <span class="btn-ex">⇄ Chia đều</span> chia đều mọi dòng, <span class="btn-ex">↺ Dồn về Đơn 1</span> đưa tất cả về đơn đầu.</li>
+      <li>Cột <b>Còn lại</b> phải bằng 0 ở mọi dòng (báo đỏ nếu chưa chia hết). Mỗi đơn hiển thị số dòng và giá trị của nó.</li>
+      <li>Bấm <span class="btn-ex">⑂ Tách đơn</span> → app tạo các PI mới và <b>xoá PI gốc</b>.</li>
+    </ol>
+    <div class="tip"><b>Discount và Other charges</b> được chia theo <b>tỷ lệ giá trị</b> từng đơn; đơn cuối nhận phần dư nên tổng luôn khớp đơn gốc, không thất thoát do làm tròn. <b>Ghi chú dòng, Marking, NetWeight</b> của từng dòng được mang sang nguyên vẹn.</div>
+    <div class="note"><b>Chỉ tách đơn chưa Confirm.</b> SO chỉ sinh ra ở bước Confirm, nên với đơn đã vào Operations2025 nút Tách đơn bị khoá. Sửa dòng hàng rồi tách ngay cũng được — các sửa đó đi theo vào các đơn tách; nhưng nếu bấm <b>Hủy</b> thay vì tách thì sửa đó không được lưu.</div>
 
     <h3>Confirm đơn vào Operations2025</h3>
     <ol class="steps">
@@ -542,7 +560,7 @@
     <ul>
       <li><b>Sáu chỉ số tổng:</b> Hoàn thành chung (%), Số dự án, Tổng đầu việc, Đã xong, Đang làm, Chưa làm.</li>
       <li><b>Danh mục dự án</b> (dự án % thấp lên trước): Mã · Dự án · <b>Ngày bắt đầu</b> · <b>Ngày kết thúc</b> · Xong · Đang làm · Chưa làm · % Hoàn thành · thanh tiến độ.</li>
-      <li><b>Bấm vào một dòng dự án</b> → xổ ra ngay danh sách công việc của dự án đó, sắp xếp <b>Chưa làm → Đang làm → Xong</b>, kèm ngày bắt đầu / ngày kết thúc. Bấm lại để đóng.</li>
+      <li><b>Bấm vào một dòng dự án</b> → xổ ra ngay danh sách công việc của dự án đó, sắp xếp <b>Chưa làm → Đang làm → Xong</b>, kèm <b>Người phụ trách</b> (assignee trên Jira, hiện “chưa gán” nếu trống), ngày bắt đầu và ngày kết thúc. Bấm lại để đóng.</li>
       <li><b>🔍 Tìm dự án</b> theo tên hoặc mã SPM; <span class="btn-ex">⟳ Làm mới</span> để lấy lại dữ liệu mới nhất; <span class="btn-ex">⟵ Trang đầu</span> để quay lại.</li>
     </ul>
     <div class="note"><b>Đây là dữ liệu roadmap nội bộ.</b> Không chụp lại và chia sẻ ra ngoài công ty.</div>
@@ -610,7 +628,7 @@
 
   <footer>
     Export Ops Hub · Phòng Vận hành Kinh doanh — Công ty CP Tập đoàn Karofi<br>
-    Tài liệu hướng dẫn nội bộ · cập nhật 04/08/2026
+    Tài liệu hướng dẫn nội bộ · cập nhật 05/08/2026
   </footer>
 
 </div>

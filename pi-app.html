@@ -585,6 +585,7 @@ h1, h2, h3 { margin: 0 0 12px; font-weight: 600; }
           </div>
           <div class="editor-actions">
             <button class="btn ghost" id="edCancelBtn">Hủy</button>
+            <button class="btn" id="edSplitBtn" style="display:none" title="Tách PI này thành nhiều đơn để tách SO khi nhập SAP / giao hàng nhiều lần">⑂ Tách đơn</button>
             <button class="btn" id="exportEditBtn">⬇ Export PI</button>
             <button class="btn primary" id="edSaveBtn">💾 Lưu đơn</button>
           </div>
@@ -790,6 +791,41 @@ h1, h2, h3 { margin: 0 0 12px; font-weight: 600; }
   </div>
 </div>
 
+<!-- ========== Modal Tách đơn (admin/master) — 1 PI thành nhiều đơn ========== -->
+<div class="overlay" id="spOverlay" style="display:none">
+  <div class="modal wide" style="width:900px">
+    <h3>Tách đơn <span id="spPiNo" class="code-chip"></span> thành nhiều đơn</h3>
+    <div class="vb-subtitle">
+      Mỗi đơn tách ra là một PI riêng để nhập <b>một SO riêng</b> lên SAP và giao hàng thành nhiều lần.
+      Dòng có Qty &gt; 1 chia được số lượng cho nhiều đơn. PI gốc sẽ bị xóa sau khi tách.
+    </div>
+
+    <div style="display:flex;gap:12px;align-items:flex-end;flex-wrap:wrap;margin:14px 0 10px">
+      <label style="font-size:12.5px;color:var(--muted)">Số đơn cần tách
+        <select id="spCount" style="display:block;margin-top:4px;padding:8px 10px;border:1px solid var(--line);border-radius:6px;font-size:14px"></select>
+      </label>
+      <button class="btn ghost" id="spEvenBtn" title="Chia số lượng mỗi dòng đều cho các đơn">⇄ Chia đều</button>
+      <button class="btn ghost" id="spResetBtn" title="Dồn toàn bộ số lượng về Đơn 1">↺ Dồn về Đơn 1</button>
+    </div>
+
+    <div class="picker-grid" id="spHeads" style="grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:12px"></div>
+
+    <div class="table-wrap" style="margin-top:14px;max-height:44vh">
+      <table class="data-table editable" id="spTable">
+        <thead><tr id="spHeadRow"></tr></thead>
+        <tbody></tbody>
+      </table>
+    </div>
+
+    <div id="spSummary" style="margin-top:10px;font-size:13px;color:var(--muted)"></div>
+    <div id="spError" class="login-error" style="min-height:16px"></div>
+    <div class="modal-actions">
+      <button class="btn ghost" id="spCancelBtn">Hủy</button>
+      <button class="btn primary" id="spOkBtn">⑂ Tách đơn</button>
+    </div>
+  </div>
+</div>
+
 <!-- ========== Modal đổi mật khẩu (PIN) ========== -->
 <div class="overlay" id="pwOverlay" style="display:none">
   <div class="modal" style="width:380px">
@@ -849,6 +885,13 @@ var S = {
 };
 
 var EDITABLE_STATUSES = ['drafted', 'targeted', 'sale edited', 'new created'];
+// Vai trò có trang đầu là bảng đơn hàng theo tháng (và nút ⟵ quay lại bảng đó).
+// technician có trang đầu riêng là hàng đợi cần kiểm tra.
+var MONTH_VIEW_ROLES = ['sale', 'lead', 'admin', 'master'];
+// Trạng thái chọn được trong ô Trạng thái của form báo giá.
+var STATUS_OPTIONS = ['targeted', 'drafted'];
+var STATUS_OPTIONS_ADMIN = ['targeted', 'drafted', 'reviewed', 'booked', 'shipped', 'closed'];
+var SPLIT_MAX = 6; // số đơn tối đa khi tách 1 PI
 // #6 Odoo: mở form tạo khách mới trên Odoo (bản mới không prefill được qua URL)
 var ODOO_CLIENT_URL = 'https://office.karofi.com/odoo/action-886/5/action-894/new';
 // #10 Dashboard tiến độ PTSP: để giai đoạn sau — dashboard sẽ lấy Jira trực tiếp qua app (không nhúng dữ liệu vào file công khai)
@@ -985,7 +1028,7 @@ function bootstrap() {
     var draftPrompted = checkDraft(); // hỏi khôi phục bản nháp chưa lưu (chỉ 1 lần mỗi phiên)
     if (!draftPrompted) handleDeepLink(); // có draft -> deep-link xử lý sau khi người dùng trả lời modal
     if (!draftPrompted && !DEEP_SO && S.user.role === 'technician') loadReviewQueue(); // technician: hiện ngay hàng đợi review
-    if (!draftPrompted && !DEEP_SO && (S.user.role === 'lead' || S.user.role === 'sale' || S.user.role === 'master')) loadRevenue(); // lead/sale/master: hiện ngay đơn theo tháng
+    if (!draftPrompted && !DEEP_SO && MONTH_VIEW_ROLES.indexOf(S.user.role) >= 0) loadRevenue(); // lead/sale/admin/master: hiện ngay đơn theo tháng
     // nạp trước catalog sản phẩm (nền); xong thì vẽ lại bảng chi tiết nếu đang mở (để điền %LN)
     gs('api_products', S.token).then(function (r) {
       S.products = r.products;
@@ -1062,8 +1105,8 @@ function goHome() {
     $(id).style.display = 'none';
   });
   if (S.user.role === 'technician') { loadReviewQueue(); return; }
-  if (['lead', 'sale', 'master'].indexOf(S.user.role) >= 0) { loadRevenue(); return; }
-  setSidebar(true); // admin: quay về chọn khách
+  if (MONTH_VIEW_ROLES.indexOf(S.user.role) >= 0) { loadRevenue(); return; }
+  setSidebar(true); // vai trò khác: quay về chọn khách
   $('emptyState').style.display = '';
 }
 
@@ -1099,7 +1142,7 @@ function selectClient(c, targetSo) {
   $('prodView').style.display = 'none';
   $('shipView').style.display = 'none';
   $('backToQueueBtn').style.display = S.user.role === 'technician' ? '' : 'none';
-  $('backToRevenueBtn').style.display = (S.user.role === 'lead' || S.user.role === 'sale' || S.user.role === 'master') ? '' : 'none';
+  $('backToRevenueBtn').style.display = MONTH_VIEW_ROLES.indexOf(S.user.role) >= 0 ? '' : 'none';
   $('backToRevenueBtn').textContent = S.user.role === 'sale' ? '⟵ Đơn theo tháng' : '⟵ Doanh thu theo tháng';
   $('editorView').style.display = 'none';
   $('clientView').style.display = 'block';
@@ -1904,16 +1947,18 @@ function ptspIssuesHtml(key) {
   if (!data.length) return '<div style="padding:12px;color:var(--muted)">Dự án chưa có công việc nào.</div>';
   var html = '<table class="data-table" style="margin:0">' +
     '<thead><tr><th style="width:120px">Mã</th><th>Công việc</th><th style="width:110px">Trạng thái</th>' +
+    '<th style="width:150px">Người phụ trách</th>' +
     '<th style="width:110px">Bắt đầu</th><th style="width:110px">Kết thúc</th></tr></thead><tbody>';
   PTSP_BUCKETS.forEach(function (b) {
     var rows = data.filter(function (i) { return i.bucket === b.k; });
     if (!rows.length) return;
-    html += '<tr><td colspan="5" style="background:var(--card);font-weight:600;font-size:12px;color:' + b.color + '">' +
+    html += '<tr><td colspan="6" style="background:var(--card);font-weight:600;font-size:12px;color:' + b.color + '">' +
       b.label + ' (' + rows.length + ')</td></tr>';
     rows.forEach(function (i) {
       html += '<tr><td><a href="' + esc(i.url) + '" target="_blank" rel="noopener">' + esc(i.key) + '</a></td>' +
         '<td>' + esc(i.summary) + '</td>' +
         '<td style="color:' + b.color + '">' + esc(i.status) + '</td>' +
+        '<td>' + (i.assignee ? esc(i.assignee) : '<span style="color:var(--muted)">chưa gán</span>') + '</td>' +
         '<td>' + esc(i.start || '—') + '</td>' +
         '<td>' + esc(i.end || '—') + '</td></tr>';
     });
@@ -1986,11 +2031,12 @@ function openQueueRow(o) {
 }
 
 /** Đơn có sửa được (Edit Details) với quyền hiện tại không?
- *  reviewed: chỉ admin & technician. Các status còn lại theo EDITABLE_STATUSES. */
+ *  admin/master/technician: sửa được MỌI đơn ở MỌI trạng thái (kể cả đơn đã vào Operations2025 —
+ *  sửa xong thành bản nháp "Sale Edited", admin Confirm để ghi ngược lại SO đó).
+ *  sale/lead: chỉ các trạng thái trong EDITABLE_STATUSES. */
 function canEditOrder(o) {
-  var st = (o.status || '').toLowerCase();
-  if (st === 'reviewed') return isAdminLevel() || S.user.role === 'technician';
-  return EDITABLE_STATUSES.indexOf(st) >= 0;
+  if (isAdminLevel() || S.user.role === 'technician') return true;
+  return EDITABLE_STATUSES.indexOf((o.status || '').toLowerCase()) >= 0;
 }
 
 function selectOrder(i) {
@@ -2271,6 +2317,8 @@ function saveDraft() {
           expectedLoad: $('edLoadDate').value || '',
           note: $('edOrderNote').value || '',
           ownerPic: S.editor.ownerPic || '',
+          source: S.editor.source || '',
+          origPiNumber: S.editor.origPiNumber || '',
           lines: S.editor.lines,
           discountPct: S.editor.discountPct,
           discountVal: S.editor.discountVal,
@@ -2362,6 +2410,7 @@ function restoreDraft(client, ed) {
   S.editor = {
     mode: ed.mode, piNumber: ed.piNumber, piDate: ed.piDate, status: ed.status,
     expectedLoad: ed.expectedLoad || '',
+    source: ed.source || '', origPiNumber: ed.origPiNumber || '',
     ownerPic: ed.ownerPic || '', clientObj: client,
     lines: ed.lines || [],
     note: ed.note || '',
@@ -2372,6 +2421,7 @@ function restoreDraft(client, ed) {
   $('edClient').value = client.name;
   $('edClientCodeWrap').style.display = isAdminLevel() ? '' : 'none';
   $('edClientCode').value = client.id || '';
+  updateSplitBtn();
   $('edPiNumber').value = ed.piNumber || '';
   $('edPiDate').value = ed.piDate || '';
   $('edLoadDate').value = ed.expectedLoad || '';
@@ -2393,10 +2443,11 @@ function restoreDraft(client, ed) {
 }
 
 /* ================= Editor (form báo giá) ================= */
-/** Đổ options cho dropdown trạng thái: targeted/drafted; giữ reviewed/legacy nếu đơn đang ở status đó. */
+/** Đổ options cho dropdown trạng thái. sale/lead: targeted/drafted. admin/master: mọi trạng thái.
+ *  Trạng thái hiện tại của đơn luôn được giữ trong danh sách dù không nằm trong bộ chuẩn (Sale Edited…). */
 function setEditorStatus(status) {
   var s = String(status || 'targeted');
-  var base = ['targeted', 'drafted'];
+  var base = (isAdminLevel() ? STATUS_OPTIONS_ADMIN : STATUS_OPTIONS).slice();
   var opts = base.slice();
   if (base.indexOf(s.toLowerCase()) < 0) opts.unshift(s); // reviewed / Sale Edited / New Created -> giữ nguyên
   $('edStatusSel').innerHTML = opts.map(function (o) {
@@ -2419,6 +2470,9 @@ function openEditor(mode, piNumber, lines, existingOrder) {
     piNumber: piNumber,
     piDate: new Date().toISOString().slice(0, 10),
     status: editStatus,
+    // nguồn của đơn gốc ('sale' = bản nháp trên hub, 'ops2025' = đã Confirm) — quyết định có cho Tách đơn không
+    source: (mode === 'edit' && existingOrder) ? (existingOrder.source || '') : '',
+    origPiNumber: (mode === 'edit' && existingOrder) ? (existingOrder.piNumber || existingOrder.so || '') : '',
     expectedLoad: (mode === 'edit' && existingOrder) ? (existingOrder.realLoad || '') : '',
     // admin/technician sửa đơn của sale khác: giữ PIC gốc (server chỉ tôn trọng khi role admin/technician)
     ownerPic: mode === 'edit' && existingOrder ? (existingOrder.pic || '') : '',
@@ -2446,6 +2500,7 @@ function openEditor(mode, piNumber, lines, existingOrder) {
   // admin/master: ô Mã KH (Client_ID) để cập nhật/bổ sung khi sửa đơn
   $('edClientCodeWrap').style.display = isAdminLevel() ? '' : 'none';
   $('edClientCode').value = S.currentClient.id || '';
+  updateSplitBtn();
   $('edPiNumber').value = piNumber;
   $('edPiDate').value = S.editor.piDate;
   $('edLoadDate').value = S.editor.expectedLoad || '';
@@ -2725,6 +2780,271 @@ $('edSaveBtn').addEventListener('click', function () {
     S.currentClient = clientObj; // chuyển ngữ cảnh sang khách của đơn vừa lưu
     selectClient(clientObj); // reload danh sách đơn của khách đó
   }).catch(function (e) { toast('Lỗi khi lưu: ' + e.message); })
+    .finally(function () { loading(false); });
+});
+
+/* ================= Tách đơn: 1 PI → nhiều đơn (admin/master) =================
+ * Mục đích: mỗi đơn tách ra được Confirm thành MỘT SO riêng để nhập SAP và giao hàng nhiều lần.
+ * Chỉ tách đơn CHƯA Confirm (bản nháp trên hub) — SO chỉ sinh ra ở bước Confirm. */
+
+function updateSplitBtn() {
+  var btn = $('edSplitBtn'), ed = S.editor;
+  if (!btn) return;
+  var show = !!ed && isAdminLevel() && ed.mode === 'edit';
+  btn.style.display = show ? '' : 'none';
+  if (!show) return;
+  var isDraft = ed.source === 'sale';
+  btn.disabled = !isDraft;
+  btn.title = isDraft
+    ? 'Tách PI này thành nhiều đơn để tách SO khi nhập SAP / giao hàng nhiều lần'
+    : 'Đơn đã vào Operations2025 (đã có SO) — chỉ tách được đơn chưa Confirm';
+}
+
+/** Các dòng đủ điều kiện tách: có mã + Qty > 0. */
+function splitSrcLines() {
+  return ((S.editor && S.editor.lines) || []).filter(function (l) { return l.code && l.qty > 0; });
+}
+
+$('edSplitBtn').addEventListener('click', function () {
+  var ed = S.editor;
+  if (!ed || !isAdminLevel()) { toast('Chỉ admin/master mới tách đơn.'); return; }
+  if (ed.source !== 'sale') { toast('Đơn này đã vào Operations2025 — cần tách trước khi Confirm.'); return; }
+  var lines = splitSrcLines();
+  if (lines.length < 1) { toast('Đơn chưa có dòng nào (cần Code + Qty > 0).'); return; }
+  ed.piNumber = $('edPiNumber').value.trim() || ed.piNumber;
+  ed.expectedLoad = $('edLoadDate').value || '';
+  S.split = { lines: lines, n: 2, heads: [], qty: [] };
+  splitSetCount(2);
+  $('spPiNo').textContent = ed.piNumber;
+  var opt = '';
+  for (var i = 2; i <= SPLIT_MAX; i++) opt += '<option value="' + i + '">' + i + ' đơn</option>';
+  $('spCount').innerHTML = opt;
+  $('spCount').value = '2';
+  $('spError').textContent = '';
+  renderSplitHeads();
+  renderSplitTable();
+  $('spOverlay').style.display = 'flex';
+});
+
+/** Đặt số đơn tách: giữ số PI/ngày đã nhập, giữ các cột SL còn lại, phần lệch dồn về Đơn 1. */
+function splitSetCount(n) {
+  var ed = S.editor, sp = S.split;
+  sp.n = Math.max(2, Math.min(SPLIT_MAX, n));
+  var heads = [];
+  for (var p = 0; p < sp.n; p++) {
+    heads.push(sp.heads[p] || { piNumber: ed.piNumber + '-' + (p + 1), load: ed.expectedLoad || '' });
+  }
+  sp.heads = heads;
+  sp.qty = sp.lines.map(function (l, i) {
+    var row = (sp.qty[i] || []).slice(0, sp.n);
+    while (row.length < sp.n) row.push(0);
+    var sum = row.reduce(function (a, b) { return a + (Number(b) || 0); }, 0);
+    if (sum !== l.qty) {
+      row[0] = (Number(row[0]) || 0) + (l.qty - sum);
+      if (row[0] < 0) { row = row.map(function () { return 0; }); row[0] = l.qty; }
+    }
+    return row;
+  });
+}
+
+function renderSplitHeads() {
+  var sp = S.split;
+  $('spHeads').innerHTML = sp.heads.map(function (hd, p) {
+    return '<div style="border:1px solid var(--line);border-radius:8px;padding:10px 12px">' +
+      '<div style="font-weight:600;font-size:13px;margin-bottom:6px">Đơn ' + (p + 1) + '</div>' +
+      '<label>Số PI * <input type="text" data-sp-pi="' + p + '" value="' + esc(hd.piNumber) + '"></label>' +
+      '<label style="margin-top:6px">Expected Loading <input type="date" data-sp-load="' + p + '" value="' + esc(hd.load || '') + '"></label>' +
+      '<div style="margin-top:6px;font-size:12px;color:var(--muted)" id="spSub' + p + '">—</div>' +
+      '</div>';
+  }).join('');
+  $('spHeads').querySelectorAll('[data-sp-pi]').forEach(function (inp) {
+    inp.addEventListener('input', function () {
+      S.split.heads[+this.getAttribute('data-sp-pi')].piNumber = this.value;
+    });
+  });
+  $('spHeads').querySelectorAll('[data-sp-load]').forEach(function (inp) {
+    inp.addEventListener('change', function () {
+      S.split.heads[+this.getAttribute('data-sp-load')].load = this.value;
+    });
+  });
+}
+
+function renderSplitTable() {
+  var sp = S.split;
+  var head = '<th style="width:34px">#</th><th style="width:120px">Code</th><th>Sản phẩm</th>' +
+    '<th class="num" style="width:70px">Qty</th>';
+  for (var p = 0; p < sp.n; p++) head += '<th class="num" style="width:84px">Đơn ' + (p + 1) + '</th>';
+  head += '<th class="num" style="width:80px">Còn lại</th>';
+  $('spHeadRow').innerHTML = head;
+
+  $('spTable').querySelector('tbody').innerHTML = sp.lines.map(function (l, i) {
+    var cells = '';
+    for (var p = 0; p < sp.n; p++) {
+      cells += '<td class="num"><input type="number" min="0" step="1" style="width:72px" ' +
+        'data-sp-r="' + i + '" data-sp-c="' + p + '" value="' + (Number(sp.qty[i][p]) || 0) + '"></td>';
+    }
+    return '<tr><td>' + (i + 1) + '</td>' +
+      '<td><span class="code-chip">' + esc(l.code) + '</span></td>' +
+      '<td>' + esc(String(l.product || '').substring(0, 60)) + '</td>' +
+      '<td class="num">' + fmtN(l.qty, 0) + '</td>' + cells +
+      '<td class="num" data-sp-rem="' + i + '">0</td></tr>';
+  }).join('');
+
+  $('spTable').querySelectorAll('input[data-sp-r]').forEach(function (inp) {
+    inp.addEventListener('input', function () {
+      var r = +this.getAttribute('data-sp-r'), c = +this.getAttribute('data-sp-c');
+      S.split.qty[r][c] = Math.max(0, Math.floor(Number(this.value) || 0));
+      refreshSplitSums();
+    });
+  });
+  refreshSplitSums();
+}
+
+/** Dồn toàn bộ số lượng về Đơn 1. */
+function splitReset() {
+  var sp = S.split;
+  sp.qty = sp.lines.map(function (l) {
+    var row = [];
+    for (var p = 0; p < sp.n; p++) row.push(p === 0 ? l.qty : 0);
+    return row;
+  });
+  renderSplitTable();
+}
+
+/** Chia đều số lượng mỗi dòng cho các đơn; phần dư rơi vào các đơn đầu. */
+function splitEven() {
+  var sp = S.split;
+  sp.qty = sp.lines.map(function (l) {
+    var base = Math.floor(l.qty / sp.n), rem = l.qty - base * sp.n, row = [];
+    for (var p = 0; p < sp.n; p++) row.push(base + (p < rem ? 1 : 0));
+    return row;
+  });
+  renderSplitTable();
+}
+
+/** Dựng dữ liệu từng đơn tách. Discount / Other charges chia theo tỷ lệ giá trị đơn,
+ *  đơn cuối nhận phần dư để tổng luôn khớp đơn gốc (không thất thoát tiền do làm tròn). */
+function splitComputeParts() {
+  var ed = S.editor, sp = S.split, totalSub = 0;
+  sp.lines.forEach(function (l) { totalSub += l.qty * l.price; });
+  var parts = [];
+  for (var p = 0; p < sp.n; p++) {
+    var lines = [], sub = 0;
+    /* jshint loopfunc:true */
+    (function (col) {
+      sp.lines.forEach(function (l, i) {
+        var q = Number(sp.qty[i][col]) || 0;
+        if (q <= 0) return;
+        sub += q * l.price;
+        lines.push({
+          code: l.code, product: l.product, qty: q, price: l.price,
+          amount: Math.round(q * l.price * 100) / 100,
+          note: l.note || '', marking: normMarking(l.marking), netWeight: Number(l.netWeight) || 0
+        });
+      });
+    })(p);
+    parts.push({
+      piNumber: String(sp.heads[p].piNumber || '').trim(),
+      expectedLoad: sp.heads[p].load || '',
+      lines: lines,
+      subtotal: Math.round(sub * 100) / 100
+    });
+  }
+  var disc = Number(ed.discountVal) || 0, oth = Number(ed.other) || 0, dAcc = 0, oAcc = 0;
+  parts.forEach(function (pt, p) {
+    var ratio = totalSub ? pt.subtotal / totalSub : 1 / parts.length;
+    var last = (p === parts.length - 1);
+    pt.discount = last ? Math.round((disc - dAcc) * 100) / 100 : Math.round(disc * ratio * 100) / 100;
+    pt.freight = last ? Math.round((oth - oAcc) * 100) / 100 : Math.round(oth * ratio * 100) / 100;
+    dAcc += pt.discount; oAcc += pt.freight;
+    pt.fob = Math.round((pt.subtotal - pt.discount + pt.freight) * 100) / 100;
+  });
+  return parts;
+}
+
+/** Cập nhật cột "Còn lại", giá trị từng đơn và dòng tổng kết. Trả về số dòng chưa chia hết. */
+function refreshSplitSums() {
+  var sp = S.split, bad = 0;
+  sp.lines.forEach(function (l, i) {
+    var sum = sp.qty[i].reduce(function (a, b) { return a + (Number(b) || 0); }, 0);
+    var rem = l.qty - sum;
+    var td = $('spTable').querySelector('[data-sp-rem="' + i + '"]');
+    if (td) {
+      td.textContent = fmtN(rem, 0);
+      td.style.color = rem === 0 ? 'var(--muted)' : 'var(--danger)';
+      td.style.fontWeight = rem === 0 ? '' : '700';
+    }
+    if (rem !== 0) bad++;
+  });
+  var parts = splitComputeParts(), grand = 0;
+  parts.forEach(function (pt, p) {
+    grand += pt.fob;
+    var el = $('spSub' + p);
+    if (el) el.textContent = pt.lines.length + ' dòng · ' + fmt$(pt.fob);
+  });
+  $('spSummary').innerHTML = bad
+    ? '<span style="color:var(--danger);font-weight:600">' + bad + ' dòng chưa chia hết số lượng — cột “Còn lại” phải bằng 0.</span>'
+    : 'Đã chia hết số lượng · tổng ' + fmt$(Math.round(grand * 100) / 100) +
+      ' · Discount &amp; Other charges chia theo tỷ lệ giá trị từng đơn.';
+  return bad;
+}
+
+$('spCount').addEventListener('change', function () {
+  if (!S.split) return;
+  splitSetCount(parseInt(this.value, 10) || 2);
+  renderSplitHeads();
+  renderSplitTable();
+});
+$('spEvenBtn').addEventListener('click', function () { if (S.split) splitEven(); });
+$('spResetBtn').addEventListener('click', function () { if (S.split) splitReset(); });
+$('spCancelBtn').addEventListener('click', function () { $('spOverlay').style.display = 'none'; });
+
+$('spOkBtn').addEventListener('click', function () {
+  var ed = S.editor, sp = S.split;
+  if (!ed || !sp) return;
+  $('spError').textContent = '';
+  if (refreshSplitSums() > 0) {
+    $('spError').textContent = 'Còn dòng chưa chia hết số lượng — đưa cột “Còn lại” về 0 trước khi tách.';
+    return;
+  }
+  var parts = splitComputeParts(), seen = {};
+  for (var p = 0; p < parts.length; p++) {
+    if (!parts[p].piNumber) { $('spError').textContent = 'Đơn ' + (p + 1) + ' chưa có số PI.'; return; }
+    var k = parts[p].piNumber.toLowerCase();
+    if (seen[k]) { $('spError').textContent = 'Số PI "' + parts[p].piNumber + '" bị trùng giữa các đơn tách.'; return; }
+    seen[k] = true;
+    if (!parts[p].lines.length) {
+      $('spError').textContent = 'Đơn ' + (p + 1) + ' (' + parts[p].piNumber + ') chưa được chia dòng hàng nào.';
+      return;
+    }
+  }
+  var clientObj = ed.clientObj || S.currentClient;
+  var payload = {
+    origPiNumber: ed.origPiNumber || ed.piNumber,
+    client: clientObj.name,
+    piDate: $('edPiDate').value || ed.piDate,
+    status: $('edStatusSel').value || ed.status,
+    note: $('edOrderNote').value || '',
+    ownerPic: ed.ownerPic || '',
+    // dòng hàng đang mở trên form — server đối chiếu tổng SL từng mã để không thất thoát hàng khi tách
+    origLines: sp.lines.map(function (l) { return { code: l.code, qty: l.qty }; }),
+    parts: parts.map(function (pt) {
+      return {
+        piNumber: pt.piNumber, expectedLoad: pt.expectedLoad,
+        fob: pt.fob, discount: pt.discount, freight: pt.freight, lines: pt.lines
+      };
+    })
+  };
+  loading(true);
+  gs('api_splitPI', S.token, payload).then(function (res) {
+    clearDraft(); // đơn gốc không còn -> bỏ bản nháp tự lưu
+    $('spOverlay').style.display = 'none';
+    $('editorView').style.display = 'none';
+    toast('Đã tách thành ' + (res.parts || []).length + ' đơn: ' + (res.parts || []).join(', ') +
+      (res.deletedOriginal ? ' — đã xóa PI gốc ' + payload.origPiNumber + '.' : '.'));
+    S.currentClient = clientObj;
+    selectClient(clientObj);
+  }).catch(function (e) { $('spError').textContent = e.message; })
     .finally(function () { loading(false); });
 });
 
