@@ -89,6 +89,8 @@ h1, h2, h3 { margin: 0 0 12px; font-weight: 600; }
 .data-table td { padding: 7px 10px; border-top: 1px solid var(--line); vertical-align: middle; }
 .data-table .num, .data-table td.num { text-align: right; font-variant-numeric: tabular-nums; }
 .data-table tbody tr:hover { background: #fafbfd; }
+.data-table tbody tr.row-active,
+.data-table tbody tr.row-active:hover { background: var(--accent-soft); }
 .data-table input { width: 90px; padding: 5px 7px; border: 1px solid var(--line); border-radius: 5px; text-align: right; font-size: 13.5px; }
 .data-table input.wide-in { width: 100%; min-width: 220px; text-align: left; }
 .data-table td.prod { min-width: 220px; max-width: 340px; }
@@ -526,38 +528,46 @@ h1, h2, h3 { margin: 0 0 12px; font-weight: 600; }
             <button class="btn small" id="backToRevenueBtn" style="margin-top:8px;display:none">⟵ Doanh thu theo tháng</button>
             <button class="btn small" id="reqClientCodeBtn" style="margin-top:8px;display:none" title="Khách chưa có mã — xuất form yêu cầu cấp mã KH">⬇ YC tạo mã KH</button>
           </div>
-          <div class="order-picker">
-            <label>Đơn hàng
-              <select id="orderSelect"></select>
-            </label>
-          </div>
+          <button class="btn primary" id="createNewBtn">+ Create New</button>
         </div>
-        <div class="order-summary" id="orderSummary"></div>
-        <div style="display:flex;gap:8px;margin:6px 0">
-          <button class="btn small ghost" id="enToggleBtn" title="Đổi tên sản phẩm VI ⇄ EN (cả cột)">🌐 Tên: VI</button>
-          <button class="btn small ghost" id="copyDetailBtn" title="Copy bảng dạng cột để dán vào Excel">📋 Copy bảng</button>
-        </div>
-        <div class="table-wrap">
-          <table class="data-table" id="orderDetailTable">
+
+        <div class="tp-label" style="margin:10px 0 6px;font-weight:600">Đơn hàng <span style="font-weight:400;color:var(--muted)">(mới nhất theo Load Date — bấm 1 dòng để xem chi tiết)</span></div>
+        <div class="table-wrap" style="max-height:260px">
+          <table class="data-table" id="orderPickerTable">
             <thead><tr>
-              <th>#</th><th>Code</th><th>Sản phẩm</th><th class="num">Qty</th>
-              <th class="num">Đơn giá</th><th class="num">Thành tiền</th><th class="num">%LN</th><th class="num">Item CBM</th>
-              <th class="num">Marking</th><th>Ghi chú</th>
+              <th>PI / SO</th><th>Load Date</th><th>INVOICE#</th><th class="num">FOB</th><th>Status</th>
             </tr></thead>
             <tbody></tbody>
           </table>
         </div>
-        <div class="action-row">
-          <button class="btn" id="editBtn" title="Chỉ với đơn có status drafted/targeted">✎ Edit Details</button>
-          <button class="btn" id="cloneBtn">⧉ Clone</button>
-          <button class="btn primary" id="createNewBtn">+ Create New</button>
-          <button class="btn" id="exportViewBtn">⬇ Export PI</button>
-          <button class="btn" id="reviewPiBtn" style="display:none" title="Xác nhận đã kiểm tra kỹ thuật (technician)">✔ Xác nhận (reviewed)</button>
-          <button class="btn" id="rdFormBtn" style="display:none" title="Xuất form Yêu cầu phát triển sản phẩm gửi R&D">⬇ Form RD</button>
-          <button class="btn" id="confirmPiBtn" style="display:none" title="Chuyển đơn của sale vào Operations2025 (chỉ admin)">✔ Confirm → Operations2025</button>
-          <button class="btn" id="shipDocsBtn" style="display:none" title="Xuất ĐNXH + form Marking gửi nhà máy">⬇ Chứng từ NM</button>
-          <button class="btn" id="shipInfoBtn" style="display:none" title="Nhập Deposit/ETD/ETA/Invoice/Booking… + Ship Qty, xuất Custom Docs">🚢 Thông tin lô hàng</button>
-          <button class="btn danger" id="deletePiBtn" style="display:none" title="Xóa hẳn PI (chỉ đơn targeted)">🗑 Xóa PI</button>
+
+        <div id="orderDetailWrap" style="display:none">
+          <div class="order-summary" id="orderSummary"></div>
+          <div style="display:flex;gap:8px;margin:6px 0">
+            <button class="btn small ghost" id="enToggleBtn" title="Đổi tên sản phẩm VI ⇄ EN (cả cột)">🌐 Tên: VI</button>
+            <button class="btn small ghost" id="copyDetailBtn" title="Copy bảng dạng cột để dán vào Excel">📋 Copy bảng</button>
+          </div>
+          <div class="table-wrap">
+            <table class="data-table" id="orderDetailTable">
+              <thead><tr>
+                <th>#</th><th>Code</th><th>Sản phẩm</th><th class="num">Qty</th>
+                <th class="num">Đơn giá</th><th class="num">Thành tiền</th><th class="num">%LN</th><th class="num">Item CBM</th>
+                <th class="num">Marking</th><th>Ghi chú</th>
+              </tr></thead>
+              <tbody></tbody>
+            </table>
+          </div>
+          <div class="action-row">
+            <button class="btn" id="editBtn" title="Chỉ với đơn có status drafted/targeted">✎ Edit Details</button>
+            <button class="btn" id="cloneBtn">⧉ Clone</button>
+            <button class="btn" id="exportViewBtn">⬇ Export PI</button>
+            <button class="btn" id="reviewPiBtn" style="display:none" title="Xác nhận đã kiểm tra kỹ thuật (technician)">✔ Xác nhận (reviewed)</button>
+            <button class="btn" id="rdFormBtn" style="display:none" title="Xuất form Yêu cầu phát triển sản phẩm gửi R&D">⬇ Form RD</button>
+            <button class="btn" id="confirmPiBtn" style="display:none" title="Chuyển đơn của sale vào Export Order (chỉ admin)">✔ Confirm SO</button>
+            <button class="btn" id="shipDocsBtn" style="display:none" title="Xuất ĐNXH + form Marking gửi nhà máy">⬇ Chứng từ NM</button>
+            <button class="btn" id="shipInfoBtn" style="display:none" title="Nhập Deposit/ETD/ETA/Invoice/Booking… + Ship Qty, xuất Custom Docs">🚢 Thông tin lô hàng</button>
+            <button class="btn danger" id="deletePiBtn" style="display:none" title="Xóa hẳn PI (chỉ đơn targeted)">🗑 Xóa PI</button>
+          </div>
         </div>
       </section>
 
@@ -763,10 +773,10 @@ h1, h2, h3 { margin: 0 0 12px; font-weight: 600; }
   </div>
 </div>
 
-<!-- ========== Modal Confirm PI → Operations2025 (chỉ admin) ========== -->
+<!-- ========== Modal Confirm SO (chỉ admin) ========== -->
 <div class="overlay" id="cfOverlay" style="display:none">
   <div class="modal">
-    <h3>Confirm → Operations2025 <span id="cfPiNo" class="code-chip"></span></h3>
+    <h3>Confirm SO <span id="cfPiNo" class="code-chip"></span></h3>
     <div class="vb-subtitle" id="cfInfo"></div>
     <div class="picker-grid">
       <label id="cfSoLabel">Số SO * <input type="text" id="cfSo" placeholder="100xxxxxxx"></label>
@@ -781,7 +791,7 @@ h1, h2, h3 { margin: 0 0 12px; font-weight: 600; }
       <label>Month <input type="number" id="cfMonth" min="1" max="12"></label>
     </div>
     <p class="howto" style="margin-top:12px; font-size:12.5px; color:var(--muted)">
-      Đơn sẽ được ghi vào Operations2025 (Order + Details, giữ nguyên các cột công thức) và
+      Đơn sẽ được ghi vào Export Order (Order + Details, giữ nguyên các cột công thức) và
       <b>xóa khỏi file nháp của sale</b>. Đơn còn mã tạm Spare/NewRO sẽ bị chặn.
     </p>
     <div class="modal-actions">
@@ -1150,41 +1160,54 @@ function selectClient(c, targetSo) {
   $('cvMeta').textContent = ['Mã KH: ' + (c.id || '(chưa có)'), c.country, c.port && ('Cảng: ' + c.port), c.incoterm, c.saleId && ('Sale: ' + c.saleId)].filter(Boolean).join(' · ');
   // admin/master: khách chưa có mã -> hiện nút xuất form YC cấp mã KH
   $('reqClientCodeBtn').style.display = (isAdminLevel() && !c.id) ? '' : 'none';
-  $('orderSelect').innerHTML = '<option>Đang tải…</option>';
+  $('orderPickerTable').querySelector('tbody').innerHTML = '<tr><td colspan="5" style="color:var(--muted)">Đang tải…</td></tr>';
+  $('orderDetailWrap').style.display = 'none';
   $('orderDetailTable').querySelector('tbody').innerHTML = '';
   $('orderSummary').innerHTML = '';
+  S.currentOrder = null;
   loading(true);
   gs('api_clientOrders', S.token, c.name).then(function (res) {
+    // server đã trả theo Load Date giảm dần (thiếu Load Date thì dùng PI Date)
     S.orders = res.orders;
-    var sel = $('orderSelect');
     var canCreate0 = S.user.role !== 'technician';
     $('createNewBtn').style.display = canCreate0 ? '' : 'none';
-    if (!S.orders.length) {
-      sel.innerHTML = '<option value="">(Chưa có đơn nào)</option>';
-      $('editBtn').disabled = true; $('cloneBtn').disabled = true;
-      $('cloneBtn').style.display = 'none';
-      return;
-    }
-    sel.innerHTML = S.orders.map(function (o, i) {
-      // định dạng: SO -- RealLoad -- FOB -- Status (đơn từ file sale chưa có SO thì dùng số PI)
-      var label = (o.so || o.piNumber) + ' -- ' + (o.realLoad || '') + ' -- ' + fmt$(o.fob) + ' -- ' + (o.status || '?');
-      return '<option value="' + i + '">' + esc(label) + '</option>';
-    }).join('');
-    // deep-link: chọn đúng đơn theo SO thay vì đơn mới nhất
-    var startIdx = 0;
+    renderOrderPicker();
+    if (!S.orders.length) return;
+    // deep-link (từ hàng đợi/doanh thu/Shipment Tracking): mở thẳng đúng đơn theo SO/PI.
+    // Không có deep-link -> chỉ hiện bảng chọn, KHÔNG tự mở đơn mới nhất.
     if (targetSo) {
       var key = String(targetSo).toLowerCase();
       for (var i = 0; i < S.orders.length; i++) {
-        if (String(S.orders[i].so).toLowerCase() === key || String(S.orders[i].piNumber).toLowerCase() === key) { startIdx = i; break; }
+        if (String(S.orders[i].so).toLowerCase() === key || String(S.orders[i].piNumber).toLowerCase() === key) {
+          selectOrder(i);
+          break;
+        }
       }
     }
-    sel.value = String(startIdx);
-    selectOrder(startIdx);
   }).catch(function (e) { toast('Lỗi: ' + e.message); })
     .finally(function () { loading(false); });
 }
 
-$('orderSelect').addEventListener('change', function () { selectOrder(parseInt(this.value, 10)); });
+/** Bảng chọn đơn của khách hiện tại — click 1 dòng để xem chi tiết (thay cho việc tự mở đơn mới nhất). */
+function renderOrderPicker() {
+  var tb = $('orderPickerTable').querySelector('tbody');
+  if (!S.orders.length) {
+    tb.innerHTML = '<tr><td colspan="5" style="color:var(--muted)">Chưa có đơn nào.</td></tr>';
+    return;
+  }
+  tb.innerHTML = S.orders.map(function (o, i) {
+    var active = S.currentOrder && S.currentOrder === o;
+    return '<tr data-i="' + i + '" style="cursor:pointer"' + (active ? ' class="row-active"' : '') + '>' +
+      '<td>' + esc(o.so || o.piNumber) + '</td>' +
+      '<td>' + esc(o.realLoad || '—') + '</td>' +
+      '<td>' + esc(o.invoiceNo || '—') + '</td>' +
+      '<td class="num">' + fmt$(o.fob) + '</td>' +
+      '<td>' + esc(o.status || '—') + '</td></tr>';
+  }).join('');
+  tb.querySelectorAll('tr[data-i]').forEach(function (tr) {
+    tr.addEventListener('click', function () { selectOrder(parseInt(tr.getAttribute('data-i'), 10)); });
+  });
+}
 
 /* ================= Dashboard doanh thu FOB (lead) ================= */
 function loadRevenue() {
@@ -1239,7 +1262,7 @@ function renderRevenue() {
   $('revTotal').textContent = fmt$(total);
   $('revCount').textContent = rows.length;
   $('revClients').textContent = Object.keys(clients).length;
-  $('revMeta').textContent = 'Doanh thu FOB các đơn Operations2025 theo tháng Load Date. Chọn khách ở cột trái để xem chi tiết.';
+  $('revMeta').textContent = 'Doanh thu FOB các đơn Export Order theo tháng Load Date. Chọn khách ở cột trái để xem chi tiết.';
 
   // danh sách đơn trong tháng (bấm để xem chi tiết) — sắp theo ngày load mới nhất
   var ord = rows.slice().sort(function (a, b) { return String(b.realLoad || b.piDate).localeCompare(String(a.realLoad || a.piDate)); });
@@ -2043,6 +2066,10 @@ function selectOrder(i) {
   var o = S.orders[i];
   if (!o) return;
   S.currentOrder = o;
+  $('orderDetailWrap').style.display = 'block';
+  $('orderPickerTable').querySelectorAll('tbody tr[data-i]').forEach(function (tr) {
+    tr.classList.toggle('row-active', +tr.getAttribute('data-i') === i);
+  });
   var st = (o.status || '').toLowerCase();
   var editable = canEditOrder(o);
   $('editBtn').disabled = !editable;
@@ -2784,7 +2811,7 @@ $('edSaveBtn').addEventListener('click', function () {
     toast('Đã lưu PI ' + res.piNumber + ' cho khách ' + clientObj.name + ' (' + ed.status + ').');
     $('editorView').style.display = 'none';
     S.currentClient = clientObj; // chuyển ngữ cảnh sang khách của đơn vừa lưu
-    selectClient(clientObj); // reload danh sách đơn của khách đó
+    selectClient(clientObj, res.piNumber); // reload danh sách đơn + mở lại đúng đơn vừa lưu
   }).catch(function (e) { toast('Lỗi khi lưu: ' + e.message); })
     .finally(function () { loading(false); });
 });
@@ -2812,7 +2839,7 @@ function updateSplitBtn() {
   btn.disabled = !eligible;
   btn.title = eligible
     ? (ed.source === 'ops2025'
-      ? 'Tách SO này thành nhiều SO riêng trên Operations2025 để giao hàng nhiều lần'
+      ? 'Tách SO này thành nhiều SO riêng trên Export Order để giao hàng nhiều lần'
       : 'Tách PI này thành nhiều đơn để tách SO khi nhập SAP / giao hàng nhiều lần')
     : 'Đơn đã ở trạng thái closed — không tách được nữa';
 }
@@ -2845,7 +2872,7 @@ $('edSplitBtn').addEventListener('click', function () {
   var subtitleEl = $('spSubtitle');
   if (subtitleEl) {
     subtitleEl.innerHTML = isOps
-      ? 'Mỗi đơn tách ra là một <b>SO riêng trên Operations2025</b> để giao hàng thành nhiều lần. ' +
+      ? 'Mỗi đơn tách ra là một <b>SO riêng trên Export Order</b> để giao hàng thành nhiều lần. ' +
         'Dòng có Qty &gt; 1 chia được số lượng cho nhiều đơn. SO gốc sẽ bị xóa sau khi tách.'
       : 'Mỗi đơn tách ra là một PI riêng để nhập <b>một SO riêng</b> lên SAP và giao hàng thành nhiều lần. ' +
         'Dòng có Qty &gt; 1 chia được số lượng cho nhiều đơn. PI gốc sẽ bị xóa sau khi tách.';
@@ -3824,7 +3851,7 @@ $('reviewPiBtn').addEventListener('click', function () {
     loading(true);
     gs('api_reviewPI', S.token, { piNumber: o.piNumber, ownerPic: o.pic || '' }).then(function () {
       toast('Đã xác nhận reviewed.');
-      selectClient(S.currentClient);
+      selectClient(S.currentClient, o.piNumber || o.so);
     }).catch(function (e) { toast('Lỗi: ' + e.message); })
       .finally(function () { loading(false); });
   });
@@ -3896,7 +3923,7 @@ $('confirmPiBtn').addEventListener('click', function () {
   $('cfPiNo').textContent = o.piNumber;
   $('cfInfo').textContent = isUpdate
     ? 'Ghi ngược cập nhật vào đơn có sẵn — SO ' + o.piNumber + ' · PIC ' + (o.pic || '?')
-    : 'Tạo dòng mới trong Operations2025 · PIC ' + (o.pic || '?');
+    : 'Tạo dòng mới trong Export Order · PIC ' + (o.pic || '?');
   $('cfSo').value = isUpdate ? o.piNumber : '';
   $('cfSo').disabled = isUpdate;
   $('cfLoad').value = o.realLoad || ''; // prefill từ Expected_Load của PI nếu có
@@ -3929,8 +3956,10 @@ $('cfOkBtn').addEventListener('click', function () {
     $('cfOverlay').style.display = 'none';
     toast(res.mode === 'update'
       ? 'Đã ghi ngược cập nhật vào SO ' + res.so + ' và xóa bản nháp của sale.'
-      : 'Đã chuyển đơn vào Operations2025 (SO ' + res.so + ') và xóa bản nháp của sale.');
-    selectClient(S.currentClient); // nạp lại danh sách đơn (bản ops hiện ra thay bản nháp)
+      : res.mode === 'rename'
+        ? 'Đã gán SO ' + res.so + ' cho đơn có sẵn trên Export Order và xóa bản nháp của sale.'
+        : 'Đã chuyển đơn vào Export Order (SO ' + res.so + ') và xóa bản nháp của sale.');
+    selectClient(S.currentClient, res.so); // nạp lại danh sách đơn + mở lại đúng đơn vừa Confirm (bản ops hiện ra thay bản nháp)
     // #7 chứng từ gửi nhà máy — hỏi trước khi tải (tránh tải nhầm khi chỉ muốn cập nhật đơn)
     appConfirm('Xuất chứng từ gửi nhà máy cho SO ' + res.so + ' (ĐNXH + form Marking cho các mã Marking = Y)?',
       function () { exportShipDocs(res.so); });
