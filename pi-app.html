@@ -532,7 +532,7 @@ h1, h2, h3 { margin: 0 0 12px; font-weight: 600; }
         </div>
 
         <div class="tp-label" style="margin:10px 0 6px;font-weight:600">Đơn hàng <span style="font-weight:400;color:var(--muted)">(mới nhất theo Load Date — bấm 1 dòng để xem chi tiết)</span></div>
-        <div class="table-wrap" style="max-height:260px">
+        <div class="table-wrap" id="orderPickerWrap">
           <table class="data-table" id="orderPickerTable">
             <thead><tr>
               <th>PI / SO</th><th>Load Date</th><th>INVOICE#</th><th class="num">FOB</th><th>Status</th>
@@ -1188,11 +1188,15 @@ function selectClient(c, targetSo) {
     .finally(function () { loading(false); });
 }
 
-/** Bảng chọn đơn của khách hiện tại — click 1 dòng để xem chi tiết (thay cho việc tự mở đơn mới nhất). */
+/** Bảng chọn đơn của khách hiện tại — click 1 dòng để xem chi tiết (thay cho việc tự mở đơn mới nhất).
+ *  Giới hạn hiển thị tối đa 4 dòng, nhiều hơn thì cuộn — chiều cao đo động theo dòng thực tế đã render. */
+var ORDER_PICKER_MAX_ROWS = 4;
 function renderOrderPicker() {
+  var wrap = $('orderPickerWrap');
   var tb = $('orderPickerTable').querySelector('tbody');
   if (!S.orders.length) {
     tb.innerHTML = '<tr><td colspan="5" style="color:var(--muted)">Chưa có đơn nào.</td></tr>';
+    wrap.style.maxHeight = '';
     return;
   }
   tb.innerHTML = S.orders.map(function (o, i) {
@@ -1207,6 +1211,15 @@ function renderOrderPicker() {
   tb.querySelectorAll('tr[data-i]').forEach(function (tr) {
     tr.addEventListener('click', function () { selectOrder(parseInt(tr.getAttribute('data-i'), 10)); });
   });
+  if (S.orders.length > ORDER_PICKER_MAX_ROWS) {
+    var thead = $('orderPickerTable').querySelector('thead');
+    var firstRow = tb.querySelector('tr');
+    var headH = thead ? thead.getBoundingClientRect().height : 0;
+    var rowH = firstRow ? firstRow.getBoundingClientRect().height : 0;
+    wrap.style.maxHeight = rowH ? (headH + rowH * ORDER_PICKER_MAX_ROWS) + 'px' : '260px';
+  } else {
+    wrap.style.maxHeight = '';
+  }
 }
 
 /* ================= Dashboard doanh thu FOB (lead) ================= */
