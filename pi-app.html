@@ -2128,7 +2128,7 @@ function selectOrder(i) {
 /** Vẽ bảng chi tiết đơn đang xem (kèm %LN từng dòng + %LN tổng — Proposed tra từ catalog hub). */
 function renderOrderDetailRows() {
   var tbody = $('orderDetailTable').querySelector('tbody');
-  var totalLn = 0, totalValue = 0, totalCbm = 0;
+  var totalLn = 0, totalCbm = 0;
   var enOn = !!S._enNames;
   tbody.innerHTML = S.currentLines.length ? S.currentLines.map(function (d, j) {
     // Item CBM (theo mục hàng): ưu tiên cột ICBM; nếu trống thì tự tính từ packing. KHÔNG dùng cột CBM (theo thùng).
@@ -2137,7 +2137,6 @@ function renderOrderDetailRows() {
     var p = findProduct(d.code);
     var ln = lineLnPct(d.price, p ? p.price : 0);
     var value = d.value || d.orderQty * d.price;
-    totalValue += value;
     if (ln != null) totalLn += (d.price - p.price * 0.88) * d.orderQty;
     var lnCls = ln == null ? '' : (ln < 0 ? 'neg' : (ln < S.dashboard.minMargin * 100 ? 'low' : ''));
     // Tên sản phẩm: EN (International_name) khi bật toggle, thiếu thì giữ tên gốc
@@ -2150,8 +2149,13 @@ function renderOrderDetailRows() {
       '<td class="num">' + (normMarking(d.marking) === 'Y' ? '✔' : (normMarking(d.marking) === 'N' ? '—' : '')) + '</td>' +
       '<td>' + esc(d.note || '') + '</td></tr>';
   }).join('') : '<tr><td colspan="10" style="color:var(--muted)">Không có dòng chi tiết.</td></tr>';
+  // %LN tổng = (Tổng LN từng dòng − Chiết khấu) / FOB (FOB đã là Grand Total lúc lưu đơn — xem edSaveBtn).
   var el = $('ordLnTotal');
-  if (el) el.textContent = totalValue > 0 && S.products ? fmtN(totalLn / totalValue * 100, 1) + '%' : '—';
+  if (el) {
+    var grandView = Number(S.currentOrder && S.currentOrder.fob) || 0;
+    var discView = Number(S.currentOrder && S.currentOrder.discount) || 0;
+    el.textContent = grandView > 0 && S.products ? fmtN((totalLn - discView) / grandView * 100, 1) + '%' : '—';
+  }
   var elc = $('ordCbmTotal');
   if (elc) elc.textContent = totalCbm > 0 ? fmtN(totalCbm) + ' m³' : '—';
   var btn = $('enToggleBtn');
@@ -2693,8 +2697,9 @@ function renderTotals() {
   var grand = sub - (S.editor.discountVal || 0) + (S.editor.other || 0);
   $('tSubtotal').textContent = fmt$(sub);
   $('tGrand').textContent = fmt$(grand);
-  // %LN tổng = tổng LN / Grand Total — đổi discount/other charges cũng làm % thay đổi
-  var lnPct = grand > 0 ? totalLn / grand * 100 : null;
+  // %LN tổng = (tổng LN từng dòng − Chiết khấu) / Grand Total — chiết khấu trừ vào lợi nhuận trước khi chia,
+  // không chỉ làm giảm mẫu số (Grand Total); other charges không phải lợi nhuận nên không trừ vào tử số.
+  var lnPct = grand > 0 ? (totalLn - (S.editor.discountVal || 0)) / grand * 100 : null;
   var lnEl = $('tLnPct');
   lnEl.textContent = lnPct == null ? '—' : fmtN(lnPct, 1) + '%';
   lnEl.style.color = lnPct == null ? '' : (lnPct < 0 ? 'var(--danger)' : (lnPct < S.dashboard.minMargin * 100 ? 'var(--warn)' : ''));
