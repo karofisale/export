@@ -897,7 +897,7 @@ var S = {
 var EDITABLE_STATUSES = ['drafted', 'targeted', 'sale edited', 'new created'];
 // Vai trò có trang đầu là bảng đơn hàng theo tháng (và nút ⟵ quay lại bảng đó).
 // technician có trang đầu riêng là hàng đợi cần kiểm tra.
-var MONTH_VIEW_ROLES = ['sale', 'lead', 'admin', 'master'];
+var MONTH_VIEW_ROLES = ['sale', 'lead', 'leader', 'admin', 'master'];
 // Trạng thái chọn được trong ô Trạng thái của form báo giá.
 var STATUS_OPTIONS = ['targeted', 'drafted'];
 var STATUS_OPTIONS_ADMIN = ['targeted', 'drafted', 'reviewed', 'booked', 'shipped', 'closed'];
@@ -1169,7 +1169,7 @@ function selectClient(c, targetSo) {
   gs('api_clientOrders', S.token, c.name).then(function (res) {
     // server đã trả theo Load Date giảm dần (thiếu Load Date thì dùng PI Date)
     S.orders = res.orders;
-    var canCreate0 = S.user.role !== 'technician';
+    var canCreate0 = S.user.role !== 'technician' && S.user.role !== 'leader';
     $('createNewBtn').style.display = canCreate0 ? '' : 'none';
     renderOrderPicker();
     if (!S.orders.length) return;
@@ -1233,7 +1233,7 @@ function loadRevenue() {
   $('prodView').style.display = 'none';
   $('shipView').style.display = 'none';
   $('revenueView').style.display = 'block';
-  var isLead = S.user.role === 'lead' || S.user.role === 'admin' || S.user.role === 'master';
+  var isLead = S.user.role === 'lead' || S.user.role === 'leader' || S.user.role === 'admin' || S.user.role === 'master';
   $('revTitle').textContent = isLead ? 'Doanh thu theo tháng' : 'Đơn hàng của tôi theo tháng';
   if (!S.revMonth) S.revMonth = new Date().toISOString().slice(0, 7); // yyyy-MM hiện tại
   if (S.revOrders) { renderRevenue(); return; }
@@ -1882,7 +1882,7 @@ $('pmSaveBomBtn').addEventListener('click', function () {
 });
 
 /* ================= #10 Dashboard tiến độ PTSP (live từ Jira) ================= */
-var PTSP_ROLES = ['technician', 'admin', 'master', 'lead'];
+var PTSP_ROLES = ['technician', 'admin', 'master', 'lead', 'leader'];
 
 function loadPtsp(force) {
   setSidebar(false);
@@ -2071,6 +2071,7 @@ function openQueueRow(o) {
  *  sửa xong thành bản nháp "Sale Edited", admin Confirm để ghi ngược lại SO đó).
  *  sale/lead: chỉ các trạng thái trong EDITABLE_STATUSES. */
 function canEditOrder(o) {
+  if (S.user.role === 'leader') return false; // leader: chỉ xem, không sửa đơn ở bất kỳ trạng thái nào
   if (isAdminLevel() || S.user.role === 'technician') return true;
   return EDITABLE_STATUSES.indexOf((o.status || '').toLowerCase()) >= 0;
 }
@@ -2087,8 +2088,8 @@ function selectOrder(i) {
   var editable = canEditOrder(o);
   $('editBtn').disabled = !editable;
   $('editBtn').title = editable ? '' : 'Đơn ở trạng thái này không sửa được với quyền của bạn';
-  // technician chỉ review, không được Clone/Create New
-  var canCreate = S.user.role !== 'technician';
+  // technician chỉ review, leader chỉ xem — cả hai không được Clone/Create New
+  var canCreate = S.user.role !== 'technician' && S.user.role !== 'leader';
   $('cloneBtn').style.display = canCreate ? '' : 'none';
   $('createNewBtn').style.display = canCreate ? '' : 'none';
   $('cloneBtn').disabled = false;

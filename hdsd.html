@@ -11,7 +11,7 @@
     --line:#dde4de; --line-soft:#e9eee9;
     --accent:#0e6e64; --accent-strong:#0a5049; --accent-soft:#e2efeb;
     --warn:#b5691f; --warn-soft:#f6e9d8; --danger:#b3432b;
-    --sale:#0e6e64; --lead:#7a5bd0; --tech:#b5691f; --admin:#c0392b; --master:#1f6feb;
+    --sale:#0e6e64; --lead:#7a5bd0; --leader:#4a5568; --tech:#b5691f; --admin:#c0392b; --master:#1f6feb;
     --on-accent:#fff;
     --radius:12px;
     --maxw:960px;
@@ -23,7 +23,7 @@
       --line:#2a332d; --line-soft:#232b26;
       --accent:#4fd1a5; --accent-strong:#7fe0c0; --accent-soft:#183028;
       --warn:#e0a35a; --warn-soft:#2c2114; --danger:#e0715a;
-      --sale:#4fd1a5; --lead:#b49bf0; --tech:#e0a35a; --admin:#e0715a; --master:#6fa8ff;
+      --sale:#4fd1a5; --lead:#b49bf0; --leader:#a0aec0; --tech:#e0a35a; --admin:#e0715a; --master:#6fa8ff;
       --on-accent:#08120e;
     }
   }
@@ -33,7 +33,7 @@
     --line:#dde4de; --line-soft:#e9eee9;
     --accent:#0e6e64; --accent-strong:#0a5049; --accent-soft:#e2efeb;
     --warn:#b5691f; --warn-soft:#f6e9d8; --danger:#b3432b;
-    --sale:#0e6e64; --lead:#7a5bd0; --tech:#b5691f; --admin:#c0392b; --master:#1f6feb;
+    --sale:#0e6e64; --lead:#7a5bd0; --leader:#4a5568; --tech:#b5691f; --admin:#c0392b; --master:#1f6feb;
     --on-accent:#fff;
   }
   :root[data-theme="dark"]{
@@ -115,10 +115,10 @@
   .role{background:var(--panel); border:1px solid var(--line); border-radius:var(--radius); padding:16px 18px; border-top:3px solid var(--rc,var(--accent))}
   .role .rname{font-weight:750; font-size:15px; color:var(--rc,var(--accent)); display:flex; align-items:center; gap:8px; margin-bottom:4px}
   .role p{font-size:14px; color:var(--ink-soft); margin:0}
-  .r-sale{--rc:var(--sale)} .r-lead{--rc:var(--lead)} .r-tech{--rc:var(--tech)} .r-admin{--rc:var(--admin)} .r-master{--rc:var(--master)}
+  .r-sale{--rc:var(--sale)} .r-lead{--rc:var(--lead)} .r-leader{--rc:var(--leader)} .r-tech{--rc:var(--tech)} .r-admin{--rc:var(--admin)} .r-master{--rc:var(--master)}
 
   .rolebadge{display:inline-block; font-size:11.5px; font-weight:700; letter-spacing:.03em; padding:2px 9px; border-radius:999px; color:var(--on-accent); vertical-align:middle}
-  .b-sale{background:var(--sale)} .b-lead{background:var(--lead)} .b-tech{background:var(--tech)} .b-admin{background:var(--admin)} .b-master{background:var(--master)}
+  .b-sale{background:var(--sale)} .b-lead{background:var(--lead)} .b-leader{background:var(--leader)} .b-tech{background:var(--tech)} .b-admin{background:var(--admin)} .b-master{background:var(--master)}
 
   ol.steps{list-style:none; padding:0; counter-reset:s; margin:14px 0}
   ol.steps>li{counter-increment:s; position:relative; padding:4px 0 14px 44px; margin:0}
@@ -252,13 +252,13 @@
       <thead><tr><th>Màn hình</th><th>Ai thấy</th><th>Dùng để</th></tr></thead>
       <tbody>
         <tr><td>Đơn hàng của tôi</td><td>Sale</td><td>Danh sách đơn của mình theo tháng, mở nhanh một đơn</td></tr>
-        <tr><td>Doanh thu theo tháng</td><td>Lead, Admin, Master</td><td>Tổng FOB tháng, số đơn, số khách + danh sách đơn trong tháng (trang chủ của 3 vai trò này)</td></tr>
+        <tr><td>Doanh thu theo tháng</td><td>Lead, Leader, Admin, Master</td><td>Tổng FOB tháng, số đơn, số khách + danh sách đơn trong tháng (trang chủ của 4 vai trò này)</td></tr>
         <tr><td>Đơn hàng cần kiểm tra</td><td>Kỹ thuật</td><td>Hàng đợi mọi đơn của các sale đang chờ duyệt kỹ thuật</td></tr>
         <tr><td>Chi tiết khách &amp; đơn</td><td>Tất cả</td><td>Xem dòng hàng, %LN, Item CBM, Marking, ghi chú; nơi chứa mọi nút hành động</td></tr>
         <tr><td>Form báo giá</td><td>Sale, Kỹ thuật, Admin, Master</td><td>Soạn/sửa dòng hàng, chiết khấu, đóng gói, tổng CBM &amp; container; Admin tách 1 PI thành nhiều đơn</td></tr>
         <tr><td>Quản lý danh mục SP</td><td>Kỹ thuật, Admin, Master</td><td>Sản phẩm · Nhập batch · Model · BOM máy · cấp mã cho hàng mới</td></tr>
         <tr><td>Thông tin lô hàng</td><td>Admin, Master</td><td>Deposit/ETD/ETA/Invoice/Booking… + Ship Qty + xuất Custom Docs</td></tr>
-        <tr><td>Tiến độ PTSP</td><td>Kỹ thuật, Lead, Admin, Master</td><td>Dashboard dự án phát triển sản phẩm đọc live từ Jira</td></tr>
+        <tr><td>Tiến độ PTSP</td><td>Kỹ thuật, Lead, Leader, Admin, Master</td><td>Dashboard dự án phát triển sản phẩm đọc live từ Jira</td></tr>
         <tr><td>Shipment Tracking</td><td>Tất cả (sửa: Admin/Master)</td><td>Lịch trình vận chuyển, tra cứu vận đơn theo hãng tàu</td></tr>
       </tbody>
     </table></div>
@@ -316,6 +316,7 @@
       <div class="role r-tech"><div class="rname">● Kỹ thuật (Technician)</div><p>Duyệt kỹ thuật, sửa được <b>mọi đơn ở mọi trạng thái</b>, xuất form R&amp;D, và <b>quản lý danh mục sản phẩm / model / BOM / cấp mã</b>.</p></div>
       <div class="role r-admin"><div class="rname">● Admin</div><p>Toàn quyền vận hành: sửa <b>mọi đơn ở mọi trạng thái</b>, <b>tách đơn</b>, mã khách, <b>Confirm</b>, chứng từ nhà máy, thông tin lô hàng, Custom Docs, danh mục SP. Trang chủ là dashboard doanh thu theo tháng.</p></div>
       <div class="role r-master"><div class="rname">● Master</div><p>Như Admin và nhìn thấy <b>tất cả</b> khách/đơn không giới hạn.</p></div>
+      <div class="role r-leader"><div class="rname">● Leader</div><p>Xem <b>toàn bộ</b> khách/đơn/dashboard như Master (doanh thu theo tháng, PTSP, chi tiết mọi đơn) nhưng <b>không sửa/tạo/xoá được gì</b> — không có nút Tạo mới, Sửa, Tách đơn, Confirm, mã khách, chứng từ, thông tin lô hàng.</p></div>
     </div>
 
     <div class="tbl-wrap"><table class="matrix">
@@ -323,28 +324,29 @@
         <th>Chức năng</th>
         <th><span class="rolebadge b-sale">Sale</span></th>
         <th><span class="rolebadge b-lead">Lead</span></th>
+        <th><span class="rolebadge b-leader">Leader</span></th>
         <th><span class="rolebadge b-tech">Tech</span></th>
         <th><span class="rolebadge b-admin">Admin</span></th>
         <th><span class="rolebadge b-master">Master</span></th>
       </tr></thead>
       <tbody>
-        <tr><td>Xem khách &amp; đơn</td><td>của mình</td><td class="y">toàn bộ</td><td class="y">toàn bộ</td><td class="y">toàn bộ</td><td class="y">tất cả</td></tr>
-        <tr><td>Bảng đơn hàng theo tháng</td><td>đơn của mình</td><td class="y">✔</td><td class="n">—</td><td class="y">✔</td><td class="y">✔</td></tr>
-        <tr><td>Tạo / nhân bản đơn</td><td class="y">✔</td><td class="n">—</td><td class="n">—</td><td class="y">✔</td><td class="y">✔</td></tr>
-        <tr><td>Sửa dòng hàng</td><td>đơn của mình,<br>trạng thái mở</td><td class="n">—</td><td class="y">mọi đơn,<br>mọi trạng thái</td><td class="y">mọi đơn,<br>mọi trạng thái</td><td class="y">mọi đơn,<br>mọi trạng thái</td></tr>
-        <tr><td>Đổi trạng thái đơn</td><td>targeted ↔ drafted</td><td class="n">—</td><td>targeted ↔ drafted</td><td class="y">mọi trạng thái</td><td class="y">mọi trạng thái</td></tr>
-        <tr><td>Tách 1 PI thành nhiều đơn</td><td class="n">—</td><td class="n">—</td><td class="n">—</td><td class="y">✔</td><td class="y">✔</td></tr>
-        <tr><td>Xuất PI (Excel/PDF)</td><td class="y">✔</td><td class="y">✔</td><td class="y">✔</td><td class="y">✔</td><td class="y">✔</td></tr>
-        <tr><td>Xoá PI (<code>targeted</code>)</td><td>của mình</td><td class="n">—</td><td class="n">—</td><td class="y">✔</td><td class="y">✔</td></tr>
-        <tr><td>Xác nhận (reviewed)</td><td class="n">—</td><td class="n">—</td><td class="y">✔</td><td class="n">—</td><td class="n">—</td></tr>
-        <tr><td>Xuất form R&amp;D</td><td class="n">—</td><td class="n">—</td><td class="y">✔</td><td class="y">✔</td><td class="y">✔</td></tr>
-        <tr><td>Confirm → Operations2025</td><td class="n">—</td><td class="n">—</td><td class="n">—</td><td class="y">✔</td><td class="y">✔</td></tr>
-        <tr><td>Mã khách / YC tạo mã KH</td><td class="n">—</td><td class="n">—</td><td class="n">—</td><td class="y">✔</td><td class="y">✔</td></tr>
-        <tr><td>Chứng từ NM (ĐNXH + Marking)</td><td class="n">—</td><td class="n">—</td><td class="n">—</td><td class="y">✔</td><td class="y">✔</td></tr>
-        <tr><td>Thông tin lô hàng + Custom Docs</td><td class="n">—</td><td class="n">—</td><td class="n">—</td><td class="y">✔</td><td class="y">✔</td></tr>
-        <tr><td>Quản lý danh mục SP</td><td class="n">—</td><td class="n">—</td><td class="y">✔</td><td class="y">✔</td><td class="y">✔</td></tr>
-        <tr><td>Dashboard tiến độ PTSP</td><td class="n">—</td><td class="y">✔</td><td class="y">✔</td><td class="y">✔</td><td class="y">✔</td></tr>
-        <tr><td>Sửa Shipment Tracking</td><td class="n">chỉ xem</td><td class="n">chỉ xem</td><td class="n">chỉ xem</td><td class="y">✔</td><td class="y">✔</td></tr>
+        <tr><td>Xem khách &amp; đơn</td><td>của mình</td><td class="y">toàn bộ</td><td class="y">toàn bộ</td><td class="y">toàn bộ</td><td class="y">toàn bộ</td><td class="y">tất cả</td></tr>
+        <tr><td>Bảng đơn hàng theo tháng</td><td>đơn của mình</td><td class="y">✔</td><td class="y">✔</td><td class="n">—</td><td class="y">✔</td><td class="y">✔</td></tr>
+        <tr><td>Tạo / nhân bản đơn</td><td class="y">✔</td><td class="n">—</td><td class="n">—</td><td class="n">—</td><td class="y">✔</td><td class="y">✔</td></tr>
+        <tr><td>Sửa dòng hàng</td><td>đơn của mình,<br>trạng thái mở</td><td class="n">—</td><td class="n">—</td><td class="y">mọi đơn,<br>mọi trạng thái</td><td class="y">mọi đơn,<br>mọi trạng thái</td><td class="y">mọi đơn,<br>mọi trạng thái</td></tr>
+        <tr><td>Đổi trạng thái đơn</td><td>targeted ↔ drafted</td><td class="n">—</td><td class="n">—</td><td>targeted ↔ drafted</td><td class="y">mọi trạng thái</td><td class="y">mọi trạng thái</td></tr>
+        <tr><td>Tách 1 PI thành nhiều đơn</td><td class="n">—</td><td class="n">—</td><td class="n">—</td><td class="n">—</td><td class="y">✔</td><td class="y">✔</td></tr>
+        <tr><td>Xuất PI (Excel/PDF)</td><td class="y">✔</td><td class="y">✔</td><td class="y">✔</td><td class="y">✔</td><td class="y">✔</td><td class="y">✔</td></tr>
+        <tr><td>Xoá PI (<code>targeted</code>)</td><td>của mình</td><td class="n">—</td><td class="n">—</td><td class="n">—</td><td class="y">✔</td><td class="y">✔</td></tr>
+        <tr><td>Xác nhận (reviewed)</td><td class="n">—</td><td class="n">—</td><td class="n">—</td><td class="y">✔</td><td class="n">—</td><td class="n">—</td></tr>
+        <tr><td>Xuất form R&amp;D</td><td class="n">—</td><td class="n">—</td><td class="n">—</td><td class="y">✔</td><td class="y">✔</td><td class="y">✔</td></tr>
+        <tr><td>Confirm → Operations2025</td><td class="n">—</td><td class="n">—</td><td class="n">—</td><td class="n">—</td><td class="y">✔</td><td class="y">✔</td></tr>
+        <tr><td>Mã khách / YC tạo mã KH</td><td class="n">—</td><td class="n">—</td><td class="n">—</td><td class="n">—</td><td class="y">✔</td><td class="y">✔</td></tr>
+        <tr><td>Chứng từ NM (ĐNXH + Marking)</td><td class="n">—</td><td class="n">—</td><td class="n">—</td><td class="n">—</td><td class="y">✔</td><td class="y">✔</td></tr>
+        <tr><td>Thông tin lô hàng + Custom Docs</td><td class="n">—</td><td class="n">—</td><td class="n">—</td><td class="n">—</td><td class="y">✔</td><td class="y">✔</td></tr>
+        <tr><td>Quản lý danh mục SP</td><td class="n">—</td><td class="n">—</td><td class="n">—</td><td class="y">✔</td><td class="y">✔</td><td class="y">✔</td></tr>
+        <tr><td>Dashboard tiến độ PTSP</td><td class="n">—</td><td class="y">✔</td><td class="y">✔</td><td class="y">✔</td><td class="y">✔</td><td class="y">✔</td></tr>
+        <tr><td>Sửa Shipment Tracking</td><td class="n">chỉ xem</td><td class="n">chỉ xem</td><td class="n">chỉ xem</td><td class="n">chỉ xem</td><td class="y">✔</td><td class="y">✔</td></tr>
       </tbody>
     </table></div>
   </section>
@@ -470,13 +472,14 @@
   </section>
 
   <section id="lead">
-    <h2><span class="num">09</span> Doanh thu theo tháng <span class="rolebadge b-lead">Lead</span> <span class="rolebadge b-admin">Admin</span> <span class="rolebadge b-master">Master</span></h2>
-    <p class="section-sub">Trang chủ của Lead, Admin và Master là <b>Doanh thu theo tháng</b> — tính trên các đơn đã vào Operations2025 theo tháng Load Date. (Sale thấy cùng bảng này nhưng chỉ gồm đơn của mình, tên là “Đơn hàng của tôi theo tháng”.)</p>
+    <h2><span class="num">09</span> Doanh thu theo tháng <span class="rolebadge b-lead">Lead</span> <span class="rolebadge b-leader">Leader</span> <span class="rolebadge b-admin">Admin</span> <span class="rolebadge b-master">Master</span></h2>
+    <p class="section-sub">Trang chủ của Lead, Leader, Admin và Master là <b>Doanh thu theo tháng</b> — tính trên các đơn đã vào Operations2025 theo tháng Load Date. (Sale thấy cùng bảng này nhưng chỉ gồm đơn của mình, tên là “Đơn hàng của tôi theo tháng”.)</p>
     <ul>
       <li>Ba chỉ số tháng: <b>Tổng FOB</b>, <b>Số đơn</b>, <b>Số khách</b>. Đổi tháng bằng ◀ ▶.</li>
       <li><b>Danh sách đơn trong tháng</b>: Khách · <b>Thị trường</b> · SO · Ngày load · FOB · Status — bấm một dòng để xem chi tiết ngay, không cần chọn khách trước. Trong chi tiết có nút <span class="btn-ex">⟵ Doanh thu theo tháng</span> để quay lại.</li>
       <li>Vẫn có cột khách bên trái để mở chi tiết một khách như thường.</li>
       <li>Xem được <span class="btn-ex">📊 Tiến độ PTSP</span> và <span class="btn-ex">🚢 Shipment</span> (chỉ xem).</li>
+      <li><b>Leader:</b> thấy y hệt Master ở mọi màn hình trên, nhưng mọi nút hành động (Tạo mới, Sửa, Tách đơn, Confirm, Xoá…) đều ẩn hoặc bị chặn — chỉ xem.</li>
     </ul>
   </section>
 
@@ -555,7 +558,7 @@
   <hr class="divider">
 
   <section id="ptsp">
-    <h2><span class="num">12</span> Tiến độ PTSP (đọc live từ Jira) <span class="rolebadge b-lead">Lead</span> <span class="rolebadge b-tech">Tech</span> <span class="rolebadge b-admin">Admin</span> <span class="rolebadge b-master">Master</span></h2>
+    <h2><span class="num">12</span> Tiến độ PTSP (đọc live từ Jira) <span class="rolebadge b-lead">Lead</span> <span class="rolebadge b-leader">Leader</span> <span class="rolebadge b-tech">Tech</span> <span class="rolebadge b-admin">Admin</span> <span class="rolebadge b-master">Master</span></h2>
     <p class="section-sub">Bấm <span class="btn-ex">📊 Tiến độ PTSP</span>. Dashboard đọc <b>trực tiếp</b> từ Jira nội bộ (jira.karofi.com) — không phải bản chụp tay, nên số liệu luôn khớp với Jira.</p>
     <ul>
       <li><b>Sáu chỉ số tổng:</b> Hoàn thành chung (%), Số dự án, Tổng đầu việc, Đã xong, Đang làm, Chưa làm.</li>
