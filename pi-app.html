@@ -377,8 +377,10 @@ h1, h2, h3 { margin: 0 0 12px; font-weight: 600; }
               <label>Factory_name * <input type="text" id="pmName" placeholder="Tên tiếng Việt (nhà máy)"></label>
               <label>International_name <input type="text" id="pmNameEn" placeholder="Tên tiếng Anh (dùng trên PI)"></label>
               <label>Category
-                <input type="text" id="pmCategory" list="pmCategoryList" placeholder="Gõ để tìm…" style="padding:8px 10px;border:1px solid var(--line);border-radius:6px;font-size:14px">
-                <datalist id="pmCategoryList"></datalist>
+                <div class="ac-wrap">
+                  <input type="text" id="pmCategory" placeholder="Gõ để tìm…" autocomplete="off">
+                  <div class="ac-list" id="pmCategoryAcList" style="display:none"></div>
+                </div>
               </label>
               <label>Option <input type="text" id="pmOption"></label>
               <label>Model
@@ -1497,7 +1499,7 @@ function pmFillDatalists() {
   function fillDatalist(id, obj) {
     $(id).innerHTML = Object.keys(obj).sort().map(function (v) { return '<option value="' + esc(v) + '">'; }).join('');
   }
-  fillDatalist('pmCategoryList', cats);
+  S._pmCategories = Object.keys(cats).sort();
   fillDatalist('pmMdCategoryList', mdCats);
   fillDatalist('pmCompIdList', compIds);
   fillDatalist('pmCompOptList', compOpts);
@@ -1549,7 +1551,52 @@ function pmFillPackTypes(keepPack) {
     sel.insertAdjacentHTML('afterbegin', '<option value="' + esc(cur) + '" selected>' + esc(cur) + '</option>');
   }
 }
-$('pmCategory').addEventListener('input', function () { pmFillModels(''); pmFillPackTypes(''); });
+/* ---- Category autocomplete tự dựng (thay datalist trình duyệt — datalist không tự xổ khi gõ, phải click lại) ---- */
+var _pmCatItems = [], _pmCatActive = -1;
+
+function pmRenderCategoryList() {
+  var box = $('pmCategoryAcList');
+  if (!_pmCatItems.length) { box.style.display = 'none'; return; }
+  box.innerHTML = _pmCatItems.map(function (c, i) {
+    return '<div class="ac-item' + (i === _pmCatActive ? ' active' : '') + '" data-i="' + i + '">' + esc(c) + '</div>';
+  }).join('');
+  box.style.display = 'block';
+  box.querySelectorAll('.ac-item').forEach(function (el) {
+    el.addEventListener('mousedown', function (ev) {
+      ev.preventDefault();
+      pmSelectCategory(_pmCatItems[parseInt(el.getAttribute('data-i'), 10)]);
+    });
+  });
+}
+
+function pmFilterCategoryList() {
+  var q = $('pmCategory').value.trim().toLowerCase();
+  var all = S._pmCategories || [];
+  _pmCatItems = q ? all.filter(function (c) { return c.toLowerCase().indexOf(q) >= 0; }) : all;
+  _pmCatActive = -1;
+  pmRenderCategoryList();
+}
+
+function pmSelectCategory(cat) {
+  $('pmCategory').value = cat;
+  $('pmCategoryAcList').style.display = 'none';
+  _pmCatItems = []; _pmCatActive = -1;
+  pmFillModels(''); pmFillPackTypes('');
+}
+
+$('pmCategory').addEventListener('input', function () {
+  pmFilterCategoryList();
+  pmFillModels(''); pmFillPackTypes('');
+});
+$('pmCategory').addEventListener('focus', pmFilterCategoryList);
+$('pmCategory').addEventListener('keydown', function (ev) {
+  if (!_pmCatItems.length) return;
+  if (ev.key === 'ArrowDown') { ev.preventDefault(); _pmCatActive = Math.min(_pmCatActive + 1, _pmCatItems.length - 1); pmRenderCategoryList(); }
+  else if (ev.key === 'ArrowUp') { ev.preventDefault(); _pmCatActive = Math.max(_pmCatActive - 1, 0); pmRenderCategoryList(); }
+  else if (ev.key === 'Enter') { if (_pmCatActive >= 0) { ev.preventDefault(); pmSelectCategory(_pmCatItems[_pmCatActive]); } }
+  else if (ev.key === 'Escape') { $('pmCategoryAcList').style.display = 'none'; }
+});
+$('pmCategory').addEventListener('blur', function () { setTimeout(function () { $('pmCategoryAcList').style.display = 'none'; }, 150); });
 
 /** #2 Chọn Pack_Type -> điền Qty/ct + L/W/H từ bảng Packing (bỏ trống nếu chưa có; vẫn sửa tay được). */
 $('pmPackType').addEventListener('change', function () {
