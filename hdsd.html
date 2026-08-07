@@ -453,9 +453,10 @@
     <h4>📦 Sản phẩm — thêm/sửa từng mã</h4>
     <ul>
       <li>Ô <b>🔍 Tìm sản phẩm có sẵn để sửa</b> (từ 2 ký tự, theo mã hoặc tên) → chọn để nạp toàn bộ dữ liệu vào form.</li>
-      <li>Trường: Code*, Factory_name* (tên tiếng Việt), International_name (tên tiếng Anh dùng trên PI), Category, Option, Model, Brand, Pack_Type, Qty/ct, L, W, H, NetWeight, Type, Technology.</li>
-      <li><b>Chọn Category</b> → ô <b>Model</b> chỉ còn model thuộc category đó.</li>
-      <li><b>Chọn Pack_Type</b> → app tự điền <b>Qty/ct, L, W, H</b> từ bảng Packing (để trống nếu chưa có dữ liệu), vẫn sửa lại được.</li>
+      <li>Trường: Code*, Factory_name* (tên tiếng Việt), International_name (tên tiếng Anh dùng trên PI), Category, Option, Model, Brand, Pack_Type, Qty/ct, L, W, H, NetWeight, Type, Technology, Ảnh sản phẩm.</li>
+      <li><b>Category</b> gõ để lọc (không cần đúng chính tả hết) → ô <b>Model</b> và <b>Pack_Type</b> chỉ còn hiện lựa chọn thuộc category đó (Pack_Type cũ chưa rõ category vẫn luôn hiện để không mất dữ liệu).</li>
+      <li><b>Chọn Pack_Type</b> → app tự điền <b>Qty/ct, L, W, H</b> từ bảng Packing (để trống nếu chưa có dữ liệu), vẫn sửa lại được. Chưa có loại phù hợp → chọn <b>"+ Tạo Pack_Type mới…"</b>, nhập Pack_Option/Qty·CT/Length/Width/Height (bắt buộc đủ) để thêm loại mới vào bảng Packing.</li>
+      <li><b>Ảnh sản phẩm (tối đa 4):</b> chọn file ảnh rồi bấm <span class="btn-ex">⬆ Upload ảnh đã chọn</span> — ảnh tự resize/nén trước khi gửi, lưu lên Drive. Ảnh đầu tiên trong dải thumbnail là <b>ảnh đại diện</b>, hiện kèm trong ô tìm sản phẩm và ô chọn mã khi lập báo giá. Bấm ✕ trên thumbnail để bỏ ảnh. <b>Nhớ bấm 💾 Lưu sản phẩm</b> sau khi upload — upload chỉ đưa ảnh lên Drive, phải Lưu mới ghi vào danh mục.</li>
       <li>Mã đã tồn tại → cập nhật; mã mới → thêm dòng mới, giữ nguyên công thức của bảng.</li>
     </ul>
     <div class="note"><b>Không có ô Price:</b> giá trên bảng Products là công thức tính từ BOM/Model_Cost, app không ghi đè. Muốn đổi giá thì sửa BOM hoặc Model_Cost.</div>
@@ -495,7 +496,7 @@
       <li>Ô <b>Trạng thái</b> trong form báo giá mở đầy đủ cho Admin/Master: targeted · drafted · reviewed · booked · shipped · closed.</li>
       <li>Sửa đơn đã vào Operations2025: đơn thành bản nháp <code>Sale Edited</code> trên hub; bấm <b>Confirm</b> lần nữa để ghi ngược cập nhật vào đúng SO đó.</li>
       <li>Khi sửa đơn, ô <b>Mã KH</b> cho phép cập nhật/bổ sung mã khách — ghi thẳng vào danh mục khách trung tâm.</li>
-      <li>Khách chưa có mã: bấm <span class="btn-ex">⬇ YC tạo mã KH</span> → app xuất phiếu <b>Yêu cầu cấp mã khách hàng</b> đúng biểu mẫu <b>và</b> mở hộp thoại <b>Tạo mã khách trên Odoo</b>: bảng thông tin khách để <span class="btn-ex">📋 Copy</span> dán sang Odoo, kèm nút <span class="btn-ex">↗ Mở Odoo</span> tới đúng form tạo khách.</li>
+      <li>Khách chưa có mã: bấm <span class="btn-ex">⬇ YC tạo mã KH</span> → mở form <b>kiểm tra/sửa thông tin khách</b> (tên, tên đầy đủ, địa chỉ, quốc gia, cảng). Bấm <b>Submit</b>: app xuất phiếu <b>Yêu cầu cấp mã khách hàng</b> đúng biểu mẫu theo giá trị đã sửa (chỉ dùng cho lần xuất này, không ghi ngược vào danh mục khách), đồng thời mở tab tạo <b>ticket Helpdesk</b> trên Odoo — dùng nút <span class="btn-ex">📋 Copy</span> để dán thông tin khách vào mô tả ticket.</li>
     </ul>
 
     <h3>⑂ Tách đơn — 1 PI thành nhiều đơn</h3>
@@ -588,7 +589,7 @@
       <tbody>
         <tr><td>Proforma Invoice (PI)</td><td>⬇ Export PI</td><td>Tất cả</td><td>Excel / PDF</td></tr>
         <tr><td>YC phát triển sản phẩm (R&amp;D)</td><td>⬇ Form RD</td><td>Tech, Admin, Master</td><td>Excel (mỗi mã một trang)</td></tr>
-        <tr><td>YC cấp mã khách hàng</td><td>⬇ YC tạo mã KH</td><td>Admin, Master</td><td>Excel + hộp thoại Odoo</td></tr>
+        <tr><td>YC cấp mã khách hàng</td><td>⬇ YC tạo mã KH</td><td>Admin, Master</td><td>Excel + ticket Helpdesk Odoo</td></tr>
         <tr><td>ĐNXH (Đề nghị xuất hàng)</td><td>⬇ Chứng từ NM / sau Confirm</td><td>Admin, Master</td><td>Excel</td></tr>
         <tr><td>Marking carton</td><td>⬇ Chứng từ NM / sau Confirm</td><td>Admin, Master</td><td>Excel (các mã Marking = Y)</td></tr>
         <tr><td>Custom Docs (6 form)</td><td>⬇ Xuất Custom Docs</td><td>Admin, Master</td><td>Excel nhiều tab</td></tr>

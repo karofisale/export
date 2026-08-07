@@ -377,7 +377,8 @@ h1, h2, h3 { margin: 0 0 12px; font-weight: 600; }
               <label>Factory_name * <input type="text" id="pmName" placeholder="Tên tiếng Việt (nhà máy)"></label>
               <label>International_name <input type="text" id="pmNameEn" placeholder="Tên tiếng Anh (dùng trên PI)"></label>
               <label>Category
-                <select id="pmCategory" style="padding:8px 10px;border:1px solid var(--line);border-radius:6px;font-size:14px"></select>
+                <input type="text" id="pmCategory" list="pmCategoryList" placeholder="Gõ để tìm…" style="padding:8px 10px;border:1px solid var(--line);border-radius:6px;font-size:14px">
+                <datalist id="pmCategoryList"></datalist>
               </label>
               <label>Option <input type="text" id="pmOption"></label>
               <label>Model
@@ -385,7 +386,7 @@ h1, h2, h3 { margin: 0 0 12px; font-weight: 600; }
               </label>
               <label>Brand <input type="text" id="pmBrand"></label>
               <label>Pack_Type
-                <select id="pmPackType" style="padding:8px 10px;border:1px solid var(--line);border-radius:6px;font-size:14px" title="Chọn Pack_Type để tự điền Qty/ct + L/W/H từ bảng Packing"></select>
+                <select id="pmPackType" style="padding:8px 10px;border:1px solid var(--line);border-radius:6px;font-size:14px" title="Chỉ hiện Pack_Type thuộc Category đã chọn — tự điền Qty/ct + L/W/H từ bảng Packing"></select>
               </label>
               <label>Qty/ct <input type="number" min="0" id="pmQtyCt"></label>
               <label>Length (mm) <input type="number" min="0" id="pmL"></label>
@@ -394,6 +395,13 @@ h1, h2, h3 { margin: 0 0 12px; font-weight: 600; }
               <label>NetWeight (kg) <input type="number" min="0" step="0.01" id="pmNetWeight"></label>
               <label>Type <input type="text" id="pmType"></label>
               <label>Technology <input type="text" id="pmTechnology"></label>
+            </div>
+            <div style="margin-top:12px">
+              <label style="display:block;margin-bottom:6px">Ảnh sản phẩm (tối đa 4 — ảnh đầu là ảnh đại diện)</label>
+              <input type="hidden" id="pmImage">
+              <div id="pmImageGallery" style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:8px"></div>
+              <input type="file" id="pmImageFiles" accept="image/*" multiple style="font-size:13px">
+              <button type="button" class="btn small ghost" id="pmUploadImagesBtn">⬆ Upload ảnh đã chọn</button>
             </div>
             <div class="modal-actions" style="justify-content:flex-start;margin-top:12px">
               <button class="btn primary" id="pmSaveProductBtn">💾 Lưu sản phẩm</button>
@@ -725,6 +733,25 @@ h1, h2, h3 { margin: 0 0 12px; font-weight: 600; }
   </div>
 </div>
 
+<!-- ========== Modal Tạo Pack_Type mới (form sản phẩm — #11) ========== -->
+<div class="overlay" id="npkOverlay" style="display:none">
+  <div class="modal">
+    <h3>Tạo Pack_Type mới</h3>
+    <div class="picker-grid">
+      <label>Pack_Option * <input type="text" id="npkOption"></label>
+      <label>Category <input type="text" id="npkCategory" readonly style="background:var(--bg-soft,#f3f3f3)"></label>
+      <label>Qty/CT * <input type="number" min="0" id="npkQtyCt"></label>
+      <label>Length (mm) * <input type="number" min="0" id="npkL"></label>
+      <label>Width (mm) * <input type="number" min="0" id="npkW"></label>
+      <label>Height (mm) * <input type="number" min="0" id="npkH"></label>
+    </div>
+    <div class="modal-actions">
+      <button class="btn ghost" id="npkCancelBtn">Hủy</button>
+      <button class="btn primary" id="npkOkBtn">Tạo Pack_Type</button>
+    </div>
+  </div>
+</div>
+
 <!-- ========== Modal View BOM (double-click mã máy có số đầu là 1) ========== -->
 <div class="overlay" id="vbOverlay" style="display:none">
   <div class="modal wide">
@@ -864,18 +891,23 @@ h1, h2, h3 { margin: 0 0 12px; font-weight: 600; }
   </div>
 </div>
 
-<!-- #6 Thông tin KH để tạo trên Odoo -->
-<div class="overlay" id="odooOverlay" style="display:none">
+<!-- #6 Yêu cầu tạo mã khách hàng: kiểm tra/sửa trước khi Submit -->
+<div class="overlay" id="ckOverlay" style="display:none">
   <div class="modal" style="width:480px">
-    <h3>Tạo mã khách trên Odoo</h3>
-    <p style="margin:0 0 8px;color:var(--muted);font-size:13px">Form Excel đã tải về. Bấm <b>Mở Odoo</b> để tạo khách mới, dùng <b>Copy</b> rồi dán thông tin bên dưới vào Odoo.</p>
-    <div class="table-wrap" style="max-height:300px;overflow:auto">
-      <table class="data-table" id="odooInfoTable"><tbody></tbody></table>
+    <h3>Yêu cầu tạo mã khách hàng</h3>
+    <p style="margin:0 0 8px;color:var(--muted);font-size:13px">Kiểm tra/sửa thông tin bên dưới rồi Submit — Submit sẽ tải form Excel yêu cầu cấp mã KH và mở tab Helpdesk trên Odoo để tạo ticket.</p>
+    <div class="picker-grid">
+      <label>Tên khách (Client_Name) * <input type="text" id="ckName"></label>
+      <label>Tên đầy đủ (Full_name) <input type="text" id="ckFullName"></label>
+      <label>Địa chỉ <input type="text" id="ckAddress"></label>
+      <label>Quốc gia <input type="text" id="ckCountry"></label>
+      <label>Cảng/thành phố <input type="text" id="ckPort"></label>
+      <label>Sale_ID <input type="text" id="ckSaleId" readonly style="background:var(--bg-soft,#f3f3f3)"></label>
     </div>
     <div class="modal-actions">
-      <button class="btn ghost" id="odooCloseBtn">Đóng</button>
-      <button class="btn ghost" id="odooCopyBtn">📋 Copy</button>
-      <button class="btn primary" id="odooOpenBtn">↗ Mở Odoo</button>
+      <button class="btn ghost" id="ckCancelBtn">Hủy</button>
+      <button class="btn ghost" id="ckCopyBtn">📋 Copy</button>
+      <button class="btn primary" id="ckSubmitBtn">Submit</button>
     </div>
   </div>
 </div>
@@ -902,8 +934,8 @@ var MONTH_VIEW_ROLES = ['sale', 'lead', 'leader', 'admin', 'master'];
 var STATUS_OPTIONS = ['targeted', 'drafted'];
 var STATUS_OPTIONS_ADMIN = ['targeted', 'drafted', 'reviewed', 'booked', 'shipped', 'closed'];
 var SPLIT_MAX = 6; // số đơn tối đa khi tách 1 PI
-// #6 Odoo: mở form tạo khách mới trên Odoo (bản mới không prefill được qua URL)
-var ODOO_CLIENT_URL = 'https://office.karofi.com/odoo/action-886/5/action-894/new';
+// #6 Odoo: Submit form yêu cầu mã KH mở tab tạo ticket Helpdesk (không prefill được qua URL)
+var ODOO_TICKET_URL = 'https://office.karofi.com/odoo/tickets/new';
 // #10 Dashboard tiến độ PTSP: để giai đoạn sau — dashboard sẽ lấy Jira trực tiếp qua app (không nhúng dữ liệu vào file công khai)
 // deep-link từ Shipment Tracking: pi-app.html?so=<SO> -> mở thẳng đơn đó (sau khi login = chốt phân quyền)
 var DEEP_SO = (function () {
@@ -1449,15 +1481,12 @@ function openProdMgr() {
   loadPendingCodes();
 }
 
-/** Đổ dropdown Category / Pack_Type + datalist linh kiện. Model đổ theo Category đang chọn (#2). */
+/** Đổ datalist Category (gõ để lọc) + datalist linh kiện. Model/Pack_Type đổ theo Category đang chọn (#2). */
 function pmFillDatalists() {
-  var cats = {}, packs = {};
-  (S.products || []).forEach(function (p) {
-    if (p.category) cats[p.category] = 1;
-    if (p.packType) packs[p.packType] = 1;
-  });
+  var cats = {};
+  (S.products || []).forEach(function (p) { if (p.category) cats[p.category] = 1; });
   (S.cate || []).forEach(function (c) { if (c.category) cats[c.category] = 1; });
-  (S.packing || []).forEach(function (p) { if (p.option) packs[p.option] = 1; });
+  (S.packing || []).forEach(function (p) { if (p.category) cats[p.category] = 1; });
   var compIds = {}, compOpts = {}, mdCats = {};
   (S.components || []).forEach(function (c) {
     if (c.id) compIds[c.id] = 1;
@@ -1468,27 +1497,17 @@ function pmFillDatalists() {
   function fillDatalist(id, obj) {
     $(id).innerHTML = Object.keys(obj).sort().map(function (v) { return '<option value="' + esc(v) + '">'; }).join('');
   }
-  function fillSelect(id, obj, keep) {
-    var cur = keep != null ? keep : $(id).value;
-    $(id).innerHTML = '<option value="">— chọn —</option>' +
-      Object.keys(obj).sort().map(function (v) {
-        return '<option value="' + esc(v) + '"' + (v === cur ? ' selected' : '') + '>' + esc(v) + '</option>';
-      }).join('');
-    if (cur && !obj[cur]) { // giá trị cũ không còn trong danh sách -> vẫn giữ để không mất dữ liệu
-      $(id).insertAdjacentHTML('afterbegin', '<option value="' + esc(cur) + '" selected>' + esc(cur) + '</option>');
-    }
-  }
-  fillSelect('pmCategory', cats);
-  fillSelect('pmPackType', packs);
+  fillDatalist('pmCategoryList', cats);
   fillDatalist('pmMdCategoryList', mdCats);
   fillDatalist('pmCompIdList', compIds);
   fillDatalist('pmCompOptList', compOpts);
   pmFillModels();
+  pmFillPackTypes();
 }
 
 /** #2 Model chỉ hiện model thuộc Category đang chọn (nguồn: tab Cate + Products). */
 function pmFillModels(keepModel) {
-  var cat = $('pmCategory').value;
+  var cat = $('pmCategory').value.trim();
   var models = {};
   (S.cate || []).forEach(function (c) {
     if (c.model && (!cat || c.category === cat)) models[c.model] = 1;
@@ -1505,11 +1524,41 @@ function pmFillModels(keepModel) {
     $('pmModel').insertAdjacentHTML('afterbegin', '<option value="' + esc(cur) + '" selected>' + esc(cur) + '</option>');
   }
 }
-$('pmCategory').addEventListener('change', function () { pmFillModels(''); });
+
+var PM_NEW_PACKTYPE = '__new_packtype__';
+
+/** Pack_Type chỉ hiện loại thuộc Category đang chọn (tab Packing) + loại cũ trên sản phẩm chưa rõ Category. */
+function pmFillPackTypes(keepPack) {
+  var cat = $('pmCategory').value.trim();
+  var packs = {}, packingSet = {};
+  (S.packing || []).forEach(function (p) {
+    packingSet[p.option] = 1;
+    if (!cat || !p.category || p.category === cat) packs[p.option] = 1;
+  });
+  // Pack_Type cũ chỉ thấy trên sản phẩm, chưa có dòng trên tab Packing -> không rõ Category, luôn hiện.
+  (S.products || []).forEach(function (p) { if (p.packType && !packingSet[p.packType]) packs[p.packType] = 1; });
+
+  var cur = keepPack != null ? keepPack : $('pmPackType').value;
+  var sel = $('pmPackType');
+  sel.innerHTML = '<option value="">— chọn —</option>' +
+    Object.keys(packs).sort().map(function (v) {
+      return '<option value="' + esc(v) + '"' + (v === cur ? ' selected' : '') + '>' + esc(v) + '</option>';
+    }).join('') +
+    '<option value="' + PM_NEW_PACKTYPE + '">+ Tạo Pack_Type mới…</option>';
+  if (cur && cur !== PM_NEW_PACKTYPE && !packs[cur]) {
+    sel.insertAdjacentHTML('afterbegin', '<option value="' + esc(cur) + '" selected>' + esc(cur) + '</option>');
+  }
+}
+$('pmCategory').addEventListener('input', function () { pmFillModels(''); pmFillPackTypes(''); });
 
 /** #2 Chọn Pack_Type -> điền Qty/ct + L/W/H từ bảng Packing (bỏ trống nếu chưa có; vẫn sửa tay được). */
 $('pmPackType').addEventListener('change', function () {
   var opt = this.value;
+  if (opt === PM_NEW_PACKTYPE) {
+    this.value = '';
+    openPackingOverlay();
+    return;
+  }
   if (!opt) return;
   var pk = (S.packing || []).filter(function (p) { return p.option === opt; })[0];
   if (!pk) {
@@ -1521,6 +1570,39 @@ $('pmPackType').addEventListener('change', function () {
   $('pmL').value = pk.l || '';
   $('pmW').value = pk.w || '';
   $('pmH').value = pk.h || '';
+});
+
+/* ---- Tạo Pack_Type mới (từ form sản phẩm) ---- */
+function openPackingOverlay() {
+  $('npkOption').value = '';
+  $('npkCategory').value = $('pmCategory').value.trim();
+  $('npkQtyCt').value = ''; $('npkL').value = ''; $('npkW').value = ''; $('npkH').value = '';
+  $('npkOverlay').style.display = 'flex';
+  $('npkOption').focus();
+}
+$('npkCancelBtn').addEventListener('click', function () { $('npkOverlay').style.display = 'none'; });
+$('npkOkBtn').addEventListener('click', function () {
+  var p = {
+    option: $('npkOption').value.trim(),
+    category: $('npkCategory').value.trim(),
+    qtyCt: parseFloat($('npkQtyCt').value) || '',
+    l: parseFloat($('npkL').value) || '',
+    w: parseFloat($('npkW').value) || '',
+    h: parseFloat($('npkH').value) || ''
+  };
+  if (!p.option) { toast('Nhập Pack_Option.'); return; }
+  if (!p.qtyCt || !p.l || !p.w || !p.h) { toast('Qty/CT, Length, Width, Height là bắt buộc.'); return; }
+  loading(true);
+  gs('api_savePacking', S.token, p).then(function (res) {
+    $('npkOverlay').style.display = 'none';
+    return gs('api_components', S.token).then(function (r) {
+      S.components = r.components; S.packing = r.packing || [];
+      pmFillPackTypes(res.option);
+      $('pmQtyCt').value = p.qtyCt; $('pmL').value = p.l; $('pmW').value = p.w; $('pmH').value = p.h;
+      toast('Đã tạo Pack_Type "' + res.option + '".');
+    });
+  }).catch(function (e) { toast('Lỗi tạo Pack_Type: ' + e.message); })
+    .finally(function () { loading(false); });
 });
 
 /* ---- Mã tạm chờ cấp mã ---- */
@@ -1615,11 +1697,13 @@ $('prodMgrBtn').addEventListener('click', openProdMgr);
 // Price KHÔNG có trong form: cột Price trên hub Products là công thức, app không ghi đè (#2)
 var PM_FIELDS = { code: 'pmCode', name: 'pmName', nameEn: 'pmNameEn', category: 'pmCategory', option: 'pmOption',
   model: 'pmModel', brand: 'pmBrand', packType: 'pmPackType', qtyCt: 'pmQtyCt', l: 'pmL', w: 'pmW', h: 'pmH',
-  netWeight: 'pmNetWeight', type: 'pmType', technology: 'pmTechnology' };
+  netWeight: 'pmNetWeight', type: 'pmType', technology: 'pmTechnology', image: 'pmImage' };
 
 function pmClearProduct() {
   Object.keys(PM_FIELDS).forEach(function (k) { $(PM_FIELDS[k]).value = ''; });
   pmFillModels(''); // Category trống -> Model hiện lại toàn bộ
+  pmFillPackTypes(''); // Category trống -> Pack_Type hiện lại toàn bộ
+  pmRenderImageGallery();
   S._assignTemp = null;
   $('pmAssignNote').style.display = 'none';
 }
@@ -1646,11 +1730,12 @@ function pmLoadProduct(p) {
   $('pmL').value = p.l || ''; $('pmW').value = p.w || ''; $('pmH').value = p.h || '';
   $('pmNetWeight').value = p.netWeight || '';
   $('pmType').value = p.type || ''; $('pmTechnology').value = p.technology || '';
-  // dropdown: đổ lại danh sách rồi chọn đúng giá trị (Model phụ thuộc Category)
+  $('pmImage').value = p.image || ''; pmRenderImageGallery();
+  // dropdown: đổ lại danh sách rồi chọn đúng giá trị (Model/Pack_Type phụ thuộc Category)
   pmFillDatalists();
   $('pmCategory').value = p.category || '';
   pmFillModels(p.model || '');
-  $('pmPackType').value = p.packType || '';
+  pmFillPackTypes(p.packType || '');
   toast('Đã nạp ' + p.code + ' — sửa rồi Lưu.');
 }
 
@@ -1662,6 +1747,72 @@ $('pmLoadProductBtn').addEventListener('click', function () {
   pmLoadProduct(p);
 });
 
+/* ---- Ảnh sản phẩm (tối đa 4 — lưu trong 1 ô Image dạng "id1,id2,...", ảnh đầu = ảnh đại diện) ---- */
+var PM_IMAGE_MAX = 4;
+function driveThumbUrl(id, size) { return 'https://drive.google.com/thumbnail?id=' + encodeURIComponent(id) + '&sz=w' + (size || 200); }
+function firstImageId(p) { var s = (p && p.image || '').split(',')[0]; return s ? s.trim() : ''; }
+function pmImageIds() { return $('pmImage').value.split(',').map(function (s) { return s.trim(); }).filter(Boolean); }
+function pmSetImageIds(ids) { $('pmImage').value = ids.join(','); pmRenderImageGallery(); }
+function pmRenderImageGallery() {
+  var ids = pmImageIds();
+  $('pmImageGallery').innerHTML = ids.map(function (id, i) {
+    return '<div style="position:relative">' +
+      '<img src="' + driveThumbUrl(id, 160) + '" style="width:70px;height:70px;object-fit:cover;border-radius:6px;border:1px solid var(--line)" title="Ảnh ' + (i + 1) + (i === 0 ? ' (đại diện)' : '') + '">' +
+      '<button type="button" data-i="' + i + '" class="pm-img-remove" title="Bỏ ảnh này" ' +
+        'style="position:absolute;top:-6px;right:-6px;width:18px;height:18px;border-radius:50%;border:none;background:#c00;color:#fff;font-size:12px;line-height:1;cursor:pointer">✕</button>' +
+      '</div>';
+  }).join('');
+  $('pmImageGallery').querySelectorAll('.pm-img-remove').forEach(function (btn) {
+    btn.addEventListener('click', function () {
+      var ids2 = pmImageIds();
+      ids2.splice(parseInt(btn.getAttribute('data-i'), 10), 1);
+      pmSetImageIds(ids2);
+    });
+  });
+}
+/** Đọc file ảnh, resize cạnh dài về tối đa 1000px + nén JPEG ~0.8 trước khi gửi lên server (giảm payload). */
+function pmReadImageResized(file) {
+  return new Promise(function (resolve, reject) {
+    var reader = new FileReader();
+    reader.onerror = function () { reject(new Error('Không đọc được file ' + file.name)); };
+    reader.onload = function () {
+      var img = new Image();
+      img.onerror = function () { reject(new Error('File không phải ảnh hợp lệ: ' + file.name)); };
+      img.onload = function () {
+        var maxSide = 1000;
+        var scale = Math.min(1, maxSide / Math.max(img.width, img.height));
+        var w = Math.round(img.width * scale), h = Math.round(img.height * scale);
+        var canvas = document.createElement('canvas');
+        canvas.width = w; canvas.height = h;
+        canvas.getContext('2d').drawImage(img, 0, 0, w, h);
+        resolve({ base64: canvas.toDataURL('image/jpeg', 0.8).split(',')[1], mimeType: 'image/jpeg' });
+      };
+      img.src = reader.result;
+    };
+    reader.readAsDataURL(file);
+  });
+}
+$('pmUploadImagesBtn').addEventListener('click', function () {
+  var code = $('pmCode').value.trim();
+  if (!code) { toast('Nhập Code trước khi upload ảnh.'); return; }
+  var files = Array.prototype.slice.call($('pmImageFiles').files || []);
+  if (!files.length) { toast('Chưa chọn ảnh.'); return; }
+  var curIds = pmImageIds();
+  if (curIds.length + files.length > PM_IMAGE_MAX) {
+    toast('Tối đa ' + PM_IMAGE_MAX + ' ảnh/sản phẩm — đang có ' + curIds.length + ', chọn tối đa ' + (PM_IMAGE_MAX - curIds.length) + ' ảnh nữa.');
+    return;
+  }
+  loading(true);
+  Promise.all(files.map(pmReadImageResized)).then(function (imgs) {
+    return gs('api_uploadProductImages', S.token, code, imgs);
+  }).then(function (res) {
+    pmSetImageIds(curIds.concat(res.ids));
+    $('pmImageFiles').value = '';
+    toast('Đã upload ' + res.ids.length + ' ảnh — nhớ bấm 💾 Lưu sản phẩm để ghi vào danh mục.');
+  }).catch(function (e) { toast('Lỗi upload ảnh: ' + e.message); })
+    .finally(function () { loading(false); });
+});
+
 /* ---- #3 Tìm sản phẩm để sửa (autocomplete theo mã/tên) ---- */
 var _pmAcItems = [], _pmAcActive = -1;
 
@@ -1669,9 +1820,11 @@ function pmRenderSearchList() {
   var box = $('pmSearchList');
   if (!_pmAcItems.length) { box.style.display = 'none'; return; }
   box.innerHTML = _pmAcItems.map(function (p, i) {
-    return '<div class="ac-item' + (i === _pmAcActive ? ' active' : '') + '" data-i="' + i + '">' +
-      '<b>' + esc(p.code) + '</b> — ' + esc(String(p.name).substring(0, 60)) +
-      '<span style="color:var(--muted);font-size:12px"> · ' + esc(p.category || '') + '</span></div>';
+    var thumb = firstImageId(p);
+    return '<div class="ac-item' + (i === _pmAcActive ? ' active' : '') + '" data-i="' + i + '" style="display:flex;align-items:center;gap:8px">' +
+      (thumb ? '<img src="' + driveThumbUrl(thumb, 60) + '" style="width:28px;height:28px;object-fit:cover;border-radius:4px;flex:none">' : '') +
+      '<span><b>' + esc(p.code) + '</b> — ' + esc(String(p.name).substring(0, 60)) +
+      '<span style="color:var(--muted);font-size:12px"> · ' + esc(p.category || '') + '</span></span></div>';
   }).join('');
   box.style.display = 'block';
   box.querySelectorAll('.ac-item').forEach(function (el) {
@@ -3210,7 +3363,9 @@ function renderSearchList() {
   }
   listEl.innerHTML = _acItems.map(function (p, i) {
     var hist = S._histMap && S._histMap[p.code];
+    var thumb = firstImageId(p);
     return '<div class="ac-item' + (i === _acActive ? ' active' : '') + '" data-i="' + i + '">' +
+      (thumb ? '<img src="' + driveThumbUrl(thumb, 60) + '" style="width:32px;height:32px;object-fit:cover;border-radius:4px;flex:none">' : '') +
       '<div class="ac-main">' +
         '<div class="ac-name"><span class="code-chip">' + esc(p.code) + '</span> ' + esc(p.name) + '</div>' +
         '<div class="ac-meta">' + esc([p.category, p.model, p.brand].filter(Boolean).join(' · ')) + '</div>' +
@@ -3887,38 +4042,63 @@ $('rdFormBtn').addEventListener('click', function () {
     .finally(function () { loading(false); });
 });
 
+/* #6 Yêu cầu tạo mã khách hàng: mở form điền sẵn để kiểm tra/sửa trước khi Submit. */
 $('reqClientCodeBtn').addEventListener('click', function () {
-  if (!S.currentClient) return;
+  var c = S.currentClient;
+  if (!c) return;
+  $('ckName').value = c.name || '';
+  $('ckFullName').value = c.fullName || c.name || '';
+  $('ckAddress').value = c.address || '';
+  $('ckCountry').value = c.country || '';
+  $('ckPort').value = c.port || '';
+  $('ckSaleId').value = c.saleId || '';
+  $('ckOverlay').style.display = 'flex';
+});
+$('ckCancelBtn').addEventListener('click', function () { $('ckOverlay').style.display = 'none'; });
+$('ckCopyBtn').addEventListener('click', function () {
+  var rows = [
+    ['Tên khách (Name)', $('ckName').value],
+    ['Tên đầy đủ (Company)', $('ckFullName').value],
+    ['Địa chỉ (Address)', $('ckAddress').value],
+    ['Quốc gia (Country)', $('ckCountry').value],
+    ['Cảng/thành phố (Port)', $('ckPort').value],
+    ['Sale_ID', $('ckSaleId').value]
+  ];
+  var text = rows.map(function (r) { return r[0] + ': ' + r[1]; }).join('\n');
+  function done() { toast('Đã copy — dán vào mô tả ticket Helpdesk.'); }
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    navigator.clipboard.writeText(text).then(done).catch(fallback);
+  } else fallback();
+  function fallback() {
+    var ta = document.createElement('textarea');
+    ta.value = text; ta.style.position = 'fixed'; ta.style.opacity = '0';
+    document.body.appendChild(ta); ta.select();
+    try { document.execCommand('copy'); done(); } catch (e) { toast('Trình duyệt chặn clipboard — không copy được.'); }
+    document.body.removeChild(ta);
+  }
+});
+/* Submit: xuất Excel YCMKH theo giá trị đã sửa (không ghi ngược vào Clients) + mở tab tạo ticket Helpdesk. */
+$('ckSubmitBtn').addEventListener('click', function () {
+  var c = S.currentClient;
+  if (!c) return;
+  var name = $('ckName').value.trim();
+  if (!name) { toast('Nhập tên khách hàng.'); return; }
+  var overrides = {
+    name: name,
+    fullName: $('ckFullName').value.trim(),
+    address: $('ckAddress').value.trim(),
+    country: $('ckCountry').value.trim(),
+    port: $('ckPort').value.trim()
+  };
   loading(true);
-  gs('api_exportClientForm', S.token, S.currentClient.name).then(function (res) {
+  gs('api_exportClientForm', S.token, c.name, overrides).then(function (res) {
     downloadBase64(res);
     toast('Đã tải ' + res.filename);
-    openOdooInfo(S.currentClient); // #6: hiện bảng thông tin để copy + mở Odoo
+    $('ckOverlay').style.display = 'none';
+    window.open(ODOO_TICKET_URL, '_blank', 'noopener');
   }).catch(function (e) { toast('Lỗi form mã KH: ' + e.message); })
     .finally(function () { loading(false); });
 });
-
-/* #6 Bảng thông tin KH để dán sang Odoo (bản Odoo mới không điền sẵn được qua URL). */
-function openOdooInfo(c) {
-  var rows = [
-    ['Tên khách (Name)', c.name || ''],
-    ['Tên đầy đủ (Company)', c.fullName || c.name || ''],
-    ['Địa chỉ (Address)', c.address || ''],
-    ['Quốc gia (Country)', c.country || ''],
-    ['Điện thoại (Phone)', c.tel || ''],
-    ['Cảng đích (Port)', c.port || ''],
-    ['Incoterm', c.incoterm || 'FOB'],
-    ['Sale_ID', c.saleId || '']
-  ];
-  var tb = $('odooInfoTable').querySelector('tbody');
-  tb.innerHTML = rows.map(function (r) {
-    return '<tr><td style="color:var(--muted);white-space:nowrap">' + esc(r[0]) + '</td><td><b>' + esc(r[1]) + '</b></td></tr>';
-  }).join('');
-  $('odooOverlay').style.display = 'flex';
-}
-$('odooOpenBtn').addEventListener('click', function () { window.open(ODOO_CLIENT_URL, '_blank', 'noopener'); });
-$('odooCopyBtn').addEventListener('click', function () { copyTableTSV('odooInfoTable'); });
-$('odooCloseBtn').addEventListener('click', function () { $('odooOverlay').style.display = 'none'; });
 
 /* ================= Xóa PI (đơn targeted — sale/lead/admin) ================= */
 $('deletePiBtn').addEventListener('click', function () {
@@ -3982,8 +4162,22 @@ $('cfOkBtn').addEventListener('click', function () {
     // #7 chứng từ gửi nhà máy — hỏi trước khi tải (tránh tải nhầm khi chỉ muốn cập nhật đơn)
     appConfirm('Xuất chứng từ gửi nhà máy cho SO ' + res.so + ' (ĐNXH + form Marking cho các mã Marking = Y)?',
       function () { exportShipDocs(res.so); });
-  }).catch(function (e) { toast('Lỗi: ' + e.message); })
-    .finally(function () { loading(false); });
+  }).catch(function (e) {
+    // Confirm ghi nhiều dòng ở Order+Details nên có thể mất vài chục giây — mạng có thể đứt kết nối
+    // trước khi kịp nhận phản hồi dù server đã ghi xong (fetch báo TypeError "Failed to fetch").
+    // CHỈ tự kiểm tra lại cho đúng trường hợp này — lỗi nghiệp vụ thật (vd "SO đã tồn tại" ở nhánh
+    // update, nơi SO vốn đã có sẵn TRƯỚC khi bấm Confirm) không được coi nhầm thành "đã thành công".
+    if (!(e instanceof TypeError)) { toast('Lỗi: ' + e.message); return; }
+    return gs('api_findOrderBySo', S.token, so).then(function (r) {
+      if (r && r.order) {
+        $('cfOverlay').style.display = 'none';
+        toast('Đã Confirm SO ' + so + ' (mạng bị gián đoạn lúc nhận phản hồi, đã tự kiểm tra lại — kết quả OK).');
+        selectClient(S.currentClient, so);
+      } else {
+        toast('Lỗi: ' + e.message);
+      }
+    }).catch(function () { toast('Lỗi: ' + e.message); });
+  }).finally(function () { loading(false); });
 });
 
 /* #7 Tải ĐNXH + Marking của 1 SO đã Confirm (Marking bỏ qua nếu đơn không có mã nào Y). */
