@@ -246,6 +246,12 @@ h1, h2, h3 { margin: 0 0 12px; font-weight: 600; }
             <button class="btn small" id="revNext">▶</button>
           </div>
         </div>
+        <div id="revBrandFilterWrap" style="display:none;gap:6px;align-items:center;margin:0 0 10px">
+          <span class="tp-label" style="margin:0">Lọc:</span>
+          <button class="btn small primary" id="revFilterAll" data-filter="all">Tất cả</button>
+          <button class="btn small" id="revFilterBrand" data-filter="brand">Brand</button>
+          <button class="btn small" id="revFilterOem" data-filter="oem">OEM</button>
+        </div>
         <div class="totals-panel" style="grid-template-columns:repeat(auto-fit,minmax(150px,1fr))">
           <div class="tp-cell"><div class="tp-label">Tổng FOB tháng</div><div class="tp-value big" id="revTotal">$0.00</div></div>
           <div class="tp-cell"><div class="tp-label">Số đơn</div><div class="tp-value" id="revCount">0</div></div>
@@ -280,7 +286,7 @@ h1, h2, h3 { margin: 0 0 12px; font-weight: 600; }
             <label>Ngày TT <input type="date" id="svPayDate"></label>
             <label>Payment ($) <input type="number" step="0.01" id="svPayment"></label>
             <label>Status <input type="text" id="svStatus" list="svStatusList"><datalist id="svStatusList">
-              <option value="targeted"><option value="drafted"><option value="booked"><option value="shipped"><option value="closed">
+              <option value="targeted"><option value="drafted"><option value="reviewed"><option value="opened"><option value="booked"><option value="shipped"><option value="closed">
             </datalist></label>
             <label>INVOICE# <input type="text" id="svInvoiceNo"></label>
             <label>INV Date <input type="date" id="svInvDate"></label>
@@ -823,8 +829,9 @@ h1, h2, h3 { margin: 0 0 12px; font-weight: 600; }
       <label>Content <input type="text" id="cfContent" placeholder="VD: 1 cont 40'"></label>
       <label>Status
         <select id="cfStatus">
-          <option value="targeted" selected>targeted</option>
+          <option value="targeted">targeted</option>
           <option value="drafted">drafted</option>
+          <option value="opened" selected>opened</option>
         </select>
       </label>
       <label>Month <input type="number" id="cfMonth" min="1" max="12"></label>
@@ -955,10 +962,12 @@ var S = {
 var EDITABLE_STATUSES = ['drafted', 'targeted', 'sale edited', 'new created'];
 // Vai trò có trang đầu là bảng đơn hàng theo tháng (và nút ⟵ quay lại bảng đó).
 // technician có trang đầu riêng là hàng đợi cần kiểm tra.
-var MONTH_VIEW_ROLES = ['sale', 'lead', 'leader', 'admin', 'master'];
+var MONTH_VIEW_ROLES = ['sale', 'lead', 'leader', 'admin', 'master', 'technician'];
+// Vai trò thấy nút lọc Brand/OEM trên dashboard doanh thu theo tháng.
+var REV_BRAND_FILTER_ROLES = ['admin', 'technician', 'leader', 'master'];
 // Trạng thái chọn được trong ô Trạng thái của form báo giá.
 var STATUS_OPTIONS = ['targeted', 'drafted'];
-var STATUS_OPTIONS_ADMIN = ['targeted', 'drafted', 'reviewed', 'booked', 'shipped', 'closed'];
+var STATUS_OPTIONS_ADMIN = ['targeted', 'drafted', 'reviewed', 'opened', 'booked', 'shipped', 'closed'];
 var SPLIT_MAX = 6; // số đơn tối đa khi tách 1 PI
 // #6 Odoo: Submit form yêu cầu mã KH mở tab tạo ticket Helpdesk (không prefill được qua URL)
 var ODOO_TICKET_URL = 'https://office.karofi.com/odoo/tickets/new';
@@ -1145,7 +1154,7 @@ function bootstrap() {
     var draftPrompted = checkDraft(); // hỏi khôi phục bản nháp chưa lưu (chỉ 1 lần mỗi phiên)
     if (!draftPrompted) handleDeepLink(); // có draft -> deep-link xử lý sau khi người dùng trả lời modal
     if (!draftPrompted && !DEEP_SO && S.user.role === 'technician') loadReviewQueue(); // technician: hiện ngay hàng đợi review
-    if (!draftPrompted && !DEEP_SO && MONTH_VIEW_ROLES.indexOf(S.user.role) >= 0) loadRevenue(); // lead/sale/admin/master: hiện ngay đơn theo tháng
+    if (!draftPrompted && !DEEP_SO && S.user.role !== 'technician' && MONTH_VIEW_ROLES.indexOf(S.user.role) >= 0) loadRevenue(); // lead/sale/admin/master: hiện ngay đơn theo tháng
     // nạp trước catalog sản phẩm (nền); xong thì vẽ lại bảng chi tiết nếu đang mở (để điền %LN)
     gs('api_products', S.token).then(function (r) {
       S.products = r.products;
@@ -1340,8 +1349,11 @@ function loadRevenue() {
   $('prodView').style.display = 'none';
   $('shipView').style.display = 'none';
   $('revenueView').style.display = 'block';
-  var isLead = S.user.role === 'lead' || S.user.role === 'leader' || S.user.role === 'admin' || S.user.role === 'master';
+  var isLead = S.user.role === 'lead' || S.user.role === 'leader' || S.user.role === 'admin' || S.user.role === 'master' || S.user.role === 'technician';
   $('revTitle').textContent = isLead ? 'Doanh thu theo tháng' : 'Đơn hàng của tôi theo tháng';
+  var showBrandFilter = REV_BRAND_FILTER_ROLES.indexOf(S.user.role) >= 0;
+  $('revBrandFilterWrap').style.display = showBrandFilter ? 'flex' : 'none';
+  if (!showBrandFilter) S.revFilter = 'all';
   if (!S.revMonth) S.revMonth = new Date().toISOString().slice(0, 7); // yyyy-MM hiện tại
   if (S.revOrders) { renderRevenue(); return; }
   loading(true);
@@ -1362,6 +1374,18 @@ $('revPrev').addEventListener('click', function () { shiftRevMonth(-1); });
 $('revNext').addEventListener('click', function () { shiftRevMonth(1); });
 $('backToRevenueBtn').addEventListener('click', loadRevenue);
 
+/** Đơn "Brand" = PIC là "brand" (khách của Brand — khớp RESTRICTED_PICS_ ở backend). Còn lại là OEM. */
+function isBrandOrder(o) { return String(o.pic || '').trim().toLowerCase() === 'brand'; }
+['revFilterAll', 'revFilterBrand', 'revFilterOem'].forEach(function (id) {
+  $(id).addEventListener('click', function () {
+    S.revFilter = this.getAttribute('data-filter');
+    ['revFilterAll', 'revFilterBrand', 'revFilterOem'].forEach(function (bid) {
+      $(bid).classList.toggle('primary', bid === id);
+    });
+    renderRevenue();
+  });
+});
+
 /** Bản đồ tên khách (lowercase) -> quốc gia, để gom theo thị trường. */
 function clientCountry(name) {
   if (!S._countryMap) {
@@ -1373,7 +1397,13 @@ function clientCountry(name) {
 
 function renderRevenue() {
   $('revMonthLabel').textContent = S.revMonth;
-  var rows = (S.revOrders || []).filter(function (o) { return o.monthKey === S.revMonth; });
+  var filter = S.revFilter || 'all';
+  var rows = (S.revOrders || []).filter(function (o) {
+    if (o.monthKey !== S.revMonth) return false;
+    if (filter === 'brand') return isBrandOrder(o);
+    if (filter === 'oem') return !isBrandOrder(o);
+    return true;
+  });
   var total = 0, clients = {};
   rows.forEach(function (o) {
     total += Number(o.fob) || 0;
@@ -4287,7 +4317,7 @@ $('confirmPiBtn').addEventListener('click', function () {
   $('cfSo').disabled = isUpdate;
   $('cfLoad').value = o.realLoad || ''; // prefill từ Expected_Load của PI nếu có
   $('cfContent').value = '';
-  $('cfStatus').value = 'targeted';
+  $('cfStatus').value = 'opened';
   $('cfMonth').value = new Date().getMonth() + 1;
   $('cfOverlay').style.display = 'flex';
 });
