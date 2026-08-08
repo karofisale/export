@@ -94,6 +94,9 @@ h1, h2, h3 { margin: 0 0 12px; font-weight: 600; }
 .data-table input { width: 90px; padding: 5px 7px; border: 1px solid var(--line); border-radius: 5px; text-align: right; font-size: 13.5px; }
 .data-table input.wide-in { width: 100%; min-width: 220px; text-align: left; }
 .data-table td.prod { min-width: 220px; max-width: 340px; }
+.line-img-th input { vertical-align: middle; margin-left: 4px; }
+.data-table.hide-img-col .line-img-cell .thumb-view { display: none; }
+.thumb-view { cursor: zoom-in; }
 /* tên sản phẩm dài: xuống dòng tự nhiên nhưng tối đa 7 dòng, dư thì cắt "…" (hover xem đầy đủ) */
 .prod-text { display: -webkit-box; -webkit-line-clamp: 7; line-clamp: 7; -webkit-box-orient: vertical; overflow: hidden; word-break: break-word; }
 .data-table .neg { color: var(--danger); font-weight: 600; }
@@ -642,6 +645,7 @@ h1, h2, h3 { margin: 0 0 12px; font-weight: 600; }
               <th class="num">Qty/CT</th><th class="num">L</th><th class="num">W</th><th class="num">H</th>
               <th class="num" title="Net weight (kg/sp)">NW</th><th class="num">Item CBM</th>
               <th class="num" title="Mục này có cần Marking?">Marking</th><th>Ghi chú</th><th></th>
+              <th class="line-img-th">Image <input type="checkbox" id="lineImgToggle" checked title="Hiện/ẩn ảnh sản phẩm trong bảng"></th>
             </tr></thead>
             <tbody></tbody>
           </table>
@@ -760,6 +764,7 @@ h1, h2, h3 { margin: 0 0 12px; font-weight: 600; }
     <h3>View BOM <span id="vbCode" class="code-chip"></span></h3>
     <div class="vb-subtitle" id="vbModelDesc"></div>
     <div class="picker-grid" id="vbSlots"></div>
+    <div id="vbImages" style="display:flex;gap:8px;flex-wrap:wrap;margin:4px 0 10px"></div>
     <div class="bom-postfilters">
       <div class="tp-label">Post Filter</div>
       <div id="vbPostFilters"></div>
@@ -779,6 +784,11 @@ h1, h2, h3 { margin: 0 0 12px; font-weight: 600; }
       <button class="btn primary" id="vbSubmitBtn" disabled>Submit Edit</button>
     </div>
   </div>
+</div>
+
+<!-- ========== Lightbox xem ảnh sản phẩm full size (dùng chung cho mọi ảnh thumbnail trong app) ========== -->
+<div class="overlay" id="imgLightbox" style="display:none;z-index:60;cursor:zoom-out">
+  <img id="imgLightboxImg" src="" style="max-width:92vw;max-height:92vh;border-radius:8px;box-shadow:0 16px 50px rgba(0,0,0,.4)">
 </div>
 
 <!-- ========== Modal Export PI (Excel / PDF theo form PI_Export) ========== -->
@@ -914,6 +924,20 @@ h1, h2, h3 { margin: 0 0 12px; font-weight: 600; }
   </div>
 </div>
 
+<button id="agentFab" title="Trợ lý tìm kiếm" style="position:fixed;right:20px;bottom:20px;width:52px;height:52px;border-radius:50%;font-size:22px;line-height:52px;padding:0;text-align:center;border:none;cursor:pointer;background:var(--accent);color:#fff;box-shadow:0 6px 18px rgba(0,0,0,.25);z-index:40">🤖</button>
+
+<div id="agentPanel" style="display:none;position:fixed;right:20px;bottom:82px;width:340px;max-width:90vw;height:460px;max-height:70vh;background:var(--card);border:1px solid var(--line);border-radius:10px;box-shadow:0 10px 30px rgba(26,35,50,.25);z-index:41;flex-direction:column;overflow:hidden">
+  <div style="display:flex;justify-content:space-between;align-items:center;padding:10px 12px;border-bottom:1px solid var(--line);background:var(--accent-soft)">
+    <b style="font-size:14px">🤖 Trợ lý tìm kiếm</b>
+    <button class="btn ghost" id="agentCloseBtn" style="padding:2px 8px">✕</button>
+  </div>
+  <div id="agentMessages" style="flex:1;overflow-y:auto;padding:10px 12px;display:flex;flex-direction:column;gap:8px;font-size:13.5px"></div>
+  <div style="display:flex;gap:6px;padding:8px;border-top:1px solid var(--line)">
+    <input type="text" id="agentInput" placeholder="Hỏi vd: khách ABC còn đơn nào chưa confirm?" style="flex:1;padding:8px 10px;border:1px solid var(--line);border-radius:6px;font-size:13.5px">
+    <button class="btn primary" id="agentSendBtn">Gửi</button>
+  </div>
+</div>
+
 <div class="toast" id="toast"></div>
 <div class="loading-bar" id="loadingBar" style="display:none"></div>
 
@@ -965,6 +989,55 @@ function toast(msg) {
   clearTimeout(t._h); t._h = setTimeout(function () { t.classList.remove('show'); }, 3200);
 }
 function loading(on) { $('loadingBar').style.display = on ? 'block' : 'none'; }
+
+/* ---- Trợ lý tìm kiếm (Claude agent — Giai đoạn 2, Mức 1: chỉ đọc + hướng dẫn bằng chữ) ---- */
+var _agentHistory = [];
+var _agentBusy = false;
+
+function agentAppendMsg(role, text) {
+  var box = $('agentMessages');
+  var div = document.createElement('div');
+  div.style.cssText = role === 'user'
+    ? 'align-self:flex-end;background:var(--accent);color:#fff;padding:7px 10px;border-radius:10px 10px 2px 10px;max-width:85%;white-space:pre-wrap'
+    : 'align-self:flex-start;background:var(--bg-soft,#f0f2f5);padding:7px 10px;border-radius:10px 10px 10px 2px;max-width:85%;white-space:pre-wrap';
+  div.textContent = text;
+  box.appendChild(div);
+  box.scrollTop = box.scrollHeight;
+  return div;
+}
+
+$('agentFab').addEventListener('click', function () {
+  var willOpen = $('agentPanel').style.display !== 'flex';
+  $('agentPanel').style.display = willOpen ? 'flex' : 'none';
+  if (willOpen) {
+    if (!_agentHistory.length && !$('agentMessages').children.length) {
+      agentAppendMsg('assistant', 'Chào ' + (S.user ? S.user.name : '') + ', hỏi tôi về khách hàng, sản phẩm hoặc đơn hàng — vd "khách ABC còn đơn nào chưa confirm?".');
+    }
+    $('agentInput').focus();
+  }
+});
+$('agentCloseBtn').addEventListener('click', function () { $('agentPanel').style.display = 'none'; });
+
+function agentSend() {
+  if (_agentBusy) return;
+  var text = $('agentInput').value.trim();
+  if (!text) return;
+  $('agentInput').value = '';
+  agentAppendMsg('user', text);
+  var reply = agentAppendMsg('assistant', '…');
+  _agentBusy = true;
+  gs('api_askAgent', S.token, text, _agentHistory).then(function (res) {
+    _agentHistory = res.history || [];
+    reply.textContent = res.reply || '(không có phản hồi)';
+  }).catch(function (e) {
+    reply.textContent = 'Lỗi: ' + e.message;
+  }).finally(function () {
+    _agentBusy = false;
+    $('agentMessages').scrollTop = $('agentMessages').scrollHeight;
+  });
+}
+$('agentSendBtn').addEventListener('click', agentSend);
+$('agentInput').addEventListener('keydown', function (ev) { if (ev.key === 'Enter') agentSend(); });
 
 /**
  * Gọi API — chế độ kép:
@@ -1798,6 +1871,23 @@ $('pmLoadProductBtn').addEventListener('click', function () {
 var PM_IMAGE_MAX = 4;
 function driveThumbUrl(id, size) { return 'https://drive.google.com/thumbnail?id=' + encodeURIComponent(id) + '&sz=w' + (size || 200); }
 function firstImageId(p) { var s = (p && p.image || '').split(',')[0]; return s ? s.trim() : ''; }
+function productImageIds(p) { return (p && p.image || '').split(',').map(function (s) { return s.trim(); }).filter(Boolean); }
+/** Xem full size: gắn class "thumb-view" + data-img="<driveId>" lên bất kỳ <img> thumbnail nào rồi gọi wireThumbs(container). */
+function openImageLightbox(id) {
+  if (!id) return;
+  $('imgLightboxImg').src = driveThumbUrl(id, 1600);
+  $('imgLightbox').style.display = 'flex';
+}
+function wireThumbs(container) {
+  container.querySelectorAll('.thumb-view').forEach(function (img) {
+    img.addEventListener('mousedown', function (ev) { ev.stopPropagation(); });
+    img.addEventListener('click', function (ev) { ev.stopPropagation(); openImageLightbox(img.getAttribute('data-img')); });
+  });
+}
+$('imgLightbox').addEventListener('click', function () { this.style.display = 'none'; });
+document.addEventListener('keydown', function (ev) {
+  if (ev.key === 'Escape' && $('imgLightbox').style.display !== 'none') $('imgLightbox').style.display = 'none';
+});
 function pmImageIds() { return $('pmImage').value.split(',').map(function (s) { return s.trim(); }).filter(Boolean); }
 function pmSetImageIds(ids) { $('pmImage').value = ids.join(','); pmRenderImageGallery(); }
 function pmRenderImageGallery() {
@@ -1869,11 +1959,12 @@ function pmRenderSearchList() {
   box.innerHTML = _pmAcItems.map(function (p, i) {
     var thumb = firstImageId(p);
     return '<div class="ac-item' + (i === _pmAcActive ? ' active' : '') + '" data-i="' + i + '" style="display:flex;align-items:center;gap:8px">' +
-      (thumb ? '<img src="' + driveThumbUrl(thumb, 60) + '" style="width:28px;height:28px;object-fit:cover;border-radius:4px;flex:none">' : '') +
+      (thumb ? '<img class="thumb-view" data-img="' + esc(thumb) + '" src="' + driveThumbUrl(thumb, 60) + '" style="width:28px;height:28px;object-fit:cover;border-radius:4px;flex:none">' : '') +
       '<span><b>' + esc(p.code) + '</b> — ' + esc(String(p.name).substring(0, 60)) +
       '<span style="color:var(--muted);font-size:12px"> · ' + esc(p.category || '') + '</span></span></div>';
   }).join('');
   box.style.display = 'block';
+  wireThumbs(box);
   box.querySelectorAll('.ac-item').forEach(function (el) {
     el.addEventListener('mousedown', function (ev) {
       ev.preventDefault();
@@ -1885,17 +1976,12 @@ function pmRenderSearchList() {
 }
 
 $('pmSearch').addEventListener('input', function () {
-  var q = this.value.trim().toLowerCase();
+  var q = this.value.trim();
   _pmAcActive = -1;
   if (q.length < 2) { _pmAcItems = []; $('pmSearchList').style.display = 'none'; return; }
-  var pre = [], other = [];
-  (S.products || []).forEach(function (p) {
-    var code = String(p.code).toLowerCase();
-    if (code.indexOf(q) === 0) { pre.push(p); return; }
-    if (code.indexOf(q) >= 0 || String(p.name).toLowerCase().indexOf(q) >= 0 ||
-        String(p.nameEn || '').toLowerCase().indexOf(q) >= 0) other.push(p);
-  });
-  _pmAcItems = pre.concat(other).slice(0, 20);
+  // dùng chung logic với ô tìm sản phẩm khi lập báo giá: gõ nhiều từ, không cần đúng thứ tự
+  // (vd "RO 100 brafco" vẫn ra dù tên sản phẩm là "Máy lọc nước RO-100 BRAFCO")
+  _pmAcItems = searchProducts(q);
   pmRenderSearchList();
 });
 
@@ -2824,6 +2910,7 @@ function renderLines() {
   tbody.innerHTML = '';
   S.editor.lines.forEach(function (line, i) {
     var tr = document.createElement('tr');
+    var lineThumb = firstImageId(findProduct(line.code));
     var total = (Number(line.qty) || 0) * (Number(line.price) || 0);
     var ctCbm = (Number(line.l) || 0) * (Number(line.w) || 0) * (Number(line.h) || 0) / 1e9;
     var itemCbm = line.qtyCt ? ((Number(line.qty) || 0) / line.qtyCt) * ctCbm : 0;
@@ -2858,7 +2945,8 @@ function renderLines() {
       '<td class="num">' + (itemCbm ? fmtN(itemCbm) : '—') + '</td>' +
       '<td class="num"><input type="checkbox" data-mark="1"' + (normMarking(line.marking) === 'Y' ? ' checked' : '') + ' title="Mục này có cần Marking?"></td>' +
       '<td><input class="wide-in" data-f="note" value="' + esc(line.note || '') + '" placeholder="Ghi chú dòng…" style="min-width:120px"></td>' +
-      '<td><button class="btn small danger" data-del="1" title="Xóa dòng">✕</button></td>';
+      '<td><button class="btn small danger" data-del="1" title="Xóa dòng">✕</button></td>' +
+      '<td class="line-img-cell">' + (lineThumb ? '<img class="thumb-view" data-img="' + esc(lineThumb) + '" src="' + driveThumbUrl(lineThumb, 60) + '" style="width:32px;height:32px;object-fit:cover;border-radius:4px">' : '') + '</td>';
     tr.querySelector('[data-sel]').addEventListener('change', function () { line._sel = this.checked; });
     tr.querySelector('[data-mark]').addEventListener('change', function () { line.marking = this.checked ? 'Y' : 'N'; saveDraft(); });
     // click = chọn lại sản phẩm; double-click mã bắt đầu bằng 1 (máy) = View BOM.
@@ -2895,8 +2983,21 @@ function renderLines() {
     });
     tbody.appendChild(tr);
   });
+  wireThumbs(tbody);
   renderTotals();
 }
+
+/* ---- Toggle hiện/ẩn cột ảnh trong bảng Edit Details (nhớ lựa chọn qua localStorage) ---- */
+(function () {
+  var show = true;
+  try { show = localStorage.getItem('exportops_showLineImg') !== '0'; } catch (e) {}
+  $('lineImgToggle').checked = show;
+  $('linesTable').classList.toggle('hide-img-col', !show);
+})();
+$('lineImgToggle').addEventListener('change', function () {
+  $('linesTable').classList.toggle('hide-img-col', !this.checked);
+  try { localStorage.setItem('exportops_showLineImg', this.checked ? '1' : '0'); } catch (e) {}
+});
 
 function renderTotals() {
   var sub = 0, cbm = 0, totalLn = 0;
@@ -3412,7 +3513,7 @@ function renderSearchList() {
     var hist = S._histMap && S._histMap[p.code];
     var thumb = firstImageId(p);
     return '<div class="ac-item' + (i === _acActive ? ' active' : '') + '" data-i="' + i + '">' +
-      (thumb ? '<img src="' + driveThumbUrl(thumb, 60) + '" style="width:32px;height:32px;object-fit:cover;border-radius:4px;flex:none">' : '') +
+      (thumb ? '<img class="thumb-view" data-img="' + esc(thumb) + '" src="' + driveThumbUrl(thumb, 60) + '" style="width:32px;height:32px;object-fit:cover;border-radius:4px;flex:none">' : '') +
       '<div class="ac-main">' +
         '<div class="ac-name"><span class="code-chip">' + esc(p.code) + '</span> ' + esc(p.name) + '</div>' +
         '<div class="ac-meta">' + esc([p.category, p.model, p.brand].filter(Boolean).join(' · ')) + '</div>' +
@@ -3423,6 +3524,7 @@ function renderSearchList() {
       '</div></div>';
   }).join('');
   listEl.style.display = 'block';
+  wireThumbs(listEl);
   listEl.querySelectorAll('.ac-item').forEach(function (el) {
     el.addEventListener('mousedown', function (ev) { // mousedown để thắng blur của input
       ev.preventDefault();
@@ -3823,6 +3925,13 @@ function buildViewBom(rowIdx, product, bomRows) {
   $('vbCode').textContent = product.code;
   var desc = modelDescFor(product.model);
   $('vbModelDesc').textContent = (product.model || '') + (desc ? ' — ' + desc : '');
+
+  var imgIds = productImageIds(product);
+  var imgBox = $('vbImages');
+  imgBox.innerHTML = imgIds.map(function (id) {
+    return '<img class="thumb-view" data-img="' + esc(id) + '" src="' + driveThumbUrl(id, 160) + '" style="width:70px;height:70px;object-fit:cover;border-radius:6px;border:1px solid var(--line)">';
+  }).join('');
+  wireThumbs(imgBox);
 
   var grid = $('vbSlots');
   grid.innerHTML = '';

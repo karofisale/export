@@ -368,6 +368,7 @@
         <tr><td><span class="btn-ex">🚢 Shipment</span></td><td>Mở trang theo dõi lịch trình vận chuyển (tab mới)</td></tr>
         <tr><td><span class="btn-ex">⟳ Làm mới</span></td><td>Xoá bộ đệm, nạp lại dữ liệu mới nhất từ Google Sheets</td></tr>
         <tr><td><span class="btn-ex">📘 Hướng dẫn</span></td><td>Mở tài liệu này</td></tr>
+        <tr><td><span class="btn-ex">🤖</span> (góc dưới phải)</td><td>Trợ lý tìm kiếm — hỏi bằng tiếng Việt tự nhiên về khách hàng/sản phẩm/đơn hàng (vd "khách ABC còn đơn nào chưa confirm?"). Chỉ tra cứu và hướng dẫn bằng chữ, không tự thao tác thay bạn — kết quả luôn giới hạn đúng phạm vi bạn được xem (sale chỉ thấy khách/đơn của mình).</td></tr>
       </tbody>
     </table></div>
     <div class="note"><b>Quên PIN?</b> Liên hệ quản trị để đặt lại. <b>Vừa sửa giá/sản phẩm trên Sheet mà app chưa thấy?</b> Bấm ⟳ Làm mới (app tự làm mới mỗi 5 phút).</div>
@@ -456,7 +457,7 @@
       <li>Trường: Code*, Factory_name* (tên tiếng Việt), International_name (tên tiếng Anh dùng trên PI), Category, Option, Model, Brand, Pack_Type, Qty/ct, L, W, H, NetWeight, Type, Technology, Ảnh sản phẩm.</li>
       <li><b>Category</b> gõ để lọc (không cần đúng chính tả hết) → ô <b>Model</b> và <b>Pack_Type</b> chỉ còn hiện lựa chọn thuộc category đó (Pack_Type cũ chưa rõ category vẫn luôn hiện để không mất dữ liệu).</li>
       <li><b>Chọn Pack_Type</b> → app tự điền <b>Qty/ct, L, W, H</b> từ bảng Packing (để trống nếu chưa có dữ liệu), vẫn sửa lại được. Chưa có loại phù hợp → chọn <b>"+ Tạo Pack_Type mới…"</b>, nhập Pack_Option/Qty·CT/Length/Width/Height (bắt buộc đủ) để thêm loại mới vào bảng Packing.</li>
-      <li><b>Ảnh sản phẩm (tối đa 4):</b> chọn file ảnh rồi bấm <span class="btn-ex">⬆ Upload ảnh đã chọn</span> — ảnh tự resize/nén trước khi gửi, lưu lên Drive. Ảnh đầu tiên trong dải thumbnail là <b>ảnh đại diện</b>, hiện kèm trong ô tìm sản phẩm và ô chọn mã khi lập báo giá. Bấm ✕ trên thumbnail để bỏ ảnh. <b>Nhớ bấm 💾 Lưu sản phẩm</b> sau khi upload — upload chỉ đưa ảnh lên Drive, phải Lưu mới ghi vào danh mục.</li>
+      <li><b>Ảnh sản phẩm (tối đa 4):</b> chọn file ảnh rồi bấm <span class="btn-ex">⬆ Upload ảnh đã chọn</span> — ảnh tự resize/nén trước khi gửi, lưu lên Drive. Ảnh đầu tiên trong dải thumbnail là <b>ảnh đại diện</b>, hiện kèm trong ô tìm sản phẩm, ô chọn mã khi lập báo giá, cột <b>Image</b> ở cuối bảng Edit Details (bấm checkbox cạnh tiêu đề cột để hiện/ẩn) và trong màn <b>View BOM</b> (hiện đủ cả các ảnh, không chỉ ảnh đại diện). Bấm ✕ trên thumbnail để bỏ ảnh; bấm vào bất kỳ thumbnail nào ở các nơi trên để xem ảnh full size. <b>Nhớ bấm 💾 Lưu sản phẩm</b> sau khi upload — upload chỉ đưa ảnh lên Drive, phải Lưu mới ghi vào danh mục.</li>
       <li>Mã đã tồn tại → cập nhật; mã mới → thêm dòng mới, giữ nguyên công thức của bảng.</li>
     </ul>
     <div class="note"><b>Không có ô Price:</b> giá trên bảng Products là công thức tính từ BOM/Model_Cost, app không ghi đè. Muốn đổi giá thì sửa BOM hoặc Model_Cost.</div>
