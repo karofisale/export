@@ -764,12 +764,12 @@ h1, h2, h3 { margin: 0 0 12px; font-weight: 600; }
     <h3>View BOM <span id="vbCode" class="code-chip"></span></h3>
     <div class="vb-subtitle" id="vbModelDesc"></div>
     <div class="picker-grid" id="vbSlots"></div>
-    <div id="vbImages" style="display:flex;gap:8px;flex-wrap:wrap;margin:4px 0 10px"></div>
     <div class="bom-postfilters">
       <div class="tp-label">Post Filter</div>
       <div id="vbPostFilters"></div>
       <button class="btn small" id="vbAddPfBtn" style="display:none">+ Post Filter</button>
     </div>
+    <div id="vbImages" style="display:flex;gap:8px;flex-wrap:wrap;margin:10px 0 0"></div>
     <details id="vbOthers" style="margin-top:10px; display:none">
       <summary class="tp-label" style="cursor:pointer">Thành phần khác trong BOM (không tính vào Check giá)</summary>
       <ul id="vbOthersList" style="margin:6px 0 0; padding-left:20px; font-size:12.5px; color:var(--muted)"></ul>
@@ -4115,12 +4115,15 @@ $('exportEditBtn').addEventListener('click', function () {
     port: eco.port || '',
     discount: ed.discountVal || 0,
     other: ed.other || 0,
+    // cột Image chỉ xuất kèm khi đang bật hiện ảnh ở bảng Edit Details (checkbox cạnh tiêu đề cột)
+    includeImages: !!($('lineImgToggle') && $('lineImgToggle').checked),
     lines: lines.map(function (l) {
       return {
         code: l.code, product: l.product, brand: l.brand || '',
         qty: Number(l.qty) || 0, price: Number(l.price) || 0,
         qtyCt: Number(l.qtyCt) || 0,
-        l: Number(l.l) || 0, w: Number(l.w) || 0, h: Number(l.h) || 0
+        l: Number(l.l) || 0, w: Number(l.w) || 0, h: Number(l.h) || 0,
+        imageId: firstImageId(findProduct(l.code))
       };
     })
   });
@@ -4154,6 +4157,7 @@ function doExport(format) {
     buyerAddress: EX.buyerAddress,
     discount: EX.discount,
     other: EX.other,
+    includeImages: !!EX.includeImages,
     lines: EX.lines,
     expectedLoad: $('exLoad').value,
     tradeTerms: $('exTerms').value.trim(),
