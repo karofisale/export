@@ -9,16 +9,26 @@
   <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700&display=swap" rel="stylesheet">
   <style>
 :root {
-  --bg: #f4f6f9;
+  --bg: #f5f7f5;
   --card: #ffffff;
-  --ink: #1a2332;
-  --muted: #6b7a90;
-  --line: #e3e8ef;
+  --surface-2: #edf1ee;
+  --ink: #1a231e;
+  --muted: #5d6d64;
+  --line: #dfe6e1;
   --accent: #0d6e4f;
-  --accent-soft: #e6f4ef;
+  --accent-strong: #0a5940;
+  --accent-soft: #e3f2ec;
   --danger: #c0392b;
   --warn: #b8860b;
+  --warn-soft: #fbf1da;
   --radius: 10px;
+  /* thang cỡ chữ chuẩn — dùng cho các thành phần mới/đang chỉnh, bảng dữ liệu cũ giữ cỡ đã tinh chỉnh riêng */
+  --fs-xs: 12px;
+  --fs-sm: 13px;
+  --fs-base: 14px;
+  --fs-md: 16px;
+  --fs-lg: 20px;
+  --fs-xl: 27px;
   font-size: 15px;
 }
 * { box-sizing: border-box; }
@@ -46,11 +56,20 @@ h1, h2, h3 { margin: 0 0 12px; font-weight: 600; }
 .btn.danger { color: var(--danger); }
 
 /* ---------- Topbar / layout ---------- */
-.topbar { display: flex; justify-content: space-between; align-items: center; background: var(--card); border-bottom: 1px solid var(--line); padding: 10px 18px; position: sticky; top: 0; z-index: 5; }
+.topbar { display: flex; justify-content: space-between; align-items: center; background: var(--card); border-bottom: 1px solid var(--line); padding: 10px 18px; position: sticky; top: 0; z-index: 5; gap: 12px; }
+.topbar-title { display: flex; align-items: center; gap: 10px; min-width: 0; }
 .logo { font-weight: 700; color: var(--accent); }
-.topbar .sub { color: var(--muted); font-size: 13px; margin-left: 12px; }
+.topbar .sub { color: var(--muted); font-size: 13px; margin-left: 12px; white-space: nowrap; }
 .topbar-actions { display: flex; gap: 8px; align-items: center; }
-#userInfo { font-size: 13px; color: var(--muted); margin-right: 6px; }
+#userInfo { font-size: 13px; color: var(--muted); margin-right: 6px; white-space: nowrap; }
+#drawerToggleBtn { display: none; }
+#tbMenuToggle { display: none; }
+.tb-menu { display: flex; gap: 8px; align-items: center; }
+.tb-divider { display: none; }
+.tb-ic { margin-right: 4px; }
+
+/* Panel phủ mờ phía sau sidebar khi mở dạng drawer trên mobile (ẩn mặc định) */
+.sidebar-scrim { display: none; }
 
 /* Khóa chiều cao theo viewport: danh sách khách + nội dung tự cuộn trong khung, không kéo dài cả trang */
 .layout { display: flex; height: calc(100vh - 53px); }
@@ -103,6 +122,12 @@ h1, h2, h3 { margin: 0 0 12px; font-weight: 600; }
 .data-table .low { color: var(--warn); font-weight: 600; }
 .code-chip { font-family: Consolas, monospace; font-size: 12.5px; background: var(--accent-soft); color: var(--accent); border-radius: 4px; padding: 2px 6px; }
 .code-chip.new { background: #fdf3d7; color: var(--warn); }
+
+/* ---------- Trạng thái dạng pill (thay chữ màu đơn thuần) ---------- */
+.pill { display: inline-flex; align-items: center; gap: 5px; font-size: 11.5px; font-weight: 700; padding: 4px 10px; border-radius: 20px; background: var(--surface-2); color: var(--muted); white-space: nowrap; }
+.pill::before { content: ""; width: 6px; height: 6px; border-radius: 50%; background: currentColor; flex-shrink: 0; }
+.pill.accent { background: var(--accent-soft); color: var(--accent-strong); }
+.pill.warn { background: var(--warn-soft); color: var(--warn); }
 
 .action-row { margin-top: 14px; display: flex; gap: 10px; }
 
@@ -166,6 +191,56 @@ h1, h2, h3 { margin: 0 0 12px; font-weight: 600; }
   .sidebar { width: 100%; max-height: 300px; }
   .picker-grid { grid-template-columns: 1fr; }
 }
+
+/* Tablet hẹp: giữ icon, ẩn chữ trên nút topbar phụ để đỡ chật hàng */
+@media (max-width: 900px) {
+  .tb-menu .tb-label { display: none; }
+  .tb-menu .btn { padding: 8px; }
+  .tb-ic { margin-right: 0; }
+}
+
+/* Mobile: topbar gộp vào menu "⋯", sidebar thành drawer trượt, bảng chọn-dòng thành card, modal full-screen */
+@media (max-width: 620px) {
+  #drawerToggleBtn { display: inline-flex; }
+  #tbMenuToggle { display: inline-flex; }
+  .tb-menu {
+    display: none; position: absolute; right: 12px; top: calc(100% + 6px); z-index: 30;
+    flex-direction: column; align-items: stretch; gap: 0; background: var(--card);
+    border: 1px solid var(--line); border-radius: 10px; box-shadow: 0 14px 36px rgba(26,35,50,.2); min-width: 200px; overflow: hidden;
+  }
+  .tb-menu.open { display: flex; }
+  .tb-menu .btn { border: none; border-radius: 0; justify-content: flex-start; padding: 11px 14px; min-height: 44px; }
+  .tb-menu .btn:hover { background: var(--accent-soft); }
+  .tb-menu .tb-label { display: inline; }
+  .tb-divider { display: block; border-top: 1px solid var(--line); margin: 4px 0; }
+
+  /* Sidebar -> drawer phủ trên nội dung, đóng/mở bằng ☰, không còn chiếm khoảng đứng cố định */
+  .layout { position: relative; }
+  .sidebar {
+    position: fixed; top: 53px; left: 0; bottom: 0; width: 84vw; max-width: 320px; max-height: none;
+    z-index: 25; transform: translateX(-105%); transition: transform .28s ease; box-shadow: 8px 0 28px rgba(26,35,50,.2);
+  }
+  .sidebar.drawer-open { transform: translateX(0); }
+  .sidebar-scrim.show { display: block; position: fixed; inset: 53px 0 0 0; background: rgba(20,28,24,.35); z-index: 24; }
+
+  /* Vùng chạm tối thiểu 40px cho nút nhỏ */
+  .btn.small { min-height: 40px; padding: 8px 12px; }
+
+  /* Bảng chỉ để xem/chọn 1 dòng (đơn theo tháng, hàng đợi, chọn đơn) -> danh sách thẻ, không cuộn ngang.
+     Bảng cần nhập liệu nhiều cột (Edit Details…) KHÔNG gắn class này, vẫn giữ dạng bảng cuộn ngang. */
+  .data-table.card-list thead { display: none; }
+  .data-table.card-list, .data-table.card-list tbody, .data-table.card-list tr, .data-table.card-list td { display: block; width: 100%; }
+  .data-table.card-list tr { padding: 10px 12px; border-top: 1px solid var(--line); }
+  .data-table.card-list tr:first-child { border-top: none; }
+  .data-table.card-list td { padding: 2px 0; border-top: none; display: flex; justify-content: space-between; gap: 10px; }
+  .data-table.card-list td::before { content: attr(data-label); color: var(--muted); font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: .03em; }
+  .data-table.card-list td.card-title { font-weight: 600; font-size: 14px; }
+  .data-table.card-list td.card-title::before { display: none; }
+
+  /* Modal chiếm toàn màn hình, nút Lưu/Hủy dính đáy — đỡ bị bàn phím ảo che */
+  .modal { width: 100%; max-width: 100%; height: 100%; max-height: 100%; border-radius: 0; display: flex; flex-direction: column; }
+  .modal-actions { margin-top: auto; padding-top: 16px; position: sticky; bottom: 0; background: var(--card); }
+}
 </style>
 
 </head>
@@ -194,21 +269,27 @@ h1, h2, h3 { margin: 0 0 12px; font-weight: 600; }
 <div id="mainScreen" class="screen" style="display:none">
   <header class="topbar">
     <div class="topbar-title">
+      <button class="btn ghost" id="drawerToggleBtn" title="Danh sách khách hàng">☰</button>
       <span class="logo">Export Ops Hub</span>
       <span class="sub" id="rateInfo"></span>
     </div>
-    <div class="topbar-actions">
+    <div class="topbar-actions" id="topbarActions">
       <span id="userInfo"></span>
-      <button class="btn ghost" id="prodMgrBtn" style="display:none" title="Thêm/sửa sản phẩm, model, BOM trên hub">🧩 Danh mục SP</button>
-      <button class="btn ghost" id="ptspBtn" style="display:none" title="Dashboard tiến độ phát triển sản phẩm (đọc live từ Jira)">📊 Tiến độ PTSP</button>
-      <a class="btn ghost" href="https://karofisale.github.io/export/shipment-tracking.html" target="_blank" rel="noopener" title="Xem lịch trình shipment (chỉ xem — cập nhật cần mã admin)">🚢 Shipment</a>
-      <button class="btn ghost" id="refreshBtn" title="Xóa cache, tải lại dữ liệu mới nhất từ Google Sheets">⟳ Làm mới</button>
-      <button class="btn ghost" id="changePinBtn" title="Đổi mật khẩu (PIN) của bạn">🔑 Đổi mật khẩu</button>
-      <a class="btn ghost" href="https://karofisale.github.io/export/hdsd.html" target="_blank" rel="noopener" title="Hướng dẫn sử dụng">📘 Hướng dẫn</a>
-      <button class="btn ghost" id="logoutBtn">Đăng xuất</button>
+      <button class="btn ghost" id="tbMenuToggle" aria-label="Mở menu" aria-expanded="false">⋯</button>
+      <div class="tb-menu" id="tbMenu">
+        <button class="btn ghost" id="prodMgrBtn" style="display:none" title="Thêm/sửa sản phẩm, model, BOM trên hub"><span class="tb-ic">🧩</span><span class="tb-label">Danh mục SP</span></button>
+        <button class="btn ghost" id="ptspBtn" style="display:none" title="Dashboard tiến độ phát triển sản phẩm (đọc live từ Jira)"><span class="tb-ic">📊</span><span class="tb-label">Tiến độ PTSP</span></button>
+        <a class="btn ghost" href="https://karofisale.github.io/export/shipment-tracking.html" target="_blank" rel="noopener" title="Xem lịch trình shipment (chỉ xem — cập nhật cần mã admin)"><span class="tb-ic">🚢</span><span class="tb-label">Shipment</span></a>
+        <button class="btn ghost" id="refreshBtn" title="Xóa cache, tải lại dữ liệu mới nhất từ Google Sheets"><span class="tb-ic">⟳</span><span class="tb-label">Làm mới</span></button>
+        <div class="tb-divider"></div>
+        <button class="btn ghost" id="changePinBtn" title="Đổi mật khẩu (PIN) của bạn"><span class="tb-ic">🔑</span><span class="tb-label">Đổi mật khẩu</span></button>
+        <a class="btn ghost" href="https://karofisale.github.io/export/hdsd.html" target="_blank" rel="noopener" title="Hướng dẫn sử dụng"><span class="tb-ic">📘</span><span class="tb-label">Hướng dẫn</span></a>
+        <button class="btn ghost" id="logoutBtn"><span class="tb-label">Đăng xuất</span></button>
+      </div>
     </div>
   </header>
 
+  <div class="sidebar-scrim" id="sidebarScrim"></div>
   <div class="layout">
     <!-- Cột trái: danh sách khách -->
     <aside class="sidebar">
@@ -259,7 +340,7 @@ h1, h2, h3 { margin: 0 0 12px; font-weight: 600; }
         </div>
         <div class="tp-label" style="margin:4px 0 6px;font-weight:600">Danh sách đơn trong tháng (bấm để xem chi tiết)</div>
         <div class="table-wrap">
-          <table class="data-table" id="monthOrdersTable">
+          <table class="data-table card-list" id="monthOrdersTable">
             <thead><tr><th>Khách</th><th>Thị trường</th><th>SO</th><th>Ngày load</th><th class="num">FOB</th><th>Status</th></tr></thead>
             <tbody></tbody>
           </table>
@@ -526,7 +607,7 @@ h1, h2, h3 { margin: 0 0 12px; font-weight: 600; }
           <input type="search" id="queueSearch" placeholder="Lọc theo khách / PI / SO…" style="padding:8px 10px;border:1px solid var(--line);border-radius:6px;min-width:240px">
         </div>
         <div class="table-wrap">
-          <table class="data-table" id="queueTable">
+          <table class="data-table card-list" id="queueTable">
             <thead><tr>
               <th>Khách</th><th>PI Number</th><th>SO</th><th>Sale</th>
               <th class="num">FOB</th><th>Ngày</th><th>Status</th>
@@ -552,7 +633,7 @@ h1, h2, h3 { margin: 0 0 12px; font-weight: 600; }
 
         <div class="tp-label" style="margin:10px 0 6px;font-weight:600">Đơn hàng <span style="font-weight:400;color:var(--muted)">(mới nhất theo Load Date — bấm 1 dòng để xem chi tiết)</span></div>
         <div class="table-wrap" id="orderPickerWrap">
-          <table class="data-table" id="orderPickerTable">
+          <table class="data-table card-list" id="orderPickerTable">
             <thead><tr>
               <th>PI / SO</th><th>Load Date</th><th>INVOICE#</th><th class="num">FOB</th><th>Status</th>
             </tr></thead>
@@ -1236,12 +1317,47 @@ function goHome() {
   $('emptyState').style.display = '';
 }
 
-/* Ẩn/hiện panel trái */
+/* Ẩn/hiện panel trái. Dưới 620px panel trở thành drawer trượt — setSidebar chỉ quyết định có "sẵn sàng"
+ * hay không (ẩn hẳn khi false); việc TRƯỢT RA chỉ xảy ra khi người dùng bấm ☰ hoặc "Chọn khách khác",
+ * để các màn hình tự nạp sidebar (dashboard doanh thu, hàng đợi…) không tự che kín nội dung khi vừa vào. */
+function isMobileWidth() { return window.matchMedia('(max-width: 620px)').matches; }
 function setSidebar(visible) {
   document.querySelector('.sidebar').style.display = visible ? '' : 'none';
+  if (!visible) closeSidebarDrawer();
 }
+function openSidebarDrawer() {
+  if (!isMobileWidth()) return;
+  document.querySelector('.sidebar').classList.add('drawer-open');
+  $('sidebarScrim').classList.add('show');
+}
+function closeSidebarDrawer() {
+  document.querySelector('.sidebar').classList.remove('drawer-open');
+  $('sidebarScrim').classList.remove('show');
+}
+$('drawerToggleBtn').addEventListener('click', function () { setSidebar(true); openSidebarDrawer(); });
+$('sidebarScrim').addEventListener('click', closeSidebarDrawer);
+
+/* Menu "⋯" gộp các hành động phụ trên topbar khi màn hình hẹp (<620px) */
+$('tbMenuToggle').addEventListener('click', function (e) {
+  e.stopPropagation();
+  var open = $('tbMenu').classList.toggle('open');
+  this.setAttribute('aria-expanded', open ? 'true' : 'false');
+});
+document.addEventListener('click', function (e) {
+  if (!$('tbMenu').classList.contains('open')) return;
+  if (e.target === $('tbMenuToggle') || $('tbMenu').contains(e.target)) return;
+  $('tbMenu').classList.remove('open');
+  $('tbMenuToggle').setAttribute('aria-expanded', 'false');
+});
+$('tbMenu').addEventListener('click', function (e) {
+  if (e.target.closest('.btn')) {
+    $('tbMenu').classList.remove('open');
+    $('tbMenuToggle').setAttribute('aria-expanded', 'false');
+  }
+});
 $('otherClientBtn').addEventListener('click', function () {
   setSidebar(true);
+  openSidebarDrawer();
   $('clientSearch').focus();
 });
 
@@ -1318,11 +1434,11 @@ function renderOrderPicker() {
   tb.innerHTML = S.orders.map(function (o, i) {
     var active = S.currentOrder && S.currentOrder === o;
     return '<tr data-i="' + i + '" style="cursor:pointer"' + (active ? ' class="row-active"' : '') + '>' +
-      '<td>' + esc(o.so || o.piNumber) + '</td>' +
-      '<td>' + esc(o.realLoad || '—') + '</td>' +
-      '<td>' + esc(o.invoiceNo || '—') + '</td>' +
-      '<td class="num">' + fmt$(o.fob) + '</td>' +
-      '<td>' + esc(o.status || '—') + '</td></tr>';
+      '<td class="card-title">' + esc(o.so || o.piNumber) + '</td>' +
+      '<td data-label="Load Date">' + esc(o.realLoad || '—') + '</td>' +
+      '<td data-label="INVOICE#">' + esc(o.invoiceNo || '—') + '</td>' +
+      '<td class="num" data-label="FOB">' + fmt$(o.fob) + '</td>' +
+      '<td data-label="Status">' + statusBadge(o.status) + '</td></tr>';
   }).join('');
   tb.querySelectorAll('tr[data-i]').forEach(function (tr) {
     tr.addEventListener('click', function () { selectOrder(parseInt(tr.getAttribute('data-i'), 10)); });
@@ -1419,12 +1535,12 @@ function renderRevenue() {
   var mtb = $('monthOrdersTable').querySelector('tbody');
   mtb.innerHTML = ord.length ? ord.map(function (o, i) {
     return '<tr data-i="' + i + '" style="cursor:pointer">' +
-      '<td>' + esc(o.client) + '</td>' +
-      '<td>' + esc(clientCountry(o.client)) + '</td>' +
-      '<td>' + esc(o.so || '—') + '</td>' +
-      '<td>' + esc(o.realLoad || '—') + '</td>' +
-      '<td class="num">' + fmt$(o.fob) + '</td>' +
-      '<td>' + statusBadge(o.status) + '</td></tr>';
+      '<td class="card-title">' + esc(o.client) + '</td>' +
+      '<td data-label="Thị trường">' + esc(clientCountry(o.client)) + '</td>' +
+      '<td data-label="SO">' + esc(o.so || '—') + '</td>' +
+      '<td data-label="Ngày load">' + esc(o.realLoad || '—') + '</td>' +
+      '<td class="num" data-label="FOB">' + fmt$(o.fob) + '</td>' +
+      '<td data-label="Status">' + statusBadge(o.status) + '</td></tr>';
   }).join('') : '<tr><td colspan="6" style="color:var(--muted)">Không có đơn nào trong tháng ' + esc(S.revMonth) + '.</td></tr>';
   mtb.querySelectorAll('tr[data-i]').forEach(function (tr) {
     tr.addEventListener('click', function () { openQueueRow(ord[parseInt(tr.getAttribute('data-i'), 10)]); });
@@ -2345,8 +2461,8 @@ function loadReviewQueue() {
 
 function statusBadge(st) {
   var s = (st || '').toLowerCase();
-  var color = s === 'reviewed' ? 'var(--accent)' : (s === 'new created' || s === 'sale edited' ? 'var(--warn)' : 'var(--muted)');
-  return '<span style="font-weight:600;color:' + color + '">' + esc(st || '—') + '</span>';
+  var cls = s === 'reviewed' ? 'accent' : (s === 'new created' || s === 'sale edited' ? 'warn' : '');
+  return '<span class="pill' + (cls ? ' ' + cls : '') + '">' + esc(st || '—') + '</span>';
 }
 
 function renderQueue() {
@@ -2358,13 +2474,13 @@ function renderQueue() {
   var tb = $('queueTable').querySelector('tbody');
   tb.innerHTML = rows.length ? rows.map(function (o, i) {
     return '<tr data-i="' + i + '" style="cursor:pointer">' +
-      '<td>' + esc(o.client) + '</td>' +
-      '<td><span class="code-chip">' + esc(o.piNumber || o.so) + '</span></td>' +
-      '<td>' + esc(o.so || '—') + '</td>' +
-      '<td>' + esc(o.pic || '—') + '</td>' +
-      '<td class="num">' + fmt$(o.fob) + '</td>' +
-      '<td>' + esc(o.piDate || '') + '</td>' +
-      '<td>' + statusBadge(o.status) + '</td></tr>';
+      '<td class="card-title">' + esc(o.client) + '</td>' +
+      '<td data-label="PI Number"><span class="code-chip">' + esc(o.piNumber || o.so) + '</span></td>' +
+      '<td data-label="SO">' + esc(o.so || '—') + '</td>' +
+      '<td data-label="Sale">' + esc(o.pic || '—') + '</td>' +
+      '<td class="num" data-label="FOB">' + fmt$(o.fob) + '</td>' +
+      '<td data-label="Ngày">' + esc(o.piDate || '') + '</td>' +
+      '<td data-label="Status">' + statusBadge(o.status) + '</td></tr>';
   }).join('') : '<tr><td colspan="7" style="color:var(--muted)">Không có đơn nào cần kiểm tra.</td></tr>';
   var filtered = rows;
   tb.querySelectorAll('tr[data-i]').forEach(function (tr) {
