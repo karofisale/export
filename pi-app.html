@@ -3275,19 +3275,27 @@ $('edSaveBtn').addEventListener('click', function () {
     freight: ed.other || 0,
     expectedLoad: ed.expectedLoad || '',
     note: ed.note || '', // ghi chú chung của đơn
+    origSo: ed.origSo || '',
+    origPiNumber: ed.origPiNumber || '',
     lines: lines.map(function (l) {
       return { code: l.code, product: l.product, qty: l.qty, price: l.price, amount: Math.round(l.qty * l.price * 100) / 100,
         note: l.note || '', marking: normMarking(l.marking), netWeight: Number(l.netWeight) || 0 };
     })
   };
+  // admin/master sửa 1 đơn ĐÃ có SO trên Export Order -> ghi thẳng vào đúng SO đó, không tạo bản nháp
+  // ở file sale (đỡ phải Confirm lại) — đơn đang ở file nào thì lưu lại vào đúng file đó.
+  // Đơn admin tự tạo trước trên Export Order (chưa có SO thật) vẫn phải qua Confirm (nhánh "rename")
+  // để gán SO, nên đi theo đường cũ (api_savePI) như trước.
+  var directToOps = ed.mode === 'edit' && ed.source === 'ops2025' && !!ed.origSo && isAdminLevel();
   loading(true);
-  gs('api_savePI', S.token, payload).then(function (res) {
+  gs(directToOps ? 'api_updateOpsOrder' : 'api_savePI', S.token, payload).then(function (res) {
     clearDraft(); // đã lưu chính thức -> bỏ bản nháp tự lưu
     if (payload.clientCode) clientObj.id = payload.clientCode; // phản ánh mã KH mới ngay
-    toast('Đã lưu PI ' + res.piNumber + ' cho khách ' + clientObj.name + ' (' + ed.status + ').');
+    toast(directToOps ? 'Đã ghi trực tiếp vào SO ' + res.so + '.'
+      : 'Đã lưu PI ' + res.piNumber + ' cho khách ' + clientObj.name + ' (' + ed.status + ').');
     $('editorView').style.display = 'none';
     S.currentClient = clientObj; // chuyển ngữ cảnh sang khách của đơn vừa lưu
-    selectClient(clientObj, res.piNumber); // reload danh sách đơn + mở lại đúng đơn vừa lưu
+    selectClient(clientObj, directToOps ? res.so : res.piNumber); // reload danh sách đơn + mở lại đúng đơn vừa lưu
   }).catch(function (e) { toast('Lỗi khi lưu: ' + e.message); })
     .finally(function () { loading(false); });
 });
