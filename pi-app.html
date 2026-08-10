@@ -3,6 +3,7 @@
 <head>
   <base target="_top">
   <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
   <title>Export Ops Hub — Báo giá PI</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -2525,9 +2526,9 @@ function selectOrder(i) {
   $('cloneBtn').style.display = canCreate ? '' : 'none';
   $('createNewBtn').style.display = canCreate ? '' : 'none';
   $('cloneBtn').disabled = false;
-  // đơn nằm trong file sale (mọi status chờ xử lý)
-  var SALE_STATUSES = ['new created', 'sale edited', 'reviewed', 'targeted', 'drafted'];
-  var isSalePi = o.source === 'sale' && SALE_STATUSES.indexOf(st) >= 0;
+  // đơn nằm trong file sale (chưa ghi vào Operations2025) luôn chờ Confirm, bất kể status gì —
+  // admin/master sửa đơn đã Confirm giờ có thể giữ nguyên status gốc (vd "opened") thay vì luôn "Sale Edited".
+  var isSalePi = o.source === 'sale';
   // nút Confirm: admin/master, đơn file sale
   $('confirmPiBtn').style.display = (isAdminLevel() && isSalePi) ? '' : 'none';
   // #7 Chứng từ nhà máy (ĐNXH + Marking): admin/master, đơn đã ở Operations2025
@@ -2559,6 +2560,7 @@ function selectOrder(i) {
   gs('api_orderDetails', S.token, {
     source: o.source, so: o.so, piNumber: o.piNumber, clientName: S.currentClient.name, pic: o.pic
   }).then(function (res) {
+    if (S.currentOrder !== o) return; // đã chuyển sang xem đơn khác trong lúc chờ — bỏ kết quả về trễ, tránh hiển thị nhầm dòng hàng
     S.currentLines = res.lines;
     renderOrderDetailRows();
     // deep-link: tự vào Edit Details nếu đơn cho phép sửa
@@ -2938,10 +2940,18 @@ function setEditorStatus(status) {
 }
 
 function openEditor(mode, piNumber, lines, existingOrder) {
-  // Clone/New -> 'targeted' (sale chọn Expected Loading). Sửa đơn sale -> giữ status hiện tại. Sửa đơn ops -> 'Sale Edited'.
+  // Clone/New -> 'targeted' (sale chọn Expected Loading). Sửa đơn sale -> giữ status hiện tại.
+  // Sửa đơn đã Confirm (ops2025): admin/master giữ nguyên trạng thái gốc (tự chọn đổi trong dropdown nếu cần);
+  // technician vẫn tự chuyển "Sale Edited" để đơn quay lại đúng hàng đợi review.
   var editStatus;
   if (mode === 'edit') {
-    editStatus = (existingOrder && existingOrder.source === 'sale') ? existingOrder.status : 'Sale Edited';
+    if (existingOrder && existingOrder.source === 'sale') {
+      editStatus = existingOrder.status;
+    } else if (existingOrder && isAdminLevel()) {
+      editStatus = existingOrder.status;
+    } else {
+      editStatus = 'Sale Edited';
+    }
   } else {
     editStatus = 'targeted';
   }
