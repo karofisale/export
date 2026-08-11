@@ -124,6 +124,13 @@ h1, h2, h3 { margin: 0 0 12px; font-weight: 600; }
 .code-chip { font-family: Consolas, monospace; font-size: 12.5px; background: var(--accent-soft); color: var(--accent); border-radius: 4px; padding: 2px 6px; }
 .code-chip.new { background: #fdf3d7; color: var(--warn); }
 
+/* ---------- Bảng doanh thu: cột Order note (ẩn mặc định, bật bằng checkbox #revShowNote) ---------- */
+.note-col, td.note-cell { display: none; }
+#monthOrdersTable.show-notes .note-col,
+#monthOrdersTable.show-notes td.note-cell { display: table-cell; }
+td.note-cell { max-width: 220px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; cursor: pointer; }
+td.note-cell.expanded { white-space: normal; max-width: none; }
+
 /* ---------- Trạng thái dạng pill (thay chữ màu đơn thuần) ---------- */
 .pill { display: inline-flex; align-items: center; gap: 5px; font-size: 11.5px; font-weight: 700; padding: 4px 10px; border-radius: 20px; background: var(--surface-2); color: var(--muted); white-space: nowrap; }
 .pill::before { content: ""; width: 6px; height: 6px; border-radius: 50%; background: currentColor; flex-shrink: 0; }
@@ -204,6 +211,13 @@ h1, h2, h3 { margin: 0 0 12px; font-weight: 600; }
 @media (max-width: 620px) {
   #drawerToggleBtn { display: inline-flex; }
   #tbMenuToggle { display: inline-flex; }
+
+  /* Tỷ giá + User từng đè chữ lên nhau: .topbar-title co lại (min-width:0) nhỏ hơn nội dung #rateInfo
+     (white-space:nowrap) nên chữ tràn ra ngoài, đè lên #userInfo bên cạnh -> cho #rateInfo xuống dòng riêng. */
+  .topbar { flex-wrap: wrap; row-gap: 4px; }
+  .topbar-title { flex-wrap: wrap; }
+  .topbar .sub { flex-basis: 100%; white-space: normal; margin-left: 0; }
+  #userInfo { white-space: normal; }
   .tb-menu {
     display: none; position: absolute; right: 12px; top: calc(100% + 6px); z-index: 30;
     flex-direction: column; align-items: stretch; gap: 0; background: var(--card);
@@ -237,6 +251,8 @@ h1, h2, h3 { margin: 0 0 12px; font-weight: 600; }
   .data-table.card-list td::before { content: attr(data-label); color: var(--muted); font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: .03em; }
   .data-table.card-list td.card-title { font-weight: 600; font-size: 14px; }
   .data-table.card-list td.card-title::before { display: none; }
+  .data-table.card-list td.note-cell { display: none; }
+  .data-table.card-list.show-notes td.note-cell { display: flex; white-space: normal; max-width: none; }
 
   /* Modal chiếm toàn màn hình, nút Lưu/Hủy dính đáy — đỡ bị bàn phím ảo che */
   .modal { width: 100%; max-width: 100%; height: 100%; max-height: 100%; border-radius: 0; display: flex; flex-direction: column; }
@@ -295,6 +311,7 @@ h1, h2, h3 { margin: 0 0 12px; font-weight: 600; }
     <!-- Cột trái: danh sách khách -->
     <aside class="sidebar">
       <div class="sidebar-head">
+        <button class="btn ghost small" id="sidebarCollapseBtn" title="Ẩn danh sách khách (bấm ☰ để hiện lại)">⟵</button>
         <input type="search" id="clientSearch" placeholder="Tìm khách hàng…">
         <select id="clientSort" title="Sắp xếp danh sách">
           <option value="name">Tên A–Z</option>
@@ -339,10 +356,15 @@ h1, h2, h3 { margin: 0 0 12px; font-weight: 600; }
           <div class="tp-cell"><div class="tp-label">Số đơn</div><div class="tp-value" id="revCount">0</div></div>
           <div class="tp-cell"><div class="tp-label">Số khách</div><div class="tp-value" id="revClients">0</div></div>
         </div>
-        <div class="tp-label" style="margin:4px 0 6px;font-weight:600">Danh sách đơn trong tháng (bấm để xem chi tiết)</div>
+        <div style="display:flex;align-items:center;justify-content:space-between;gap:8px;margin:4px 0 6px">
+          <div class="tp-label" style="margin:0;font-weight:600">Danh sách đơn trong tháng (bấm để xem chi tiết)</div>
+          <label class="tp-label" style="margin:0;display:flex;align-items:center;gap:4px;cursor:pointer;font-weight:400">
+            <input type="checkbox" id="revShowNote"> Hiện cột Note
+          </label>
+        </div>
         <div class="table-wrap">
           <table class="data-table card-list" id="monthOrdersTable">
-            <thead><tr><th>Khách</th><th>Thị trường</th><th>SO</th><th>Ngày load</th><th class="num">FOB</th><th>Status</th></tr></thead>
+            <thead><tr><th>Khách</th><th>Thị trường</th><th>SO</th><th>Ngày load</th><th class="num">FOB</th><th>Status</th><th class="note-col">Order note</th></tr></thead>
             <tbody></tbody>
           </table>
         </div>
@@ -1337,6 +1359,7 @@ function closeSidebarDrawer() {
 }
 $('drawerToggleBtn').addEventListener('click', function () { setSidebar(true); openSidebarDrawer(); });
 $('sidebarScrim').addEventListener('click', closeSidebarDrawer);
+$('sidebarCollapseBtn').addEventListener('click', function () { setSidebar(false); });
 
 /* Menu "⋯" gộp các hành động phụ trên topbar khi màn hình hẹp (<620px) */
 $('tbMenuToggle').addEventListener('click', function (e) {
@@ -1472,6 +1495,8 @@ function loadRevenue() {
   $('revBrandFilterWrap').style.display = showBrandFilter ? 'flex' : 'none';
   if (!showBrandFilter) S.revFilter = 'all';
   if (!S.revMonth) S.revMonth = new Date().toISOString().slice(0, 7); // yyyy-MM hiện tại
+  $('revShowNote').checked = !!S.revShowNote;
+  $('monthOrdersTable').classList.toggle('show-notes', !!S.revShowNote);
   if (S.revOrders) { renderRevenue(); return; }
   loading(true);
   gs('api_revenueOrders', S.token).then(function (res) {
@@ -1535,18 +1560,27 @@ function renderRevenue() {
   var ord = rows.slice().sort(function (a, b) { return String(b.realLoad || b.piDate).localeCompare(String(a.realLoad || a.piDate)); });
   var mtb = $('monthOrdersTable').querySelector('tbody');
   mtb.innerHTML = ord.length ? ord.map(function (o, i) {
+    var soLabel = o.so ? esc(o.so) : (o.source === 'sale' ? '<span class="pill warn">Nháp</span>' : '—');
     return '<tr data-i="' + i + '" style="cursor:pointer">' +
       '<td class="card-title">' + esc(o.client) + '</td>' +
       '<td data-label="Thị trường">' + esc(clientCountry(o.client)) + '</td>' +
-      '<td data-label="SO">' + esc(o.so || '—') + '</td>' +
+      '<td data-label="SO">' + soLabel + '</td>' +
       '<td data-label="Ngày load">' + esc(o.realLoad || '—') + '</td>' +
       '<td class="num" data-label="FOB">' + fmt$(o.fob) + '</td>' +
-      '<td data-label="Status">' + statusBadge(o.status) + '</td></tr>';
-  }).join('') : '<tr><td colspan="6" style="color:var(--muted)">Không có đơn nào trong tháng ' + esc(S.revMonth) + '.</td></tr>';
+      '<td data-label="Status">' + statusBadge(o.status) + '</td>' +
+      '<td class="note-cell" data-label="Order note" title="' + esc(o.note || '') + '">' + esc(o.note || '—') + '</td></tr>';
+  }).join('') : '<tr><td colspan="7" style="color:var(--muted)">Không có đơn nào trong tháng ' + esc(S.revMonth) + '.</td></tr>';
   mtb.querySelectorAll('tr[data-i]').forEach(function (tr) {
     tr.addEventListener('click', function () { openQueueRow(ord[parseInt(tr.getAttribute('data-i'), 10)]); });
   });
+  mtb.querySelectorAll('.note-cell').forEach(function (td) {
+    td.addEventListener('click', function (e) { e.stopPropagation(); td.classList.toggle('expanded'); });
+  });
 }
+$('revShowNote').addEventListener('change', function () {
+  S.revShowNote = this.checked;
+  $('monthOrdersTable').classList.toggle('show-notes', this.checked);
+});
 
 /* ================= #12 Thông tin lô hàng + Custom Docs (admin/master) ================= */
 var SV_FIELDS = { deposit: 'svDeposit', depositDate: 'svDepositDate', realLoad: 'svRealLoad', etd: 'svEtd',
