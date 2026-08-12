@@ -1036,11 +1036,11 @@ td.note-cell.expanded { white-space: normal; max-width: none; }
   </div>
 </div>
 
-<button id="agentFab" title="Trợ lý tìm kiếm" style="position:fixed;right:20px;bottom:20px;width:52px;height:52px;border-radius:50%;font-size:22px;line-height:52px;padding:0;text-align:center;border:none;cursor:pointer;background:var(--accent);color:#fff;box-shadow:0 6px 18px rgba(0,0,0,.25);z-index:40">🤖</button>
+<button id="agentFab" title="Trợ lý tìm kiếm" style="position:fixed;right:20px;bottom:20px;width:52px;height:52px;border-radius:50%;padding:0;border:none;cursor:pointer;overflow:hidden;box-shadow:0 6px 18px rgba(0,0,0,.25);z-index:40"><img src="data:image/jpeg;base64,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" alt="Trợ lý" style="width:100%;height:100%;object-fit:cover;display:block"></button>
 
 <div id="agentPanel" style="display:none;position:fixed;right:20px;bottom:82px;width:340px;max-width:90vw;height:460px;max-height:70vh;background:var(--card);border:1px solid var(--line);border-radius:10px;box-shadow:0 10px 30px rgba(26,35,50,.25);z-index:41;flex-direction:column;overflow:hidden">
   <div style="display:flex;justify-content:space-between;align-items:center;padding:10px 12px;border-bottom:1px solid var(--line);background:var(--accent-soft)">
-    <b style="font-size:14px">🤖 Trợ lý tìm kiếm</b>
+    <b style="font-size:14px;display:flex;align-items:center;gap:6px"><img id="agentPanelIcon" alt="" style="width:20px;height:20px;border-radius:50%;object-fit:cover;flex-shrink:0"> Trợ lý tìm kiếm</b>
     <button class="btn ghost" id="agentCloseBtn" style="padding:2px 8px">✕</button>
   </div>
   <div id="agentMessages" style="flex:1;overflow-y:auto;padding:10px 12px;display:flex;flex-direction:column;gap:8px;font-size:13.5px"></div>
@@ -1104,9 +1104,12 @@ function toast(msg) {
 }
 function loading(on) { $('loadingBar').style.display = on ? 'block' : 'none'; }
 
-/* ---- Trợ lý tìm kiếm (Claude agent — Giai đoạn 2, Mức 1: chỉ đọc + hướng dẫn bằng chữ) ---- */
+/* ---- Trợ lý tìm kiếm (Gemini agent — Giai đoạn 2, Mức 1: đọc dữ liệu + Mức 2: mở sẵn màn hình
+   qua openScreen, xem applyAgentAction() bên dưới — KHÔNG bao giờ tự bấm Lưu/Xác nhận/Xoá) ---- */
 var _agentHistory = [];
 var _agentBusy = false;
+// Icon nhỏ trong tiêu đề panel dùng lại đúng ảnh của nút agentFab (tránh nhúng base64 2 lần).
+$('agentPanelIcon').src = $('agentFab').querySelector('img').src;
 
 function agentAppendMsg(role, text) {
   var box = $('agentMessages');
@@ -1118,6 +1121,122 @@ function agentAppendMsg(role, text) {
   box.appendChild(div);
   box.scrollTop = box.scrollHeight;
   return div;
+}
+
+/* ====================================================================================
+ * MỨC 2 — AGENT ĐIỀU HƯỚNG (openScreen). RANH GIỚI AN TOÀN:
+ * applyAgentAction() và các hàm agentOpen* bên dưới CHỈ được phép gọi hàm MỞ màn hình
+ * (tên bắt đầu bằng open, load, select) và SET field / biến S.xxx. TUYỆT ĐỐI KHÔNG được gọi .click()/.submit()
+ * lên bất kỳ nút Lưu/Xác nhận/Xoá/Submit nào (edSaveBtn, deletePiBtn, confirmPiBtn/cfOkBtn,
+ * reviewPiBtn, spOkBtn, svSaveBtn, pmSaveXxxBtn, ncOkBtn, npkOkBtn, ckSubmitBtn, pwOkBtn,
+ * shipDocsBtn, rdFormBtn, exPdfBtn/exXlsxBtn, và ĐẶC BIỆT confirmYesBtn — cổng gác chung của
+ * appConfirm() cho rất nhiều luồng ghi dữ liệu). Agent chỉ MỞ SẴN + ĐIỀN SẴN — người dùng luôn
+ * phải tự bấm nút thật. Mở rộng thêm tab mới thì PHẢI giữ đúng nguyên tắc này.
+ * ==================================================================================== */
+function applyAgentAction(action) {
+  if (!action || !action.tab) return;
+  var prefill = action.prefill || {};
+  var openIt = function () {
+    switch (action.tab) {
+      case 'client': agentOpenClient(prefill); break;
+      case 'editor_new': agentOpenEditorNew(prefill); break;
+      case 'editor_edit': agentOpenEditorEdit(prefill); break;
+      case 'revenue': agentOpenRevenue(prefill); break;
+      case 'shipment': agentOpenShipment(prefill); break;
+      case 'product_manager': agentOpenProductManager(prefill); break;
+      default: toast('Agent: không nhận diện được màn hình "' + action.tab + '".');
+    }
+  };
+  // Đang soạn dở 1 đơn -> xác nhận trước khi điều hướng, giống hệt pattern deep-link Shipment Tracking.
+  if ($('editorView').style.display === 'block') {
+    appConfirm('Trợ lý muốn mở màn hình khác — nội dung đang soạn dở đã được tự lưu nháp, vẫn chuyển tiếp?', openIt);
+  } else {
+    openIt();
+  }
+}
+
+function agentFindClient_(name) {
+  name = String(name || '').trim();
+  if (!name) return null;
+  return S.clients.filter(function (c) { return c.name.toLowerCase() === name.toLowerCase(); })[0] || null;
+}
+
+function agentOpenClient(prefill) {
+  var client = agentFindClient_(prefill.client);
+  if (!client) { toast('Agent: không tìm thấy khách "' + (prefill.client || '') + '".'); return; }
+  selectClient(client, prefill.so || null);
+}
+
+/** Mở SỬA 1 đơn có sẵn — chỉ MỞ (tự bấm "Edit Details"), không tự sửa/lưu gì. */
+function agentOpenEditorEdit(prefill) {
+  var client = agentFindClient_(prefill.client);
+  var so = String(prefill.so || '').trim();
+  if (!client || !so) { toast('Agent: cần cả tên khách và số SO/PI hợp lệ.'); return; }
+  S._autoEditOnce = true; // cờ có sẵn (dùng chung với deep-link) — selectOrder() tự đọc sau khi tải chi tiết xong
+  selectClient(client, so);
+}
+
+/** Mở form TẠO PI MỚI. Đi qua selectClient() trước để S.orders/S.currentClient đúng cho khách này
+ *  (suggestPiNumber() cần S.orders của đúng khách để tránh trùng số) — xem hook S._autoNewOnce trong selectClient(). */
+function agentOpenEditorNew(prefill) {
+  var client = agentFindClient_(prefill.client);
+  if (!client) { toast('Agent: không tìm thấy khách "' + (prefill.client || '') + '".'); return; }
+  S._autoNewOnce = {
+    piNumber: String(prefill.piNumber || '').trim(),
+    note: String(prefill.note || ''),
+    lines: Array.isArray(prefill.lines) ? prefill.lines : null
+  };
+  selectClient(client);
+}
+
+/** Được selectClient() gọi lại sau khi api_clientOrders resolve — xem hook S._autoNewOnce ở đó. */
+function agentFinishOpenEditorNew(pending) {
+  var pi = pending.piNumber || suggestPiNumber();
+  function openWithLines(lines) {
+    openEditor('new', pi, lines, null);
+    if (pending.note) $('edOrderNote').value = pending.note;
+    toast('Agent: đã mở sẵn form tạo PI mới cho khách ' + S.currentClient.name + ' — kiểm tra rồi bấm Lưu.');
+  }
+  if (pending.lines && pending.lines.length) {
+    // makeLine() tự tra catalog qua findProduct(code) để lấy tên/brand/packing thật — không tin
+    // field nào khác ngoài code/qty/price mà model tự khai.
+    var lines = pending.lines.map(function (l) {
+      return makeLine(String(l.code || '').trim(), '', '', l.qty, l.price != null ? l.price : 0);
+    });
+    openWithLines(lines);
+  } else {
+    // Không có lines cụ thể -> đi đúng luồng nút "+ Create New" thật (createNewBtn).
+    loading(true);
+    gs('api_clientCodesSummary', S.token, S.currentClient.name).then(function (res) {
+      var lines = (res.codes || []).map(function (c) { return makeLine(c.code, c.product, c.brand, 0, c.lastPrice, c.qtyCt, c.l, c.w, c.h); });
+      openWithLines(lines);
+    }).catch(function (e) { toast('Agent: lỗi tải dữ liệu khách — ' + e.message); })
+      .finally(function () { loading(false); });
+  }
+}
+
+function agentOpenRevenue(prefill) {
+  var month = String(prefill.month || '').trim();
+  if (/^\d{4}-\d{2}$/.test(month)) S.revMonth = month; // loadRevenue() chỉ auto-set nếu S.revMonth đang rỗng
+  loadRevenue();
+}
+
+function agentOpenShipment(prefill) {
+  if (!isAdminLevel()) { toast('Agent: màn "Thông tin lô hàng" chỉ dành cho admin/master.'); return; } // UX sớm; requireShipManager_ ở backend mới là chốt chặn thật
+  var so = String(prefill.so || '').trim();
+  if (!so) { toast('Agent: thiếu số SO.'); return; }
+  openShipView(so);
+}
+
+function agentOpenProductManager(prefill) {
+  if (!canManageProducts()) { toast('Agent: màn Quản lý sản phẩm chỉ dành cho technician/admin/master.'); return; }
+  openProdMgr();
+  var code = String(prefill.productCode || '').trim();
+  if (code) {
+    var p = findProduct(code);
+    if (p) pmLoadProduct(p);
+    else toast('Agent: chưa tìm thấy mã "' + code + '" trong catalog để nạp sẵn.');
+  }
 }
 
 $('agentFab').addEventListener('click', function () {
@@ -1143,6 +1262,7 @@ function agentSend() {
   gs('api_askAgent', S.token, text, _agentHistory).then(function (res) {
     _agentHistory = res.history || [];
     reply.textContent = res.reply || '(không có phản hồi)';
+    if (res.action) applyAgentAction(res.action); // hiện text trước, điều hướng sau
   }).catch(function (e) {
     reply.textContent = 'Lỗi: ' + e.message;
   }).finally(function () {
@@ -1429,6 +1549,14 @@ function selectClient(c, targetSo) {
     var canCreate0 = S.user.role !== 'technician' && S.user.role !== 'leader';
     $('createNewBtn').style.display = canCreate0 ? '' : 'none';
     renderOrderPicker();
+    // Agent Mức 2 (openScreen tab editor_new): S.orders/S.currentClient giờ đã đúng cho khách này
+    // (suggestPiNumber() cần vậy) -> tiếp tục mở form tạo PI mới với prefill đã lưu tạm.
+    if (S._autoNewOnce) {
+      var pendingNew = S._autoNewOnce;
+      S._autoNewOnce = null;
+      agentFinishOpenEditorNew(pendingNew);
+      return;
+    }
     if (!S.orders.length) return;
     // deep-link (từ hàng đợi/doanh thu/Shipment Tracking): mở thẳng đúng đơn theo SO/PI.
     // Không có deep-link -> chỉ hiện bảng chọn, KHÔNG tự mở đơn mới nhất.
