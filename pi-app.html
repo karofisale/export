@@ -3616,6 +3616,7 @@ $('edSaveBtn').addEventListener('click', function () {
   ed.expectedLoad = $('edLoadDate').value || '';
   ed.note = $('edOrderNote').value || '';
   if (!ed.piNumber) { toast('Nhập PI Number.'); return; }
+  if (!ed.expectedLoad) { toast('Nhập Expected Loading.'); return; }
   var lines = ed.lines.filter(function (l) { return l.code && l.qty > 0; });
   if (!lines.length) { toast('Đơn chưa có dòng nào (cần Code + Qty > 0).'); return; }
   // admin/master sửa 1 đơn ĐÃ có SO trên Export Order -> ghi thẳng vào đúng SO đó, không tạo bản nháp
