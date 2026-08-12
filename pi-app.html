@@ -196,6 +196,10 @@ td.note-cell.expanded { white-space: normal; max-width: none; }
 .loading-bar { position: fixed; top: 0; left: 0; right: 0; height: 3px; background: linear-gradient(90deg, var(--accent), #4fd1a5, var(--accent)); background-size: 200% 100%; animation: slide 1.2s linear infinite; z-index: 100; }
 @keyframes slide { from { background-position: 0 0; } to { background-position: 200% 0; } }
 
+/* Nút mic đang nghe (Karofi Agent V1 — ra lệnh bằng giọng nói) */
+#agentMicBtn.recording { background: var(--danger); border-color: var(--danger); color: #fff; animation: mic-pulse 1s ease-in-out infinite; }
+@keyframes mic-pulse { 0%, 100% { opacity: 1; } 50% { opacity: .55; } }
+
 @media (max-width: 860px) {
   .layout { flex-direction: column; height: auto; min-height: calc(100vh - 53px); }
   .sidebar { width: 100%; max-height: 300px; }
@@ -475,6 +479,7 @@ td.note-cell.expanded { white-space: normal; max-width: none; }
           <button class="btn" id="pmTabBatch">📋 Nhập batch</button>
           <button class="btn" id="pmTabModel">🏷 Model</button>
           <button class="btn" id="pmTabBom">🔧 BOM máy</button>
+          <button class="btn" id="pmTabFeedback" style="display:none">💬 Duyệt Agent</button>
         </div>
 
         <!-- Form sản phẩm đơn lẻ -->
@@ -583,6 +588,19 @@ td.note-cell.expanded { white-space: normal; max-width: none; }
               <button class="btn primary" id="pmSaveBomBtn">💾 Lưu BOM (thay toàn bộ)</button>
               <span id="pmBomInfo" style="color:var(--muted);font-size:13px;align-self:center"></span>
             </div>
+          </div>
+        </div>
+
+        <!-- Duyệt góp ý Karofi Agent V1 (chỉ admin/master) -->
+        <div id="pmFeedbackPane" style="display:none">
+          <div class="client-meta" style="margin-bottom:10px">Người dùng đánh giá 👍/👎 câu trả lời của agent — duyệt kèm 1 câu "bài học" ngắn gọn để agent áp dụng cho các lượt hỏi sau (tối đa 20 bài học gần nhất được dùng).</div>
+          <div class="table-wrap" style="max-height:60vh">
+            <table class="data-table" id="pmFeedbackTable">
+              <thead><tr>
+                <th>Ngày</th><th>User</th><th>Câu hỏi</th><th>Trả lời</th><th>Đánh giá</th><th>Lý do</th><th style="min-width:200px">Bài học</th><th></th>
+              </tr></thead>
+              <tbody></tbody>
+            </table>
           </div>
         </div>
       </section>
@@ -1036,16 +1054,17 @@ td.note-cell.expanded { white-space: normal; max-width: none; }
   </div>
 </div>
 
-<button id="agentFab" title="Trợ lý tìm kiếm" style="position:fixed;right:20px;bottom:20px;width:52px;height:52px;border-radius:50%;padding:0;border:none;cursor:pointer;overflow:hidden;box-shadow:0 6px 18px rgba(0,0,0,.25);z-index:40"><img src="data:image/jpeg;base64,/9j/4AAQSkZJRgABAQEAYABgAAD/2wBDAAUEBAQEAwUEBAQGBQUGCA0ICAcHCBALDAkNExAUExIQEhIUFx0ZFBYcFhISGiMaHB4fISEhFBkkJyQgJh0gISD/2wBDAQUGBggHCA8ICA8gFRIVICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICD/wAARCACgAKADASIAAhEBAxEB/8QAHwAAAQUBAQEBAQEAAAAAAAAAAAECAwQFBgcICQoL/8QAtRAAAgEDAwIEAwUFBAQAAAF9AQIDAAQRBRIhMUEGE1FhByJxFDKBkaEII0KxwRVS0fAkM2JyggkKFhcYGRolJicoKSo0NTY3ODk6Q0RFRkdISUpTVFVWV1hZWmNkZWZnaGlqc3R1dnd4eXqDhIWGh4iJipKTlJWWl5iZmqKjpKWmp6ipqrKztLW2t7i5usLDxMXGx8jJytLT1NXW19jZ2uHi4+Tl5ufo6erx8vP09fb3+Pn6/8QAHwEAAwEBAQEBAQEBAQAAAAAAAAECAwQFBgcICQoL/8QAtREAAgECBAQDBAcFBAQAAQJ3AAECAxEEBSExBhJBUQdhcRMiMoEIFEKRobHBCSMzUvAVYnLRChYkNOEl8RcYGRomJygpKjU2Nzg5OkNERUZHSElKU1RVVldYWVpjZGVmZ2hpanN0dXZ3eHl6goOEhYaHiImKkpOUlZaXmJmaoqOkpaanqKmqsrO0tba3uLm6wsPExcbHyMnK0tPU1dbX2Nna4uPk5ebn6Onq8vP09fb3+Pn6/9oADAMBAAIRAxEAPwCVmII4HQfwj0pN59F/75FD/eH0H8qbX7IfzUloO3n0X/vkUbz6L/3yKbRQOw7efRf++RRvPov/AHyKbRQFh28+i/8AfIo3n0X/AL5FNooCw7efRf8AvkUbz6L/AN8im0UBYdvPov8A3yKN59F/75FNq/pNxptrdmfUrF75FU7YA+xWOP4j1wPaolJxi2lc0pwjOSi2ku76fcUt59F/75FG8+i/98inpDNOZGggd1QFmCKW2L6n2qKqvclxtrYdvPov/fIo3n0X/vkU2imTYdvPov8A3yKN59F/75FNooCw7efRf++RSo58xeF6j+EUylT/AFi/UUA0K/3h9B/Km05/vD6D+VNoBbBRRRSGFFFFABRRRQAVesNKu9QkxEoSPqZH4UCtPR/DmpXsqGG1+ZuVMq5Ufh3/AJV3k3gvXri0hhkdSq4LKDtLH8K8HGZtGk3TpavufZZZw5OvFVsRou3X59jlF0LQbG2DXElzqNwWCBIVKqWPQVi+IhYw6kLGytEgNqPLlZGYiR+/X06V6Xb+D77TZLaeBmBinSZlznO09K4j4gaLcaT4rnmkX9zfEzxOBwc9R+B/nXNl+JdbEfvJ30dtf0O3O8DDC4L9xSS1V3bW3rvvY5u2vryzWZbS6kgE6GOUI2N6+h9qr0UV9NZJ3PgnKTSTeiCiiimSFFFFABSp/rF+opKVP9Yv1FMTFf7w+g/lTac/3h9B/Km0AtgooopDCiiigArT0CzS/wDEFnayfcZ8sPUAZ/pVjw14X1XxTqYs9Ni+RcGWdh8kQ9SfX0HU17va+B9J0bwk9vpECXF4oEwunUF5XHoe3cAD1rxsxzKlhl7O/vP8PNn02S5JXxslXtaEddetui7nFaVcaxB8VYNC1Hw0s3hqW0LxakS48lwvPIO3cW4xjd0IOK7EeIbfTdR07w7eahZJq9yhaKO9uPLaYbjtUcHc2MZ9/U0y18U6fAiRXKzRJ8vmTBSyREjIDY5APPOMetUtf0HwF4s1nS9U1OaO6v8AS3Etu9rMSeDuAYLncoIzz0r4qesrTR+r0+VxTgzpoZHu9PmE6mORZGjZGxuRh1GRwfYjqCK4jxta3OreGr23kjEv2UJcwMByhGVcfTGDXfTCOCHbHwCSx9SfWuP8W30el+HNQunCK80YhUd2Y1pg3JVouC1urHJmai8NNVXpyu/3HglFJS1+lH4aFFFFABRRRQAUqf6xfqKSlT/WL9RTExX+8PoP5U2nP94fQfyptALYKKKKQwrtLfwfbxQW6XtwDe3QV44V5OwgHeRxtXnAzyccDHNcdFI0M8cqgEowYZ6cHNek+DdPg3f2819PeLcMftEs7bmjcc4Y/TGPYV5OZValOKcHZf1ZH0mRUKFeco1IqUtLX7dX5nc+H9Nu7HQl0eGSKGFTuVoIdjbuoYnPJyByeuK0oNSuvD2n3t/4m1KK3hDna23/AFjdiij167ex/OrM2oWseiyyafeIpMZ8u5VQ6BvX0NfPninUtX1LWCdZvjdXEQ24B+SP0AHQHGM+9fL4PDyx1WUZ6Ld6a/0z7rMsXDKsPGpT1ktEr6fPvY6Gbx+f+Eml1HS1axRvlDyIHEq5yRIg4xnkYOR713mk+Jo9Sh8ye+09Y/vNBZJsDn/bJ5x7V5b4T8Lya8bm4bKwwDAOMjd6n2H6kgV6jYeCbG30eH9yDkeY0mMs2fYegrszKGDpS9nH4kcOR1MxxMPbVGuR3t/S0sSah4ogUxNHIs7feaOM5Yj0Hua8l8Xa/qGtaptureS0hhz5cDjBHufevR9R8J2ruzRpyowCR/jXAXe/SL4aVrkRvdMc4R2/1kIPdW9vTvWGX4qjQqc0o38ztzjLsVi6PLCpbuu/zOUorrL3wPqEFhPqFnMl5aR/MGj5by+zFev1xnFcq8bx43LgHoexr7GjiaVa/s5XsfmGJwGJwtnWg0n9w2iiiug4QooooAKVP9Yv1FJSp/rF+opiYr/eH0H8qbTn+8PoP5U2gFsFFFFIYV1XgpYbi8utPvLZ7q0ulQPEGYKWVt6k7SOPlP51ytdB4R1ddI19HmIEEymJ2P8ADno34GuTGQc8POMd7HpZXVjRxlOcnZX/AD0PYvGXmTeEBc6XGwRFG1IVAAGOCPSuJ8I+F9N1qe91fVklijTDFJMDLkZO09x716KXtrjRFttyywMq7VDY4Hr9SP515v4w8TxyKdC0dlMkjbJpY8f98Ajr/kV8dgo1p3o0m1fd+R+lZpVwtJLE4iKlbZd35Hd6H/Yfh/wjc3DubewkChW5dpGJOMdyT2+laFv4s02K3t4LfTb98/KBJHsKge5PNZy6fb3+hQ6bdKYGsmV43PRXUEcj0xUWoXeu3FtFpthocrXRHEwceQP9ov0A/X2rj9nTqSbk9b9XbQ9T2talTioqyt0V9eq8jpGlstU083tox2ElXVhhkYdQfevIPiOoitY5EQMd+wE9s16Vp9mvh3w0NPa5F3cszTXEw48yRuWxnsOAPYV5N8RdTjk0p4WQr5zgKWHTHNcsbKpaGx6fvOknUWttfU6vwEtxFpsNnqRHlvwjo3Kqehz2IP8AOp/Enw/i1S3nm0tktNXh+dlbiG6X1YdifUdDXn3g6ymlt7Wyk1CURKm5QshGcnr/AIV6ZaXGuaDCiXDfbbZc+TOeXjz/AAse6n9K9OcJQalB2Z4kKkKqlCpG8Xf+rHjd7pl7YgtdWklsVcxyRv1jcfwn+YPcVSr1XUNJudTv9Q1xi13b3cRjkg8zkuoyFxjAIHQ/SvLZo2hneJwQyMVIIwRX1mX4t4iFp/Ej82zrLY4OqpUvglt5eQyiiivTPAClT/WL9RSUqf6xfqKYmK/3h9B/Km05/vD6D+VNoBbBRRRSGFFFFAE/269EAtxeTCEfweYdv5Vt+EbF7jWYrkReZ5Lful7PL/CPoOp+nvXPKrMwVRlicADvXrGj2R8OLZ2M0P8Ap1wMxKx+ZCeDx2yf5e1eTmWIVCi4x3l/TPosjwbxmJUp6xhZ/wCSO0s9PvtQnIvJkW3jf94kOfnOOhPeumWFIYgAuxFHC9ABUFi0FjZxQM3luv3wx5LE8nPpUxkjvH2Kd0ft3r8+leTP2SNoqyMa8vI5pDHEuVHfHWvK/HWng3B3xLNAeSD2r27+zbVgB5ePoaxtW8I2d9E+JXQkfUA9M1dOcVIipGbiz56sWuNKZJ7WMiLsuc7f/rV6Novj6BrJ4dSQKy8DdzmnL4fjiEtte31tILY+XiOEIQScAHuSfeks/C+lSXl1bzafGJ/LOxsnCtg4OOnWvc56VSPLUW3U+alCtSnzUnv0ZR8PeMbM3Gu3t2ogs4IUAQc+dMScIv4EZ+vtXmtxM9zcy3En35XLt9Sc0jyySAB2yF6DoB9BTK+pwmDjh7yvqz86zPM5Y7lja0Y3/EKKKK7zxgpU/wBYv1FJSp/rF+opiYr/AHh9B/Km05/vD6D+VNoBbBRRRSGFFFFAGr4bhFz4r0qBuj3Uf/oQr0vTbe11n4za3dX15MkujvbpDCPuPlCefxB4968p027+w6taXvOIJkkOPQHJr6BtLew0rxBqeo2dsZF1UQOrw/MXCqQB79a+VzxS54vyf5o/QuE5xVOpHrdfk/8AIdqAkaGVWPJOOe/NdBpIX7GjdBtxWHqLbl3Hg55B6it/TCosY8f3RXy9T4T7yi/eNFdu5VLYY8getJcHamKSNj9ob5jtCjC9utV7yYcRg8muSKvI7ZStE4HUdPjkOvSJnfPPGOmNuOQ386b5yWupX94ZBshgd2PptQmtrUrq1tZXUs3mMM/dODj9K8u1/UZrbRtQmYlH1N/s6rnqqkFyPboPxr38JSlWko99P6+R8nj68cNCVRva7/y+9uxxsej6lLprajHaSNbKcM4XgcZ/lT30TUI9Aj1xo1FlJJ5atvGS3061cj8Wa5F4dbQUu/8AQWG3btGQPTPpWHubbt3HbnOO1faQ9u2+dpa/h/mfmFV4OKXs1Jtx1vZWl+q8hKKKK6jzwpU/1i/UUlKn+sX6imJiv94fQfyptOf7w+g/lTaAWwUUUUhhRRRQAV6l4E8XWrWkGkaowWa2x9nkY43qOi/UZ49R9K8to6HI4NcuKw0MTT5JnoYDHVMDWVWn813R9H3SpcI01vMrB+evFX7e4jSyW3lkKl12BkJB/A9q8E0jxhqWlxmCQC6tzwUdipH0I6V1Wm+PIJNqTR3QROWJUSED6gjP5V8pXyqtBd0foWF4hw1V78rfRnsQv444jluB3JrBl1pVuFuJFHkZYF89COmB3rJ0/VLPXNHlvNPuF2DOVmYKRj8TjPY15vrPjO8F5LbaesASIlEm/wBZx/s54H1wa5sLl8qs3BLVbnbj84hh6cakno9ra3Oj8T+InmR/tLta2RYkKOJbj2Udh7nj615vqmqXGq3gnmAREURxRL92JB0Uf1Pckmq1xc3F3O1xdTPNK3V3OSair7DC4OGHWm5+b5hmdXGOz0j/AFuFX5bjTW0SC3isXTUFkLSXBkyrr2AXtVCiuyUVK1+h5kKjgml1Vtv6t6hRRRVGYUqf6xfqKSlT/WL9RTExX+8PoP5U2nP94fQfyptALYKKKKQwooooAKnsjbrqFu15G0tsJFMqIcMy55A/CoK9M+HvhG1v4U1e7j887iIY3X93uXHLeoGRx3P0rixuKjhqTnL0PVyvAVMdiFTh01b8v1I9Z8PeD7Gwgmg1h5JLg7Y7YQgvIzD5QDgFfxrjtL0dtd/4lMcwt5ml3SM3aMKScDqSMe3Wvb/EGn6TpVidQvAkl0CZHnkAyTjhVHQf0xXgbX0yao9/ayNBKZGkVkOCuTXi5bKriaM48z8m+59VnkcPgcTRqKC63S00O/vvhXNpPhuS4t9QV2WMyRoM4dQMkEnueo9682rpb7x14k1DSv7NuLxTDt2krGFZh6ZFc1XrYCjXowca8k9dD5vOMVhMVVjUwsWtNbhRRRXoniBRRRQAUUUUAFKn+sX6ikpU/wBYv1FMTFf7w+g/lTaeysSPlPQdvam7H/uH8qBJ6CUUux/7h/KjY/8AcP5UDuJRS7H/ALh/KjY/9w/lQFxK6Twz4s1rw6832GbMMi4MUjHZu/vY9elc5sf+4fyo2P8A3W/KsK1CFaPJUV0dGHxVbDT9pQlys0tU13WtXctqt9LcNknDHgewHTFZlO2yf3W/Kk2P/cP5VdOnGnHlgrImtXqV5+0qyuxKKXY/9w/lRsf+4fyrQxuJRS7H/uH8qNj/ANw/lQFxKKXY/wDcP5UbH/uH8qAuJRS7H/uH8qNj/wBw/lQFxKVP9Yv1FGx/7h/KnIj+YvyHqO1ANn//2Q==" alt="Trợ lý" style="width:100%;height:100%;object-fit:cover;display:block"></button>
+<button id="agentFab" title="Karofi Agent V1" style="position:fixed;right:20px;bottom:20px;width:52px;height:52px;border-radius:50%;padding:0;border:none;cursor:pointer;overflow:hidden;box-shadow:0 6px 18px rgba(0,0,0,.25);z-index:40"><img src="data:image/jpeg;base64,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" alt="Trợ lý" style="width:100%;height:100%;object-fit:cover;display:block"></button>
 
 <div id="agentPanel" style="display:none;position:fixed;right:20px;bottom:82px;width:340px;max-width:90vw;height:460px;max-height:70vh;background:var(--card);border:1px solid var(--line);border-radius:10px;box-shadow:0 10px 30px rgba(26,35,50,.25);z-index:41;flex-direction:column;overflow:hidden">
   <div style="display:flex;justify-content:space-between;align-items:center;padding:10px 12px;border-bottom:1px solid var(--line);background:var(--accent-soft)">
-    <b style="font-size:14px;display:flex;align-items:center;gap:6px"><img id="agentPanelIcon" alt="" style="width:20px;height:20px;border-radius:50%;object-fit:cover;flex-shrink:0"> Trợ lý tìm kiếm</b>
+    <b style="font-size:14px;display:flex;align-items:center;gap:6px"><img id="agentPanelIcon" alt="" style="width:20px;height:20px;border-radius:50%;object-fit:cover;flex-shrink:0"> Karofi Agent V1</b>
     <button class="btn ghost" id="agentCloseBtn" style="padding:2px 8px">✕</button>
   </div>
   <div id="agentMessages" style="flex:1;overflow-y:auto;padding:10px 12px;display:flex;flex-direction:column;gap:8px;font-size:13.5px"></div>
   <div style="display:flex;gap:6px;padding:8px;border-top:1px solid var(--line)">
     <input type="text" id="agentInput" placeholder="Hỏi vd: khách ABC còn đơn nào chưa confirm?" style="flex:1;padding:8px 10px;border:1px solid var(--line);border-radius:6px;font-size:13.5px">
+    <button class="btn" id="agentMicBtn" title="Ra lệnh bằng giọng nói (Chrome/Edge)">🎤</button>
     <button class="btn primary" id="agentSendBtn">Gửi</button>
   </div>
 </div>
@@ -1244,7 +1263,7 @@ $('agentFab').addEventListener('click', function () {
   $('agentPanel').style.display = willOpen ? 'flex' : 'none';
   if (willOpen) {
     if (!_agentHistory.length && !$('agentMessages').children.length) {
-      agentAppendMsg('assistant', 'Chào ' + (S.user ? S.user.name : '') + ', hỏi tôi về khách hàng, sản phẩm hoặc đơn hàng — vd "khách ABC còn đơn nào chưa confirm?".');
+      agentAppendMsg('assistant', 'Hi ' + (S.user ? S.user.name : '') + ', please tell me what you need now.');
     }
     $('agentInput').focus();
   }
@@ -1263,6 +1282,7 @@ function agentSend() {
     _agentHistory = res.history || [];
     reply.textContent = res.reply || '(không có phản hồi)';
     if (res.action) applyAgentAction(res.action); // hiện text trước, điều hướng sau
+    agentAddFeedbackControls_(text, res.reply || ''); // chỉ gắn 👍/👎 cho câu trả lời thật, không gắn khi lỗi
   }).catch(function (e) {
     reply.textContent = 'Lỗi: ' + e.message;
   }).finally(function () {
@@ -1271,6 +1291,62 @@ function agentSend() {
   });
 }
 $('agentSendBtn').addEventListener('click', agentSend);
+
+/** 👍/👎 dưới 1 câu trả lời — feedback là UX phụ, lỗi mạng chỉ console.warn, không toast làm phiền. */
+function agentAddFeedbackControls_(question, replyText) {
+  var box = $('agentMessages');
+  var wrap = document.createElement('div');
+  wrap.style.cssText = 'align-self:flex-start;display:flex;gap:6px;align-items:flex-end;opacity:.75;font-size:12px';
+  wrap.innerHTML = '<button class="btn ghost" style="padding:1px 6px;font-size:12px" data-fb="up">👍</button>' +
+    '<button class="btn ghost" style="padding:1px 6px;font-size:12px" data-fb="down">👎</button>';
+  box.appendChild(wrap);
+  box.scrollTop = box.scrollHeight;
+
+  function sendFeedback(rating, reason) {
+    gs('api_agentFeedback', S.token, { question: question, reply: replyText, rating: rating, reason: reason || '' })
+      .catch(function (e) { console.warn('Gửi feedback agent lỗi (bỏ qua):', e.message); });
+    wrap.innerHTML = '<span style="color:var(--muted)">Đã ghi nhận, cảm ơn!</span>';
+  }
+  wrap.querySelector('[data-fb="up"]').addEventListener('click', function () { sendFeedback('up', ''); });
+  wrap.querySelector('[data-fb="down"]').addEventListener('click', function () {
+    wrap.innerHTML = '<textarea placeholder="Sai chỗ nào? (tuỳ chọn)" style="flex:1;font-size:12px;padding:4px 6px;border:1px solid var(--line);border-radius:5px;resize:vertical;min-height:32px"></textarea>' +
+      '<button class="btn small primary">Gửi</button>';
+    wrap.querySelector('textarea').focus();
+    wrap.querySelector('button').addEventListener('click', function () {
+      sendFeedback('down', wrap.querySelector('textarea').value.trim());
+    });
+  });
+}
+
+/* ---- Ra lệnh bằng giọng nói (Web Speech API — chỉ Chrome/Edge, Safari/iOS tự ẩn nút) ---- */
+(function () {
+  var SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+  if (!SR) { $('agentMicBtn').style.display = 'none'; return; }
+  var recognition = new SR();
+  recognition.lang = 'vi-VN';
+  recognition.continuous = false;
+  recognition.interimResults = false;
+  var listening = false;
+
+  recognition.onresult = function (ev) {
+    var transcript = ev.results[0][0].transcript;
+    $('agentInput').value = transcript;
+    agentSend(); // "ra lệnh": nói xong gửi luôn, câu hỏi vẫn hiện lại trong bong bóng "user" như gõ tay
+  };
+  recognition.onerror = function (ev) {
+    if (ev.error === 'not-allowed' || ev.error === 'service-not-allowed') {
+      toast('Cần cấp quyền micro cho trình duyệt để dùng tính năng này.');
+    }
+  };
+  recognition.onend = function () { listening = false; $('agentMicBtn').classList.remove('recording'); };
+
+  $('agentMicBtn').addEventListener('click', function () {
+    if (listening) return;
+    listening = true;
+    $('agentMicBtn').classList.add('recording');
+    try { recognition.start(); } catch (e) { listening = false; $('agentMicBtn').classList.remove('recording'); }
+  });
+})();
 $('agentInput').addEventListener('keydown', function (ev) { if (ev.key === 'Enter') agentSend(); });
 
 /**
@@ -1855,6 +1931,7 @@ function openProdMgr() {
   $('ptspView').style.display = 'none';
   $('shipView').style.display = 'none';
   $('prodView').style.display = 'block';
+  $('pmTabFeedback').style.display = isAdminLevel() ? '' : 'none'; // Duyệt Agent: chỉ admin/master
   // nạp CompTotal (cho tab BOM) + đổ gợi ý
   if (!S.components) {
     gs('api_components', S.token).then(function (r) {
@@ -2110,8 +2187,8 @@ function pmStartAssign(p) {
 
 /* ---- Tabs ---- */
 function pmShowPane(which) {
-  var panes = { product: 'pmProductPane', batch: 'pmBatchPane', model: 'pmModelPane', bom: 'pmBomPane' };
-  var tabs = { product: 'pmTabProduct', batch: 'pmTabBatch', model: 'pmTabModel', bom: 'pmTabBom' };
+  var panes = { product: 'pmProductPane', batch: 'pmBatchPane', model: 'pmModelPane', bom: 'pmBomPane', feedback: 'pmFeedbackPane' };
+  var tabs = { product: 'pmTabProduct', batch: 'pmTabBatch', model: 'pmTabModel', bom: 'pmTabBom', feedback: 'pmTabFeedback' };
   Object.keys(panes).forEach(function (k) {
     $(panes[k]).style.display = (k === which) ? '' : 'none';
     $(tabs[k]).className = 'btn' + (k === which ? ' primary' : '');
@@ -2121,7 +2198,62 @@ $('pmTabProduct').addEventListener('click', function () { pmShowPane('product');
 $('pmTabBatch').addEventListener('click', function () { pmShowPane('batch'); });
 $('pmTabModel').addEventListener('click', function () { pmShowPane('model'); });
 $('pmTabBom').addEventListener('click', function () { pmShowPane('bom'); });
+$('pmTabFeedback').addEventListener('click', function () { pmShowPane('feedback'); loadAgentFeedback(); });
 $('prodMgrBtn').addEventListener('click', openProdMgr);
+
+/* ---- Duyệt góp ý Karofi Agent V1 (chỉ admin/master, xem pmTabFeedback ở trên) ---- */
+function loadAgentFeedback() {
+  var tb = $('pmFeedbackTable').querySelector('tbody');
+  tb.innerHTML = '<tr><td colspan="8" style="color:var(--muted)">Đang tải…</td></tr>';
+  loading(true);
+  gs('api_agentFeedbackList', S.token).then(function (res) {
+    renderAgentFeedback(res.list || []);
+  }).catch(function (e) { toast('Lỗi tải góp ý agent: ' + e.message); })
+    .finally(function () { loading(false); });
+}
+
+function renderAgentFeedback(list) {
+  var tb = $('pmFeedbackTable').querySelector('tbody');
+  if (!list.length) {
+    tb.innerHTML = '<tr><td colspan="8" style="color:var(--muted)">Chưa có góp ý nào.</td></tr>';
+    return;
+  }
+  tb.innerHTML = list.map(function (r, i) {
+    var badge = r.status === 'approved' ? '<span class="pill accent">Đã duyệt</span>'
+      : r.status === 'rejected' ? '<span class="pill">Đã từ chối</span>' : '<span class="pill warn">Chờ duyệt</span>';
+    return '<tr data-i="' + i + '">' +
+      '<td>' + esc(r.timestamp) + '</td>' +
+      '<td>' + esc(r.user) + '</td>' +
+      '<td style="max-width:200px">' + esc(r.question) + '</td>' +
+      '<td style="max-width:220px">' + esc(r.reply) + '</td>' +
+      '<td>' + (r.rating === 'up' ? '👍' : '👎') + ' ' + badge + '</td>' +
+      '<td style="max-width:160px">' + esc(r.reason || '—') + '</td>' +
+      '<td><input type="text" class="pmfb-lesson" value="' + esc(r.lesson || '') + '" placeholder="Bài học ngắn gọn…" style="width:100%" ' + (r.status !== 'pending' ? 'disabled' : '') + '></td>' +
+      '<td style="white-space:nowrap">' + (r.status === 'pending'
+        ? '<button class="btn small primary pmfb-approve">✔ Duyệt</button> <button class="btn small ghost pmfb-reject">✕ Từ chối</button>'
+        : '') + '</td></tr>';
+  }).join('');
+  tb.querySelectorAll('tr[data-i]').forEach(function (tr) {
+    var r = list[parseInt(tr.getAttribute('data-i'), 10)];
+    var approveBtn = tr.querySelector('.pmfb-approve');
+    var rejectBtn = tr.querySelector('.pmfb-reject');
+    if (approveBtn) approveBtn.addEventListener('click', function () {
+      var lesson = tr.querySelector('.pmfb-lesson').value.trim();
+      if (!lesson) { toast('Nhập bài học trước khi duyệt — không có bài học thì duyệt không có tác dụng gì.'); return; }
+      reviewAgentFeedback(r.rowIndex, 'approved', lesson);
+    });
+    if (rejectBtn) rejectBtn.addEventListener('click', function () { reviewAgentFeedback(r.rowIndex, 'rejected', ''); });
+  });
+}
+
+function reviewAgentFeedback(rowIndex, status, lesson) {
+  loading(true);
+  gs('api_agentFeedbackReview', S.token, { rowIndex: rowIndex, status: status, lesson: lesson }).then(function () {
+    toast(status === 'approved' ? 'Đã duyệt bài học.' : 'Đã từ chối góp ý.');
+    loadAgentFeedback();
+  }).catch(function (e) { toast('Lỗi: ' + e.message); })
+    .finally(function () { loading(false); });
+}
 
 /* ---- Sản phẩm (form đơn lẻ) ---- */
 // Price KHÔNG có trong form: cột Price trên hub Products là công thức, app không ghi đè (#2)
