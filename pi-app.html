@@ -669,6 +669,7 @@ td.note-cell.expanded { white-space: normal; max-width: none; }
             <button class="btn small" id="backToQueueBtn" style="margin-top:8px;display:none">⟵ Danh sách cần kiểm tra</button>
             <button class="btn small" id="backToRevenueBtn" style="margin-top:8px;display:none">⟵ Doanh thu theo tháng</button>
             <button class="btn small" id="reqClientCodeBtn" style="margin-top:8px;display:none" title="Khách chưa có mã — xuất form yêu cầu cấp mã KH">⬇ YC tạo mã KH</button>
+            <button class="btn small" id="editClientBtn" style="margin-top:8px;display:none" title="Sửa thông tin khách hàng (chỉ admin/master)">✎ Sửa khách</button>
           </div>
           <button class="btn primary" id="createNewBtn">+ Create New</button>
         </div>
@@ -722,9 +723,13 @@ td.note-cell.expanded { white-space: normal; max-width: none; }
               <select id="edClientSelect" style="display:none;padding:8px 10px;border:1px solid var(--line);border-radius:6px;font-size:14px"></select>
             </label>
             <label id="edClientCodeWrap" style="display:none">Mã KH <input type="text" id="edClientCode" placeholder="Client_ID"></label>
+            <button type="button" class="btn small" id="edReqCodeBtn" style="display:none;align-self:flex-end" title="Khách chưa có mã — xuất form yêu cầu cấp mã KH">⬇ YC tạo mã KH</button>
             <label>PI Number <input type="text" id="edPiNumber"></label>
             <label>PI Date <input type="date" id="edPiDate"></label>
             <label>Expected Loading <input type="date" id="edLoadDate"></label>
+            <label id="edSoWrap" style="display:none">Số SO <input type="text" id="edSo"></label>
+            <label id="edDepositWrap" style="display:none">Deposit <input type="number" id="edDeposit" min="0" step="0.01"></label>
+            <label id="edDepositDateWrap" style="display:none">Ngày cọc <input type="date" id="edDepositDate"></label>
             <label>Trạng thái
               <select id="edStatusSel" style="padding:8px 10px;border:1px solid var(--line);border-radius:6px;font-size:14px">
                 <option value="targeted">targeted</option>
@@ -868,6 +873,29 @@ td.note-cell.expanded { white-space: normal; max-width: none; }
   </div>
 </div>
 
+<!-- ========== Modal Sửa khách hàng (chỉ admin/master) ========== -->
+<div class="overlay" id="ecOverlay" style="display:none">
+  <div class="modal">
+    <h3>Sửa khách hàng</h3>
+    <div class="picker-grid">
+      <label>Tên khách (Client_Name) * <input type="text" id="ecName"></label>
+      <label>Tên đầy đủ <input type="text" id="ecFullName"></label>
+      <label>Quốc gia <input type="text" id="ecCountry"></label>
+      <label>Địa chỉ <input type="text" id="ecAddress"></label>
+      <label>Điện thoại <input type="text" id="ecTel"></label>
+      <label>Cảng đến <input type="text" id="ecPort"></label>
+      <label>Incoterm <input type="text" id="ecIncoterm"></label>
+      <label>Target Margin % <input type="number" id="ecMargin" step="0.01" placeholder="0.12"></label>
+      <label>Sale phụ trách <input type="text" id="ecSaleId" list="ecSaleIdList"><datalist id="ecSaleIdList"></datalist></label>
+    </div>
+    <div class="modal-actions">
+      <button class="btn small" id="ecReqCodeBtn" style="display:none;margin-right:auto" title="Khách chưa có mã — xuất form yêu cầu cấp mã KH">⬇ YC tạo mã KH</button>
+      <button class="btn ghost" id="ecCancelBtn">Hủy</button>
+      <button class="btn primary" id="ecOkBtn">Lưu</button>
+    </div>
+  </div>
+</div>
+
 <!-- ========== Modal Tạo Pack_Type mới (form sản phẩm — #11) ========== -->
 <div class="overlay" id="npkOverlay" style="display:none">
   <div class="modal">
@@ -949,6 +977,8 @@ td.note-cell.expanded { white-space: normal; max-width: none; }
     <div class="picker-grid">
       <label id="cfSoLabel">Số SO * <input type="text" id="cfSo" placeholder="100xxxxxxx"></label>
       <label>Load Date * <input type="date" id="cfLoad"></label>
+      <label>Deposit <span id="cfDepositReq" style="display:none">*</span> <input type="number" id="cfDeposit" min="0" step="0.01" placeholder="$"></label>
+      <label>Ngày cọc <span id="cfDepositDateReq" style="display:none">*</span> <input type="date" id="cfDepositDate"></label>
       <label>Content <input type="text" id="cfContent" placeholder="VD: 1 cont 40'"></label>
       <label>Status
         <select id="cfStatus">
@@ -1385,6 +1415,7 @@ function gs(fnName) {
 
 /* ================= Đăng nhập ================= */
 gs('api_userNames').then(function (res) {
+  S.userNames = res.names || [];
   $('loginName').innerHTML = '<option value="">— Chọn tên —</option>' +
     res.names.map(function (n) { return '<option>' + esc(n) + '</option>'; }).join('');
 }).catch(function (e) { $('loginError').textContent = e.message; });
@@ -1613,6 +1644,7 @@ function selectClient(c, targetSo) {
   $('cvMeta').textContent = ['Mã KH: ' + (c.id || '(chưa có)'), c.country, c.port && ('Cảng: ' + c.port), c.incoterm, c.saleId && ('Sale: ' + c.saleId)].filter(Boolean).join(' · ');
   // admin/master: khách chưa có mã -> hiện nút xuất form YC cấp mã KH
   $('reqClientCodeBtn').style.display = (isAdminLevel() && !c.id) ? '' : 'none';
+  $('editClientBtn').style.display = isAdminLevel() ? '' : 'none';
   $('orderPickerTable').querySelector('tbody').innerHTML = '<tr><td colspan="5" style="color:var(--muted)">Đang tải…</td></tr>';
   $('orderDetailWrap').style.display = 'none';
   $('orderDetailTable').querySelector('tbody').innerHTML = '';
@@ -3095,6 +3127,9 @@ function saveDraft() {
           origPiNumber: S.editor.origPiNumber || '',
           origSo: S.editor.origSo || '',
           origStatus: S.editor.origStatus || '',
+          newSo: $('edSo').value.trim() || '',
+          deposit: $('edDeposit').value || '',
+          depositDate: $('edDepositDate').value || '',
           lines: S.editor.lines,
           discountPct: S.editor.discountPct,
           discountVal: S.editor.discountVal,
@@ -3177,6 +3212,21 @@ function handleDeepLink() {
     .finally(function () { loading(false); });
 }
 
+/** SO/Deposit/Ngày cọc chỉ admin/master sửa được, và chỉ có ý nghĩa với đơn ĐÃ ở Export Order
+ *  (source 'ops2025') — dùng chung cho openEditor()/restoreDraft(). */
+function updateAdminOrderFieldsUI(show, so, deposit, depositDate) {
+  $('edSoWrap').style.display = show ? '' : 'none';
+  $('edDepositWrap').style.display = show ? '' : 'none';
+  $('edDepositDateWrap').style.display = show ? '' : 'none';
+  $('edSo').value = show ? (so || '') : '';
+  $('edDeposit').value = show ? (deposit || '') : '';
+  $('edDepositDate').value = show ? (depositDate || '') : '';
+}
+/** Nút YC tạo mã KH trong Sửa đơn — chỉ hiện khi admin/master và khách đang soạn CHƯA có mã. */
+function updateEdReqCodeBtn(clientObj) {
+  $('edReqCodeBtn').style.display = (isAdminLevel() && clientObj && !clientObj.id) ? '' : 'none';
+}
+
 function restoreDraft(client, ed) {
   S.currentClient = client;
   renderClientList();
@@ -3198,6 +3248,8 @@ function restoreDraft(client, ed) {
   $('edClient').value = client.name;
   $('edClientCodeWrap').style.display = isAdminLevel() ? '' : 'none';
   $('edClientCode').value = client.id || '';
+  updateEdReqCodeBtn(client);
+  updateAdminOrderFieldsUI(ed.source === 'ops2025' && isAdminLevel(), ed.newSo || ed.origSo, ed.deposit, ed.depositDate);
   updateSplitBtn();
   $('edPiNumber').value = ed.piNumber || '';
   $('edPiDate').value = ed.piDate || '';
@@ -3261,6 +3313,8 @@ function openEditor(mode, piNumber, lines, existingOrder) {
     // riêng cho Tách đơn trên Operations2025: SO gốc (khoá thật của Order/Details) + status gốc (để chặn closed)
     origSo: (mode === 'edit' && existingOrder) ? (existingOrder.so || '') : '',
     origStatus: (mode === 'edit' && existingOrder) ? (existingOrder.status || '') : '',
+    deposit: (mode === 'edit' && existingOrder) ? (existingOrder.deposit || '') : '',
+    depositDate: (mode === 'edit' && existingOrder) ? (existingOrder.depositDate || '') : '',
     expectedLoad: (mode === 'edit' && existingOrder) ? (existingOrder.realLoad || '') : '',
     // admin/technician sửa đơn của sale khác: giữ PIC gốc (server chỉ tôn trọng khi role admin/technician)
     ownerPic: mode === 'edit' && existingOrder ? (existingOrder.pic || '') : '',
@@ -3288,6 +3342,8 @@ function openEditor(mode, piNumber, lines, existingOrder) {
   // admin/master: ô Mã KH (Client_ID) để cập nhật/bổ sung khi sửa đơn
   $('edClientCodeWrap').style.display = isAdminLevel() ? '' : 'none';
   $('edClientCode').value = S.currentClient.id || '';
+  updateEdReqCodeBtn(S.currentClient);
+  updateAdminOrderFieldsUI(S.editor.source === 'ops2025' && isAdminLevel(), S.editor.origSo, S.editor.deposit, S.editor.depositDate);
   updateSplitBtn();
   $('edPiNumber').value = piNumber;
   $('edPiDate').value = S.editor.piDate;
@@ -3520,8 +3576,14 @@ $('edClientSelect').addEventListener('change', function () {
   if (!c) return;
   S.editor.clientObj = c;
   $('edClientCode').value = c.id || '';
+  updateEdReqCodeBtn(c); // Clone đổi khách -> khách chưa có mã thì hiện lại nút YC tạo mã KH
   $('edPiNumber').value = c.name.replace(/\s+/g, '') + '01'; // gợi ý; sale sửa lại được
   saveDraft();
+});
+
+/* YC tạo mã KH ngay trong màn Sửa đơn — khách đang soạn (Clone có thể đã đổi) chưa có mã. */
+$('edReqCodeBtn').addEventListener('click', function () {
+  openReqClientCodeModal(S.editor.clientObj || S.currentClient);
 });
 
 $('addLineBtn').addEventListener('click', function () {
@@ -3556,6 +3618,18 @@ $('edSaveBtn').addEventListener('click', function () {
   if (!ed.piNumber) { toast('Nhập PI Number.'); return; }
   var lines = ed.lines.filter(function (l) { return l.code && l.qty > 0; });
   if (!lines.length) { toast('Đơn chưa có dòng nào (cần Code + Qty > 0).'); return; }
+  // admin/master sửa 1 đơn ĐÃ có SO trên Export Order -> ghi thẳng vào đúng SO đó, không tạo bản nháp
+  // ở file sale (đỡ phải Confirm lại) — đơn đang ở file nào thì lưu lại vào đúng file đó.
+  // Đơn admin tự tạo trước trên Export Order (chưa có SO thật) vẫn phải qua Confirm (nhánh "rename")
+  // để gán SO, nên đi theo đường cũ (api_savePI) như trước.
+  var directToOps = ed.mode === 'edit' && ed.source === 'ops2025' && !!ed.origSo && isAdminLevel();
+  var newSo = directToOps ? $('edSo').value.trim() : '';
+  var deposit = directToOps ? $('edDeposit').value : '';
+  var depositDate = directToOps ? $('edDepositDate').value : '';
+  if (directToOps && ed.status.toLowerCase() === 'opened') {
+    if (!deposit || Number(deposit) <= 0) { toast('Trạng thái "opened" cần nhập Deposit.'); return; }
+    if (!depositDate) { toast('Trạng thái "opened" cần nhập Ngày cọc.'); return; }
+  }
   var grand = ed.subtotal - (ed.discountVal || 0) + (ed.other || 0);
   var clientObj = ed.clientObj || S.currentClient; // Clone có thể đã đổi khách
   var payload = {
@@ -3572,16 +3646,14 @@ $('edSaveBtn').addEventListener('click', function () {
     note: ed.note || '', // ghi chú chung của đơn
     origSo: ed.origSo || '',
     origPiNumber: ed.origPiNumber || '',
+    newSo: newSo,
+    deposit: deposit,
+    depositDate: depositDate,
     lines: lines.map(function (l) {
       return { code: l.code, product: l.product, qty: l.qty, price: l.price, amount: Math.round(l.qty * l.price * 100) / 100,
         note: l.note || '', marking: normMarking(l.marking), netWeight: Number(l.netWeight) || 0 };
     })
   };
-  // admin/master sửa 1 đơn ĐÃ có SO trên Export Order -> ghi thẳng vào đúng SO đó, không tạo bản nháp
-  // ở file sale (đỡ phải Confirm lại) — đơn đang ở file nào thì lưu lại vào đúng file đó.
-  // Đơn admin tự tạo trước trên Export Order (chưa có SO thật) vẫn phải qua Confirm (nhánh "rename")
-  // để gán SO, nên đi theo đường cũ (api_savePI) như trước.
-  var directToOps = ed.mode === 'edit' && ed.source === 'ops2025' && !!ed.origSo && isAdminLevel();
   loading(true);
   gs(directToOps ? 'api_updateOpsOrder' : 'api_savePI', S.token, payload).then(function (res) {
     clearDraft(); // đã lưu chính thức -> bỏ bản nháp tự lưu
@@ -4661,9 +4733,10 @@ $('rdFormBtn').addEventListener('click', function () {
     .finally(function () { loading(false); });
 });
 
-/* #6 Yêu cầu tạo mã khách hàng: mở form điền sẵn để kiểm tra/sửa trước khi Submit. */
-$('reqClientCodeBtn').addEventListener('click', function () {
-  var c = S.currentClient;
+/* #6 Yêu cầu tạo mã khách hàng: mở form điền sẵn để kiểm tra/sửa trước khi Submit.
+ * Dùng chung cho 3 điểm kích hoạt: clientView (reqClientCodeBtn), Sửa đơn (edReqCodeBtn),
+ * Sửa khách (ecReqCodeBtn) — chỉ mở sẵn form, không tự Submit thay người dùng. */
+function openReqClientCodeModal(c) {
   if (!c) return;
   $('ckName').value = c.name || '';
   $('ckFullName').value = c.fullName || c.name || '';
@@ -4672,7 +4745,8 @@ $('reqClientCodeBtn').addEventListener('click', function () {
   $('ckPort').value = c.port || '';
   $('ckSaleId').value = c.saleId || '';
   $('ckOverlay').style.display = 'flex';
-});
+}
+$('reqClientCodeBtn').addEventListener('click', function () { openReqClientCodeModal(S.currentClient); });
 $('ckCancelBtn').addEventListener('click', function () { $('ckOverlay').style.display = 'none'; });
 $('ckCopyBtn').addEventListener('click', function () {
   var rows = [
@@ -4745,12 +4819,23 @@ $('confirmPiBtn').addEventListener('click', function () {
   $('cfSo').value = isUpdate ? o.piNumber : '';
   $('cfSo').disabled = isUpdate;
   $('cfLoad').value = o.realLoad || ''; // prefill từ Expected_Load của PI nếu có
+  $('cfDeposit').value = o.deposit || '';
+  $('cfDepositDate').value = o.depositDate || '';
   $('cfContent').value = '';
   $('cfStatus').value = 'opened';
   $('cfMonth').value = new Date().getMonth() + 1;
+  updateCfDepositRequired();
   $('cfOverlay').style.display = 'flex';
 });
 $('cfCancelBtn').addEventListener('click', function () { $('cfOverlay').style.display = 'none'; });
+
+/** Deposit + Ngày cọc là điều kiện bắt buộc khi chọn Status "opened" — hiện dấu * tương ứng. */
+function updateCfDepositRequired() {
+  var required = $('cfStatus').value === 'opened';
+  $('cfDepositReq').style.display = required ? '' : 'none';
+  $('cfDepositDateReq').style.display = required ? '' : 'none';
+}
+$('cfStatus').addEventListener('change', updateCfDepositRequired);
 
 $('cfOkBtn').addEventListener('click', function () {
   var o = S.currentOrder;
@@ -4760,6 +4845,12 @@ $('cfOkBtn').addEventListener('click', function () {
   if (!isUpdate && !so) { toast('Nhập số SO.'); return; }
   var loadDate = $('cfLoad').value;
   if (!loadDate) { toast('Nhập Load Date.'); return; }
+  var deposit = $('cfDeposit').value;
+  var depositDate = $('cfDepositDate').value;
+  if ($('cfStatus').value === 'opened') {
+    if (!deposit || Number(deposit) <= 0) { toast('Trạng thái "opened" cần nhập Deposit.'); return; }
+    if (!depositDate) { toast('Trạng thái "opened" cần nhập Ngày cọc.'); return; }
+  }
   loading(true);
   gs('api_confirmPI', S.token, {
     piNumber: o.piNumber,
@@ -4767,6 +4858,8 @@ $('cfOkBtn').addEventListener('click', function () {
     client: S.currentClient.name,
     so: so,
     loadDate: loadDate,
+    deposit: deposit,
+    depositDate: depositDate,
     content: $('cfContent').value.trim(),
     status: $('cfStatus').value,
     month: parseInt($('cfMonth').value, 10) || ''
@@ -4846,6 +4939,66 @@ $('ncOkBtn').addEventListener('click', function () {
     return gs('api_bootstrap', S.token).then(function (b) {
       S.clients = b.clients;
       renderClientList();
+    });
+  }).catch(function (e) { toast('Lỗi: ' + e.message); })
+    .finally(function () { loading(false); });
+});
+
+/* ================= Sửa khách hàng (admin/master) ================= */
+$('editClientBtn').addEventListener('click', function () {
+  var c = S.currentClient;
+  if (!c) return;
+  S._editClientOrigName = c.name;
+  $('ecName').value = c.name || '';
+  $('ecFullName').value = c.fullName || '';
+  $('ecCountry').value = c.country || '';
+  $('ecAddress').value = c.address || '';
+  $('ecTel').value = c.tel || '';
+  $('ecPort').value = c.port || '';
+  $('ecIncoterm').value = c.incoterm || 'FOB';
+  $('ecMargin').value = c.margin != null ? c.margin : '';
+  $('ecSaleId').value = c.saleId || '';
+  $('ecSaleIdList').innerHTML = (S.userNames || []).map(function (n) { return '<option value="' + esc(n) + '">'; }).join('');
+  $('ecReqCodeBtn').style.display = c.id ? 'none' : '';
+  $('ecOverlay').style.display = 'flex';
+});
+$('ecCancelBtn').addEventListener('click', function () { $('ecOverlay').style.display = 'none'; });
+/* YC tạo mã KH ngay trong màn Sửa khách — đóng ecOverlay rồi mở ckOverlay theo giá trị đang sửa. */
+$('ecReqCodeBtn').addEventListener('click', function () {
+  $('ecOverlay').style.display = 'none';
+  openReqClientCodeModal({
+    name: $('ecName').value.trim(),
+    fullName: $('ecFullName').value.trim() || $('ecName').value.trim(),
+    address: $('ecAddress').value.trim(),
+    country: $('ecCountry').value.trim(),
+    port: $('ecPort').value.trim(),
+    saleId: $('ecSaleId').value.trim()
+  });
+});
+$('ecOkBtn').addEventListener('click', function () {
+  var name = $('ecName').value.trim();
+  if (!name) { toast('Nhập tên khách hàng.'); return; }
+  var payload = {
+    origName: S._editClientOrigName,
+    name: name,
+    fullName: $('ecFullName').value.trim(),
+    country: $('ecCountry').value.trim(),
+    address: $('ecAddress').value.trim(),
+    tel: $('ecTel').value.trim(),
+    port: $('ecPort').value.trim(),
+    incoterm: $('ecIncoterm').value.trim() || 'FOB',
+    targetMargin: $('ecMargin').value,
+    saleId: $('ecSaleId').value.trim()
+  };
+  loading(true);
+  gs('api_updateClient', S.token, payload).then(function (res) {
+    $('ecOverlay').style.display = 'none';
+    toast('Đã lưu thông tin khách "' + res.name + '".');
+    return gs('api_bootstrap', S.token).then(function (b) {
+      S.clients = b.clients;
+      renderClientList();
+      var updated = S.clients.filter(function (x) { return x.name.toLowerCase() === res.name.toLowerCase(); })[0];
+      if (updated) selectClient(updated);
     });
   }).catch(function (e) { toast('Lỗi: ' + e.message); })
     .finally(function () { loading(false); });
