@@ -1513,6 +1513,7 @@ $('logoutBtn').addEventListener('click', function () {
 });
 $('refreshBtn').addEventListener('click', function () {
   loading(true);
+  S.revOrders = null; // "Làm mới" phải đọc lại doanh thu từ server, không dùng cache cũ trong bộ nhớ
   gs('api_refreshCache', S.token)
     .then(function () { return bootstrap(); })
     .then(function () { toast('Đã tải lại dữ liệu mới nhất.'); })
@@ -1809,11 +1810,17 @@ function renderRevenue() {
   var mtb = $('monthOrdersTable').querySelector('tbody');
   mtb.innerHTML = ord.length ? ord.map(function (o, i) {
     var soLabel = o.so ? esc(o.so) : (o.source === 'sale' ? '<span class="pill warn">Nháp</span>' : '—');
+    // admin/master sửa Load Date tại chỗ — chỉ với đơn đã có SO thật trên Export Order (đơn nháp
+    // chưa Confirm không có SO, phải mở Sửa đơn để đổi Expected Loading).
+    var canEditLoad = isAdminLevel() && o.source === 'ops2025' && o.so;
+    var loadCell = canEditLoad
+      ? '<input type="date" class="rev-load-input" data-so="' + esc(o.so) + '" value="' + esc(o.realLoad || '') + '" style="width:130px">'
+      : esc(o.realLoad || '—');
     return '<tr data-i="' + i + '" style="cursor:pointer">' +
       '<td class="card-title">' + esc(o.client) + '</td>' +
       '<td data-label="Thị trường">' + esc(clientCountry(o.client)) + '</td>' +
       '<td data-label="SO">' + soLabel + '</td>' +
-      '<td data-label="Ngày load">' + esc(o.realLoad || '—') + '</td>' +
+      '<td data-label="Ngày load" class="' + (canEditLoad ? 'rev-load-cell' : '') + '">' + loadCell + '</td>' +
       '<td class="num" data-label="FOB">' + fmt$(o.fob) + '</td>' +
       '<td data-label="Status">' + statusBadge(o.status) + '</td>' +
       '<td class="note-cell" data-label="Order note" title="' + esc(o.note || '') + '">' + esc(o.note || '—') + '</td></tr>';
@@ -1823,6 +1830,24 @@ function renderRevenue() {
   });
   mtb.querySelectorAll('.note-cell').forEach(function (td) {
     td.addEventListener('click', function (e) { e.stopPropagation(); td.classList.toggle('expanded'); });
+  });
+  mtb.querySelectorAll('.rev-load-input').forEach(function (inp) {
+    inp.addEventListener('click', function (e) { e.stopPropagation(); });
+    inp.addEventListener('change', function (e) {
+      e.stopPropagation();
+      var so = inp.getAttribute('data-so');
+      var newDate = inp.value;
+      if (!newDate) return;
+      inp.disabled = true;
+      gs('api_updateRevenueLoadDate', S.token, so, newDate).then(function () {
+        S.revOrders = null; // đổi Load Date có thể đổi tháng -> đọc lại từ server
+        toast('Đã sửa Ngày load SO ' + so + '.');
+        loadRevenue();
+      }).catch(function (e) {
+        toast('Lỗi sửa Ngày load: ' + e.message);
+        inp.disabled = false;
+      });
+    });
   });
 }
 $('revShowNote').addEventListener('change', function () {
@@ -3680,6 +3705,7 @@ $('edSaveBtn').addEventListener('click', function () {
   loading(true);
   gs(directToOps ? 'api_updateOpsOrder' : 'api_savePI', S.token, payload).then(function (res) {
     clearDraft(); // đã lưu chính thức -> bỏ bản nháp tự lưu
+    S.revOrders = null; // đơn vừa sửa có thể đổi FOB/Load Date -> dashboard doanh thu tháng phải đọc lại
     if (payload.clientCode) clientObj.id = payload.clientCode; // phản ánh mã KH mới ngay
     toast(directToOps ? 'Đã ghi trực tiếp vào SO ' + res.so + '.'
       : 'Đã lưu PI ' + res.piNumber + ' cho khách ' + clientObj.name + ' (' + ed.status + ').');
@@ -3975,6 +4001,7 @@ $('spOkBtn').addEventListener('click', function () {
   loading(true);
   gs('api_splitPI', S.token, payload).then(function (res) {
     clearDraft(); // đơn gốc không còn -> bỏ bản nháp tự lưu
+    S.revOrders = null; // đơn gốc bị tách thành nhiều đơn -> dashboard doanh thu tháng phải đọc lại
     $('spOverlay').style.display = 'none';
     $('editorView').style.display = 'none';
     toast('Đã tách thành ' + (res.parts || []).length + ' đơn: ' + (res.parts || []).join(', ') +
@@ -4827,6 +4854,7 @@ $('deletePiBtn').addEventListener('click', function () {
   appConfirm('Xóa hẳn PI ' + (o.piNumber || o.so) + ' (khách ' + S.currentClient.name + ')? Hành động này không hoàn tác được.', function () {
     loading(true);
     gs('api_deletePI', S.token, { piNumber: o.piNumber, ownerPic: o.pic || '' }).then(function () {
+      S.revOrders = null; // đơn vừa xóa -> dashboard doanh thu tháng phải đọc lại
       toast('Đã xóa PI ' + (o.piNumber || o.so) + '.');
       selectClient(S.currentClient); // nạp lại danh sách đơn
     }).catch(function (e) { toast('Lỗi xóa: ' + e.message); })
@@ -4954,6 +4982,7 @@ function doConfirmPiSubmit_(o, so, loadDate, deposit, depositDate, depositPassed
     status: $('cfStatus').value
   }).then(function (res) {
     $('cfOverlay').style.display = 'none';
+    S.revOrders = null; // đơn vừa confirm/ghi SO có thể đổi FOB/Load Date -> dashboard doanh thu tháng phải đọc lại
     toast(res.mode === 'update'
       ? 'Đã ghi ngược cập nhật vào SO ' + res.so + ' và xóa bản nháp của sale.'
       : res.mode === 'rename'
