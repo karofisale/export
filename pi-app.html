@@ -200,6 +200,11 @@ td.note-cell.expanded { white-space: normal; max-width: none; }
 #agentMicBtn.recording { background: var(--danger); border-color: var(--danger); color: #fff; animation: mic-pulse 1s ease-in-out infinite; }
 @keyframes mic-pulse { 0%, 100% { opacity: 1; } 50% { opacity: .55; } }
 
+/* Vừa đổi mã cho dòng đang có SL/Đơn giá (giữ nguyên, không xoá) -> nhấp nháy ô Đơn giá 1 lần để
+   nhắc admin xem lại giá có còn đúng với mã mới hay không. */
+.price-warn { animation: price-warn-pulse 1s ease-in-out 3; box-shadow: 0 0 0 2px var(--warn); }
+@keyframes price-warn-pulse { 0%, 100% { background: var(--warn-soft); } 50% { background: #fff; } }
+
 @media (max-width: 860px) {
   .layout { flex-direction: column; height: auto; min-height: calc(100vh - 53px); }
   .sidebar { width: 100%; max-height: 300px; }
@@ -3433,6 +3438,10 @@ function renderLines() {
     var itemCbm = line.qtyCt ? ((Number(line.qty) || 0) / line.qtyCt) * ctCbm : 0;
     var ln = lineLnPct(line.price, line.proposed);
     var lnCls = ln == null ? '' : (ln < 0 ? 'neg' : (ln < S.dashboard.minMargin * 100 ? 'low' : ''));
+    // Vừa đổi mã cho dòng đang có SL/Đơn giá -> nổi ô Đơn giá 1 lần để nhắc xem lại giá theo mã mới
+    // (tiêu thụ ngay tại đây — chỉ hiện đúng 1 lượt render, lượt sau tự tắt dù không đụng gì khác).
+    var priceWarn = !!line._priceWarn;
+    line._priceWarn = false;
     // #4 Bình áp rời: máy đủ điều kiện (BOM có Tank + carton No Tank) hiện tick tách dòng bình áp
     var sep = (!line._isTank && S.sepTank && S.sepTank[line.code]) ? S.sepTank[line.code] : null;
     var sepHtml = sep
@@ -3450,7 +3459,8 @@ function renderLines() {
         ? '<input style="width:110px;text-align:left" data-f="brand" value="' + esc(line.brand) + '">'
         : esc(line.brand)) + '</td>' +
       '<td class="num"><input type="number" min="0" data-f="qty" value="' + line.qty + '"></td>' +
-      '<td class="num"><input type="number" min="0" step="0.01" data-f="price" value="' + line.price + '"></td>' +
+      '<td class="num"><input type="number" min="0" step="0.01" data-f="price" class="' + (priceWarn ? 'price-warn' : '') +
+        '" title="' + (priceWarn ? 'Vừa đổi mã — kiểm tra lại đơn giá theo mã mới' : '') + '" value="' + line.price + '"></td>' +
       '<td class="num">' + fmt$(total) + '</td>' +
       '<td class="num">' + (line.proposed ? fmt$(line.proposed) : '—') + '</td>' +
       '<td class="num ' + lnCls + '">' + (ln == null ? '—' : fmtN(ln, 1) + '%') + '</td>' +
@@ -3995,12 +4005,16 @@ function openPicker(rowIdx) {
 
 /* ---------- Autocomplete tìm nhanh sản phẩm ---------- */
 
-/** Áp sản phẩm hub vào dòng: mọi cột theo hub, Qty + Đơn giá để trống cho sale tự điền. */
+/** Áp sản phẩm hub vào dòng: quy cách đóng gói (qtyCt/L/W/H) + Proposed luôn theo mã mới.
+ *  Dòng MỚI (chưa có SL/Đơn giá) -> để trống cho sale tự điền như trước. Dòng ĐANG CÓ SL/Đơn giá
+ *  (đổi mã thay thế cho dòng có sẵn) -> GIỮ NGUYÊN, không xoá — chỉ đánh dấu _priceWarn để renderLines
+ *  làm nổi ô Đơn giá 1 lần, nhắc admin xem lại giá có còn đúng với mã mới hay không. */
 function applyProductToLine(line, p) {
+  var keepQtyPrice = Number(line.qty) > 0 || Number(line.price) > 0;
   line.code = p.code; line.product = p.name; line.brand = p.brand;
   line.qtyCt = p.qtyCt; line.l = p.l; line.w = p.w; line.h = p.h;
   line.proposed = p.price; line.isNew = false; line.type = '';
-  line.qty = ''; line.price = '';
+  if (keepQtyPrice) { line._priceWarn = true; } else { line.qty = ''; line.price = ''; }
 }
 
 /** Lịch sử giá bán gần nhất theo khách đang chọn (cache 1 khách/lần). */
