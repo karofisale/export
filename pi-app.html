@@ -882,6 +882,7 @@ td.note-cell.expanded { white-space: normal; max-width: none; }
     <h3>Sửa khách hàng</h3>
     <div class="picker-grid">
       <label>Tên khách (Client_Name) * <input type="text" id="ecName"></label>
+      <label>Mã KH (Client_ID) <input type="text" id="ecCode" placeholder="1000xxx"></label>
       <label>Tên đầy đủ <input type="text" id="ecFullName"></label>
       <label>Quốc gia <input type="text" id="ecCountry"></label>
       <label>Địa chỉ <input type="text" id="ecAddress"></label>
@@ -4841,9 +4842,10 @@ function applyConfirmMatch_(piNumber, desc) {
   var m = desc.match;
   S._cfMatch = desc; // lưu lại để cfOkBtn biết có cần cảnh báo thêm trước khi ghi không
   if (desc.mode === 'update') {
-    $('cfInfo').innerHTML = 'Ghi ngược cập nhật vào đơn có sẵn — SO <b>' + esc(m.so) + '</b> · Status hiện tại: ' + esc(m.status || '?');
+    $('cfInfo').innerHTML = 'Ghi ngược cập nhật vào đơn có sẵn — SO <b>' + esc(m.so) + '</b> · Status hiện tại: ' + esc(m.status || '?') +
+      ' · vẫn sửa được SO nếu cần đổi.';
     $('cfSo').value = m.so;
-    $('cfSo').disabled = true;
+    $('cfSo').disabled = false;
   } else if (desc.mode === 'rename') {
     var unusual = CF_USUAL_RENAME_STATUSES_.indexOf(String(m.status || '').toLowerCase()) < 0;
     $('cfInfo').innerHTML = (unusual ? '⚠ ' : '') + 'Đơn đã có sẵn trên Export Order (Order/PI # = <b>' + esc(piNumber) + '</b>, Status: ' +
@@ -4902,9 +4904,8 @@ $('cfDepositPassed').addEventListener('change', updateCfDepositRequired);
 $('cfOkBtn').addEventListener('click', function () {
   var o = S.currentOrder;
   if (!o) return;
-  var isUpdate = $('cfSo').disabled; // true chỉ khi đã xác nhận khớp đúng SO có sẵn (mode 'update')
   var so = $('cfSo').value.trim();
-  if (!isUpdate && !so) { toast('Nhập số SO.'); return; }
+  if (!so) { toast('Nhập số SO.'); return; }
   var loadDate = $('cfLoad').value;
   if (!loadDate) { toast('Nhập Load Date.'); return; }
   var deposit = $('cfDeposit').value;
@@ -5024,6 +5025,7 @@ $('editClientBtn').addEventListener('click', function () {
   if (!c) return;
   S._editClientOrigName = c.name;
   $('ecName').value = c.name || '';
+  $('ecCode').value = c.id || '';
   $('ecFullName').value = c.fullName || '';
   $('ecCountry').value = c.country || '';
   $('ecAddress').value = c.address || '';
@@ -5055,6 +5057,7 @@ $('ecOkBtn').addEventListener('click', function () {
   var payload = {
     origName: S._editClientOrigName,
     name: name,
+    code: $('ecCode').value.trim(),
     fullName: $('ecFullName').value.trim(),
     country: $('ecCountry').value.trim(),
     address: $('ecAddress').value.trim(),
