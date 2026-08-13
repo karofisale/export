@@ -730,6 +730,9 @@ td.note-cell.expanded { white-space: normal; max-width: none; }
             <label id="edSoWrap" style="display:none">Số SO <input type="text" id="edSo"></label>
             <label id="edDepositWrap" style="display:none">Deposit <input type="number" id="edDeposit" min="0" step="0.01"></label>
             <label id="edDepositDateWrap" style="display:none">Ngày cọc <input type="date" id="edDepositDate"></label>
+            <label id="edDepositPassedWrap" style="display:none;flex-direction:row;align-items:center;gap:6px" title="Đơn dùng điều kiện thanh toán khác không cần Deposit (L/C, trả sau...)">
+              <input type="checkbox" id="edDepositPassed"> Miễn Deposit (L/C, trả sau…)
+            </label>
             <label>Trạng thái
               <select id="edStatusSel" style="padding:8px 10px;border:1px solid var(--line);border-radius:6px;font-size:14px">
                 <option value="targeted">targeted</option>
@@ -979,6 +982,9 @@ td.note-cell.expanded { white-space: normal; max-width: none; }
       <label>Load Date * <input type="date" id="cfLoad"></label>
       <label>Deposit <span id="cfDepositReq" style="display:none">*</span> <input type="number" id="cfDeposit" min="0" step="0.01" placeholder="$"></label>
       <label>Ngày cọc <span id="cfDepositDateReq" style="display:none">*</span> <input type="date" id="cfDepositDate"></label>
+      <label style="flex-direction:row;align-items:center;gap:6px" title="Đơn dùng điều kiện thanh toán khác không cần Deposit (L/C, trả sau...)">
+        <input type="checkbox" id="cfDepositPassed"> Miễn Deposit (L/C, trả sau…)
+      </label>
       <label>Content <input type="text" id="cfContent" placeholder="VD: 1 cont 40'"></label>
       <label>Status
         <select id="cfStatus">
@@ -3129,6 +3135,7 @@ function saveDraft() {
           newSo: $('edSo').value.trim() || '',
           deposit: $('edDeposit').value || '',
           depositDate: $('edDepositDate').value || '',
+          depositPassed: $('edDepositPassed').checked,
           lines: S.editor.lines,
           discountPct: S.editor.discountPct,
           discountVal: S.editor.discountVal,
@@ -3213,13 +3220,15 @@ function handleDeepLink() {
 
 /** SO/Deposit/Ngày cọc chỉ admin/master sửa được, và chỉ có ý nghĩa với đơn ĐÃ ở Export Order
  *  (source 'ops2025') — dùng chung cho openEditor()/restoreDraft(). */
-function updateAdminOrderFieldsUI(show, so, deposit, depositDate) {
+function updateAdminOrderFieldsUI(show, so, deposit, depositDate, depositPassed) {
   $('edSoWrap').style.display = show ? '' : 'none';
   $('edDepositWrap').style.display = show ? '' : 'none';
   $('edDepositDateWrap').style.display = show ? '' : 'none';
+  $('edDepositPassedWrap').style.display = show ? '' : 'none';
   $('edSo').value = show ? (so || '') : '';
   $('edDeposit').value = show ? (deposit || '') : '';
   $('edDepositDate').value = show ? (depositDate || '') : '';
+  $('edDepositPassed').checked = show && !!depositPassed;
 }
 /** Nút YC tạo mã KH trong Sửa đơn — chỉ hiện khi admin/master và khách đang soạn CHƯA có mã. */
 function updateEdReqCodeBtn(clientObj) {
@@ -3248,7 +3257,7 @@ function restoreDraft(client, ed) {
   $('edClientCodeWrap').style.display = isAdminLevel() ? '' : 'none';
   $('edClientCode').value = client.id || '';
   updateEdReqCodeBtn(client);
-  updateAdminOrderFieldsUI(ed.source === 'ops2025' && isAdminLevel(), ed.newSo || ed.origSo, ed.deposit, ed.depositDate);
+  updateAdminOrderFieldsUI(ed.source === 'ops2025' && isAdminLevel(), ed.newSo || ed.origSo, ed.deposit, ed.depositDate, ed.depositPassed);
   updateSplitBtn();
   $('edPiNumber').value = ed.piNumber || '';
   $('edPiDate').value = ed.piDate || '';
@@ -3314,6 +3323,7 @@ function openEditor(mode, piNumber, lines, existingOrder) {
     origStatus: (mode === 'edit' && existingOrder) ? (existingOrder.status || '') : '',
     deposit: (mode === 'edit' && existingOrder) ? (existingOrder.deposit || '') : '',
     depositDate: (mode === 'edit' && existingOrder) ? (existingOrder.depositDate || '') : '',
+    depositPassed: (mode === 'edit' && existingOrder) ? !!existingOrder.depositPassed : false,
     expectedLoad: (mode === 'edit' && existingOrder) ? (existingOrder.realLoad || '') : '',
     // admin/technician sửa đơn của sale khác: giữ PIC gốc (server chỉ tôn trọng khi role admin/technician)
     ownerPic: mode === 'edit' && existingOrder ? (existingOrder.pic || '') : '',
@@ -3342,7 +3352,7 @@ function openEditor(mode, piNumber, lines, existingOrder) {
   $('edClientCodeWrap').style.display = isAdminLevel() ? '' : 'none';
   $('edClientCode').value = S.currentClient.id || '';
   updateEdReqCodeBtn(S.currentClient);
-  updateAdminOrderFieldsUI(S.editor.source === 'ops2025' && isAdminLevel(), S.editor.origSo, S.editor.deposit, S.editor.depositDate);
+  updateAdminOrderFieldsUI(S.editor.source === 'ops2025' && isAdminLevel(), S.editor.origSo, S.editor.deposit, S.editor.depositDate, S.editor.depositPassed);
   updateSplitBtn();
   $('edPiNumber').value = piNumber;
   $('edPiDate').value = S.editor.piDate;
@@ -3626,9 +3636,10 @@ $('edSaveBtn').addEventListener('click', function () {
   var newSo = directToOps ? $('edSo').value.trim() : '';
   var deposit = directToOps ? $('edDeposit').value : '';
   var depositDate = directToOps ? $('edDepositDate').value : '';
-  if (directToOps && ed.status.toLowerCase() === 'opened') {
-    if (!deposit || Number(deposit) <= 0) { toast('Trạng thái "opened" cần nhập Deposit.'); return; }
-    if (!depositDate) { toast('Trạng thái "opened" cần nhập Ngày cọc.'); return; }
+  var depositPassed = directToOps ? $('edDepositPassed').checked : false;
+  if (directToOps && ed.status.toLowerCase() === 'opened' && !depositPassed) {
+    if (!deposit || Number(deposit) <= 0) { toast('Trạng thái "opened" cần nhập Deposit (hoặc tick "Miễn Deposit").'); return; }
+    if (!depositDate) { toast('Trạng thái "opened" cần nhập Ngày cọc (hoặc tick "Miễn Deposit").'); return; }
   }
   var grand = ed.subtotal - (ed.discountVal || 0) + (ed.other || 0);
   var clientObj = ed.clientObj || S.currentClient; // Clone có thể đã đổi khách
@@ -3649,6 +3660,7 @@ $('edSaveBtn').addEventListener('click', function () {
     newSo: newSo,
     deposit: deposit,
     depositDate: depositDate,
+    depositPassed: depositPassed,
     lines: lines.map(function (l) {
       return { code: l.code, product: l.product, qty: l.qty, price: l.price, amount: Math.round(l.qty * l.price * 100) / 100,
         note: l.note || '', marking: normMarking(l.marking), netWeight: Number(l.netWeight) || 0 };
@@ -4844,10 +4856,11 @@ function applyConfirmMatch_(piNumber, desc) {
     $('cfSo').value = '';
     $('cfSo').disabled = false;
   }
-  // Đơn đã có sẵn trên Export Order (update/rename) có thể đã ghi Deposit/Ngày cọc từ trước (vd qua
-  // màn Thông tin lô hàng hoặc Sửa đơn) — điền sẵn, vẫn cho sửa lại nếu cần.
+  // Đơn đã có sẵn trên Export Order (update/rename) có thể đã ghi Deposit/Ngày cọc/Deposit Passed từ
+  // trước (vd qua màn Thông tin lô hàng hoặc Sửa đơn) — điền sẵn, vẫn cho sửa lại nếu cần.
   if (m && m.deposit && !$('cfDeposit').value) $('cfDeposit').value = m.deposit;
   if (m && m.depositDate && !$('cfDepositDate').value) $('cfDepositDate').value = m.depositDate;
+  if (m && m.depositPassed) $('cfDepositPassed').checked = true;
   updateCfDepositRequired();
   $('cfOkBtn').disabled = false; // tra xong mới cho bấm Confirm — chặn bấm sớm khi chưa rõ kết quả khớp
 }
@@ -4862,6 +4875,7 @@ $('confirmPiBtn').addEventListener('click', function () {
   $('cfLoad').value = o.realLoad || ''; // prefill từ Expected_Load của PI nếu có
   $('cfDeposit').value = '';
   $('cfDepositDate').value = '';
+  $('cfDepositPassed').checked = false;
   $('cfContent').value = '';
   $('cfStatus').value = 'opened';
   updateCfDepositRequired();
@@ -4878,11 +4892,12 @@ $('cfCancelBtn').addEventListener('click', function () { $('cfOverlay').style.di
 
 /** Deposit + Ngày cọc là điều kiện bắt buộc khi chọn Status "opened" — hiện dấu * tương ứng. */
 function updateCfDepositRequired() {
-  var required = $('cfStatus').value === 'opened';
+  var required = $('cfStatus').value === 'opened' && !$('cfDepositPassed').checked;
   $('cfDepositReq').style.display = required ? '' : 'none';
   $('cfDepositDateReq').style.display = required ? '' : 'none';
 }
 $('cfStatus').addEventListener('change', updateCfDepositRequired);
+$('cfDepositPassed').addEventListener('change', updateCfDepositRequired);
 
 $('cfOkBtn').addEventListener('click', function () {
   var o = S.currentOrder;
@@ -4894,21 +4909,22 @@ $('cfOkBtn').addEventListener('click', function () {
   if (!loadDate) { toast('Nhập Load Date.'); return; }
   var deposit = $('cfDeposit').value;
   var depositDate = $('cfDepositDate').value;
-  if ($('cfStatus').value === 'opened') {
-    if (!deposit || Number(deposit) <= 0) { toast('Trạng thái "opened" cần nhập Deposit.'); return; }
-    if (!depositDate) { toast('Trạng thái "opened" cần nhập Ngày cọc.'); return; }
+  var depositPassed = $('cfDepositPassed').checked;
+  if ($('cfStatus').value === 'opened' && !depositPassed) {
+    if (!deposit || Number(deposit) <= 0) { toast('Trạng thái "opened" cần nhập Deposit (hoặc tick "Miễn Deposit").'); return; }
+    if (!depositDate) { toast('Trạng thái "opened" cần nhập Ngày cọc (hoặc tick "Miễn Deposit").'); return; }
   }
   // Rename vào đơn có status khác drafted/targeted (bất thường) -> xác nhận thêm 1 lần trước khi ghi,
   // vì đây là ghi TRỰC TIẾP vào 1 đơn có sẵn (không tạo dòng mới) nên cần chắc chắn đúng đơn cần gán.
   var m = S._cfMatch;
   if (m && m.mode === 'rename' && m.match && CF_USUAL_RENAME_STATUSES_.indexOf(String(m.match.status || '').toLowerCase()) < 0) {
     appConfirm('Đơn khớp đang ở status "' + (m.match.status || '?') + '" (không phải drafted/targeted). Confirm sẽ GHI TRỰC TIẾP SO này vào đúng đơn đó, không tạo đơn mới. Chắc chắn đây đúng là đơn cần gán?',
-      function () { doConfirmPiSubmit_(o, so, loadDate, deposit, depositDate); });
+      function () { doConfirmPiSubmit_(o, so, loadDate, deposit, depositDate, depositPassed); });
     return;
   }
-  doConfirmPiSubmit_(o, so, loadDate, deposit, depositDate);
+  doConfirmPiSubmit_(o, so, loadDate, deposit, depositDate, depositPassed);
 });
-function doConfirmPiSubmit_(o, so, loadDate, deposit, depositDate) {
+function doConfirmPiSubmit_(o, so, loadDate, deposit, depositDate, depositPassed) {
   loading(true);
   gs('api_confirmPI', S.token, {
     piNumber: o.piNumber,
@@ -4918,6 +4934,7 @@ function doConfirmPiSubmit_(o, so, loadDate, deposit, depositDate) {
     loadDate: loadDate,
     deposit: deposit,
     depositDate: depositDate,
+    depositPassed: depositPassed,
     content: $('cfContent').value.trim(),
     status: $('cfStatus').value
   }).then(function (res) {
