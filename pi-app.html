@@ -987,7 +987,6 @@ td.note-cell.expanded { white-space: normal; max-width: none; }
           <option value="opened" selected>opened</option>
         </select>
       </label>
-      <label>Month <input type="number" id="cfMonth" min="1" max="12"></label>
     </div>
     <p class="howto" style="margin-top:12px; font-size:12.5px; color:var(--muted)">
       Đơn sẽ được ghi vào Export Order (Order + Details, giữ nguyên các cột công thức) và
@@ -4808,25 +4807,72 @@ $('deletePiBtn').addEventListener('click', function () {
   });
 });
 
-/* ================= Confirm PI → Operations2025 (chỉ admin) ================= */
+/* ================= Confirm PI → Operations2025 (chỉ admin) =================
+ * Nhánh THẬT (update/rename/new) do backend quyết định (findOrderMatch_, Confirm.gs) dựa trên so
+ * khớp CHÍNH XÁC (case-insensitive) giữa PI Number và cột SO/Order-PI# của Export Order. NGUYÊN TẮC
+ * BẤT BIẾN: Confirm không bao giờ tạo dòng mới nếu đơn đã có sẵn trên Export Order — "new" chỉ xảy ra
+ * khi hoàn toàn không khớp gì. Trước đây modal đoán nhãn hiển thị chỉ dựa vào status==='sale edited'
+ * — SAI khi PI Number không khớp đúng chuỗi với định danh đã ghi trên Export Order (vd gõ khác nhau,
+ * thiếu/thừa tiền tố): admin tưởng đang "cập nhật đơn có sẵn" nhưng Confirm lại ÂM THẦM TẠO DÒNG MỚI
+ * (lỗi thật đã gặp: PI "TE-SEDCO02" không khớp identifier "Sedco02"). Sửa: tra trước bằng đúng logic
+ * so khớp thật (describeConfirmMatch_, mirror findOrderMatch_) rồi hiện đúng nhãn TRƯỚC khi bấm
+ * Confirm; nếu đơn khớp đang ở status khác drafted/targeted (bất thường — có thể là trùng tên tình cờ
+ * với 1 đơn không liên quan) thì cảnh báo rõ + bắt admin xác nhận thêm 1 lần trước khi ghi (cfOkBtn). */
+function describeConfirmMatch_(piNumber, m) {
+  if (!m) return { mode: 'new' };
+  var key = String(piNumber).trim().toLowerCase();
+  if (String(m.so || '').trim().toLowerCase() === key) return { mode: 'update', match: m };
+  return { mode: 'rename', match: m }; // khớp Order/PI# -> LUÔN rename, không còn giới hạn theo status
+}
+var CF_USUAL_RENAME_STATUSES_ = ['drafted', 'targeted'];
+function applyConfirmMatch_(piNumber, desc) {
+  var m = desc.match;
+  S._cfMatch = desc; // lưu lại để cfOkBtn biết có cần cảnh báo thêm trước khi ghi không
+  if (desc.mode === 'update') {
+    $('cfInfo').innerHTML = 'Ghi ngược cập nhật vào đơn có sẵn — SO <b>' + esc(m.so) + '</b> · Status hiện tại: ' + esc(m.status || '?');
+    $('cfSo').value = m.so;
+    $('cfSo').disabled = true;
+  } else if (desc.mode === 'rename') {
+    var unusual = CF_USUAL_RENAME_STATUSES_.indexOf(String(m.status || '').toLowerCase()) < 0;
+    $('cfInfo').innerHTML = (unusual ? '⚠ ' : '') + 'Đơn đã có sẵn trên Export Order (Order/PI # = <b>' + esc(piNumber) + '</b>, Status: ' +
+      esc(m.status || '?') + ') nhưng chưa có SO thật — nhập SO để GÁN vào đúng đơn này (không tạo dòng mới).' +
+      (unusual ? ' Status khác drafted/targeted — kiểm tra kỹ đây đúng là đơn cần gán, không phải trùng tên tình cờ với đơn khác.' : '');
+    $('cfSo').value = '';
+    $('cfSo').disabled = false;
+  } else {
+    $('cfInfo').textContent = 'Không tìm thấy đơn nào khớp trên Export Order — sẽ tạo dòng mới với SO bạn nhập.';
+    $('cfSo').value = '';
+    $('cfSo').disabled = false;
+  }
+  // Đơn đã có sẵn trên Export Order (update/rename) có thể đã ghi Deposit/Ngày cọc từ trước (vd qua
+  // màn Thông tin lô hàng hoặc Sửa đơn) — điền sẵn, vẫn cho sửa lại nếu cần.
+  if (m && m.deposit && !$('cfDeposit').value) $('cfDeposit').value = m.deposit;
+  if (m && m.depositDate && !$('cfDepositDate').value) $('cfDepositDate').value = m.depositDate;
+  updateCfDepositRequired();
+  $('cfOkBtn').disabled = false; // tra xong mới cho bấm Confirm — chặn bấm sớm khi chưa rõ kết quả khớp
+}
 $('confirmPiBtn').addEventListener('click', function () {
   var o = S.currentOrder;
   if (!o) return;
-  var isUpdate = (o.status || '').toLowerCase() === 'sale edited';
   $('cfPiNo').textContent = o.piNumber;
-  $('cfInfo').textContent = isUpdate
-    ? 'Ghi ngược cập nhật vào đơn có sẵn — SO ' + o.piNumber + ' · PIC ' + (o.pic || '?')
-    : 'Tạo dòng mới trong Export Order · PIC ' + (o.pic || '?');
-  $('cfSo').value = isUpdate ? o.piNumber : '';
-  $('cfSo').disabled = isUpdate;
+  $('cfInfo').textContent = 'Đang kiểm tra Export Order…';
+  $('cfSo').value = '';
+  $('cfSo').disabled = false;
+  $('cfOkBtn').disabled = true;
   $('cfLoad').value = o.realLoad || ''; // prefill từ Expected_Load của PI nếu có
-  $('cfDeposit').value = o.deposit || '';
-  $('cfDepositDate').value = o.depositDate || '';
+  $('cfDeposit').value = '';
+  $('cfDepositDate').value = '';
   $('cfContent').value = '';
   $('cfStatus').value = 'opened';
-  $('cfMonth').value = new Date().getMonth() + 1;
   updateCfDepositRequired();
   $('cfOverlay').style.display = 'flex';
+  gs('api_findOrderBySo', S.token, o.piNumber).then(function (res) {
+    if ($('cfOverlay').style.display !== 'flex') return; // đã đóng modal trước khi tra xong
+    applyConfirmMatch_(o.piNumber, describeConfirmMatch_(o.piNumber, res.order));
+  }).catch(function () {
+    if ($('cfOverlay').style.display !== 'flex') return;
+    applyConfirmMatch_(o.piNumber, { mode: 'new' });
+  });
 });
 $('cfCancelBtn').addEventListener('click', function () { $('cfOverlay').style.display = 'none'; });
 
@@ -4841,7 +4887,7 @@ $('cfStatus').addEventListener('change', updateCfDepositRequired);
 $('cfOkBtn').addEventListener('click', function () {
   var o = S.currentOrder;
   if (!o) return;
-  var isUpdate = (o.status || '').toLowerCase() === 'sale edited';
+  var isUpdate = $('cfSo').disabled; // true chỉ khi đã xác nhận khớp đúng SO có sẵn (mode 'update')
   var so = $('cfSo').value.trim();
   if (!isUpdate && !so) { toast('Nhập số SO.'); return; }
   var loadDate = $('cfLoad').value;
@@ -4852,6 +4898,17 @@ $('cfOkBtn').addEventListener('click', function () {
     if (!deposit || Number(deposit) <= 0) { toast('Trạng thái "opened" cần nhập Deposit.'); return; }
     if (!depositDate) { toast('Trạng thái "opened" cần nhập Ngày cọc.'); return; }
   }
+  // Rename vào đơn có status khác drafted/targeted (bất thường) -> xác nhận thêm 1 lần trước khi ghi,
+  // vì đây là ghi TRỰC TIẾP vào 1 đơn có sẵn (không tạo dòng mới) nên cần chắc chắn đúng đơn cần gán.
+  var m = S._cfMatch;
+  if (m && m.mode === 'rename' && m.match && CF_USUAL_RENAME_STATUSES_.indexOf(String(m.match.status || '').toLowerCase()) < 0) {
+    appConfirm('Đơn khớp đang ở status "' + (m.match.status || '?') + '" (không phải drafted/targeted). Confirm sẽ GHI TRỰC TIẾP SO này vào đúng đơn đó, không tạo đơn mới. Chắc chắn đây đúng là đơn cần gán?',
+      function () { doConfirmPiSubmit_(o, so, loadDate, deposit, depositDate); });
+    return;
+  }
+  doConfirmPiSubmit_(o, so, loadDate, deposit, depositDate);
+});
+function doConfirmPiSubmit_(o, so, loadDate, deposit, depositDate) {
   loading(true);
   gs('api_confirmPI', S.token, {
     piNumber: o.piNumber,
@@ -4862,8 +4919,7 @@ $('cfOkBtn').addEventListener('click', function () {
     deposit: deposit,
     depositDate: depositDate,
     content: $('cfContent').value.trim(),
-    status: $('cfStatus').value,
-    month: parseInt($('cfMonth').value, 10) || ''
+    status: $('cfStatus').value
   }).then(function (res) {
     $('cfOverlay').style.display = 'none';
     toast(res.mode === 'update'
@@ -4891,7 +4947,7 @@ $('cfOkBtn').addEventListener('click', function () {
       }
     }).catch(function () { toast('Lỗi: ' + e.message); });
   }).finally(function () { loading(false); });
-});
+}
 
 /* #7 Tải ĐNXH + Marking của 1 SO đã Confirm (Marking bỏ qua nếu đơn không có mã nào Y). */
 function exportShipDocs(so) {
