@@ -1810,11 +1810,13 @@ function renderRevenue() {
   var mtb = $('monthOrdersTable').querySelector('tbody');
   mtb.innerHTML = ord.length ? ord.map(function (o, i) {
     var soLabel = o.so ? esc(o.so) : (o.source === 'sale' ? '<span class="pill warn">Nháp</span>' : '—');
-    // admin/master sửa Load Date tại chỗ — chỉ với đơn đã có SO thật trên Export Order (đơn nháp
-    // chưa Confirm không có SO, phải mở Sửa đơn để đổi Expected Loading).
-    var canEditLoad = isAdminLevel() && o.source === 'ops2025' && o.so;
+    // admin/master sửa Load Date tại chỗ — đơn đã Confirm (có SO) ghi RealLoad trên Export Order,
+    // đơn nháp (chưa Confirm, chưa có SO) ghi Expected_Load trên file sale (khớp PIC + PI Number).
+    var canEditLoad = isAdminLevel() && (o.source === 'ops2025' ? !!o.so : !!o.piNumber);
     var loadCell = canEditLoad
-      ? '<input type="date" class="rev-load-input" data-so="' + esc(o.so) + '" value="' + esc(o.realLoad || '') + '" style="width:130px">'
+      ? '<input type="date" class="rev-load-input" data-source="' + esc(o.source) + '" data-key="' +
+        esc(o.source === 'ops2025' ? o.so : o.piNumber) + '" data-pic="' + esc(o.pic || '') +
+        '" value="' + esc(o.realLoad || '') + '" style="width:130px">'
       : esc(o.realLoad || '—');
     return '<tr data-i="' + i + '" style="cursor:pointer">' +
       '<td class="card-title">' + esc(o.client) + '</td>' +
@@ -1835,13 +1837,17 @@ function renderRevenue() {
     inp.addEventListener('click', function (e) { e.stopPropagation(); });
     inp.addEventListener('change', function (e) {
       e.stopPropagation();
-      var so = inp.getAttribute('data-so');
+      var source = inp.getAttribute('data-source');
+      var key = inp.getAttribute('data-key');
       var newDate = inp.value;
       if (!newDate) return;
       inp.disabled = true;
-      gs('api_updateRevenueLoadDate', S.token, so, newDate).then(function () {
+      var req = source === 'ops2025'
+        ? gs('api_updateRevenueLoadDate', S.token, key, newDate)
+        : gs('api_updateSaleExpectedLoad', S.token, key, inp.getAttribute('data-pic'), newDate);
+      req.then(function () {
         S.revOrders = null; // đổi Load Date có thể đổi tháng -> đọc lại từ server
-        toast('Đã sửa Ngày load SO ' + so + '.');
+        toast('Đã sửa Ngày load ' + (source === 'ops2025' ? 'SO' : 'PI') + ' ' + key + '.');
         loadRevenue();
       }).catch(function (e) {
         toast('Lỗi sửa Ngày load: ' + e.message);
