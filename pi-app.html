@@ -306,6 +306,7 @@ td.note-cell.expanded { white-space: normal; max-width: none; }
       <div class="tb-menu" id="tbMenu">
         <button class="btn ghost" id="prodMgrBtn" style="display:none" title="Thêm/sửa sản phẩm, model, BOM trên hub"><span class="tb-ic">🧩</span><span class="tb-label">Danh mục SP</span></button>
         <button class="btn ghost" id="ptspBtn" style="display:none" title="Dashboard tiến độ phát triển sản phẩm (đọc live từ Jira)"><span class="tb-ic">📊</span><span class="tb-label">Tiến độ PTSP</span></button>
+        <button class="btn ghost" id="planBtn" style="display:none" title="Kế hoạch và thực hiện doanh thu xuất khẩu theo tháng"><span class="tb-ic">📈</span><span class="tb-label">Kế hoạch</span></button>
         <a class="btn ghost" href="https://karofisale.github.io/export/shipment-tracking.html" target="_blank" rel="noopener" title="Xem lịch trình shipment (chỉ xem — cập nhật cần mã admin)"><span class="tb-ic">🚢</span><span class="tb-label">Shipment</span></a>
         <button class="btn ghost" id="refreshBtn" title="Xóa cache, tải lại dữ liệu mới nhất từ Google Sheets"><span class="tb-ic">⟳</span><span class="tb-label">Làm mới</span></button>
         <div class="tb-divider"></div>
@@ -639,6 +640,38 @@ td.note-cell.expanded { white-space: normal; max-width: none; }
               <th class="num">Xong</th><th class="num">Đang làm</th><th class="num">Chưa làm</th>
               <th class="num">% Hoàn thành</th><th>Tiến độ</th>
             </tr></thead>
+            <tbody></tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- Kế hoạch & Thực hiện doanh thu xuất khẩu theo tháng -->
+      <section id="planView" style="display:none">
+        <div class="client-header">
+          <div>
+            <h2>Kế hoạch &amp; Thực hiện</h2>
+            <div class="client-meta" id="planMeta"></div>
+          </div>
+          <div class="order-picker" style="display:flex;align-items:center;gap:8px">
+            <button class="btn small" id="planRefreshBtn" title="Lấy lại dữ liệu mới nhất">⟳ Làm mới</button>
+            <button class="btn small ghost" id="planHomeBtn">⟵ Trang đầu</button>
+          </div>
+        </div>
+        <div id="planSegChips" style="display:flex;gap:8px;flex-wrap:wrap;margin:0 0 12px"></div>
+        <div class="totals-panel" style="grid-template-columns:repeat(auto-fit,minmax(150px,1fr))">
+          <div class="tp-cell"><div class="tp-label">Kế hoạch lũy kế</div><div class="tp-value big" id="planKpiPlan">$0.00</div></div>
+          <div class="tp-cell"><div class="tp-label">Thực hiện lũy kế</div><div class="tp-value big" id="planKpiDone">$0.00</div></div>
+          <div class="tp-cell"><div class="tp-label">% hoàn thành</div><div class="tp-value big" id="planKpiPct">0%</div></div>
+        </div>
+        <div style="display:flex;gap:16px;flex-wrap:wrap;margin:12px 0 4px;font-size:12px;color:var(--muted)">
+          <span><span style="display:inline-block;width:10px;height:10px;background:#b9c4bb;border-radius:2px;vertical-align:-1px"></span> Kế hoạch</span>
+          <span><span style="display:inline-block;width:10px;height:10px;background:var(--accent);border-radius:2px;vertical-align:-1px"></span> Thực hiện</span>
+          <span><span style="display:inline-block;width:10px;height:2px;background:var(--accent-strong);vertical-align:2px"></span> % hoàn thành</span>
+        </div>
+        <div id="planChartWrap" style="margin:6px 0 16px"></div>
+        <div class="table-wrap">
+          <table class="data-table" id="planTable">
+            <thead><tr><th>Tháng</th><th class="num">Kế hoạch</th><th class="num">Thực hiện</th><th class="num">%</th></tr></thead>
             <tbody></tbody>
           </table>
         </div>
@@ -1492,6 +1525,7 @@ function bootstrap() {
     $('rateInfo').textContent = 'Tỷ giá: ' + fmtN(S.dashboard.exchangeRate, 0) + ' VND/USD';
     $('ptspBtn').style.display = PTSP_ROLES.indexOf(S.user.role) >= 0 ? '' : 'none';   // #10
     $('prodMgrBtn').style.display = PM_ROLES.indexOf(S.user.role) >= 0 ? '' : 'none';  // #11
+    $('planBtn').style.display = planPersonaOfUser_() !== 'none' ? '' : 'none';
     renderClientList();
     renderPending(res.pendingProducts || []);
     var draftPrompted = checkDraft(); // hỏi khôi phục bản nháp chưa lưu (chỉ 1 lần mỗi phiên)
@@ -1571,7 +1605,7 @@ $('clientSort').addEventListener('change', renderClientList);
 
 /** #1 Về trang đầu theo vai trò (giống lúc mới đăng nhập). */
 function goHome() {
-  ['clientView', 'editorView', 'queueView', 'revenueView', 'ptspView', 'prodView', 'shipView'].forEach(function (id) {
+  ['clientView', 'editorView', 'queueView', 'revenueView', 'ptspView', 'prodView', 'shipView', 'planView'].forEach(function (id) {
     $(id).style.display = 'none';
   });
   if (S.user.role === 'technician') { loadReviewQueue(); return; }
@@ -1647,6 +1681,7 @@ function selectClient(c, targetSo) {
   $('ptspView').style.display = 'none';
   $('prodView').style.display = 'none';
   $('shipView').style.display = 'none';
+  $('planView').style.display = 'none';
   $('backToQueueBtn').style.display = S.user.role === 'technician' ? '' : 'none';
   $('backToRevenueBtn').style.display = MONTH_VIEW_ROLES.indexOf(S.user.role) >= 0 ? '' : 'none';
   $('backToRevenueBtn').textContent = S.user.role === 'sale' ? '⟵ Đơn theo tháng' : '⟵ Doanh thu theo tháng';
@@ -1737,6 +1772,7 @@ function loadRevenue() {
   $('ptspView').style.display = 'none';
   $('prodView').style.display = 'none';
   $('shipView').style.display = 'none';
+  $('planView').style.display = 'none';
   $('revenueView').style.display = 'block';
   var isLead = S.user.role === 'lead' || S.user.role === 'leader' || S.user.role === 'admin' || S.user.role === 'master' || S.user.role === 'technician';
   $('revTitle').textContent = isLead ? 'Doanh thu theo tháng' : 'Đơn hàng của tôi theo tháng';
@@ -1869,7 +1905,7 @@ var SV_FIELDS = { deposit: 'svDeposit', depositDate: 'svDepositDate', realLoad: 
   lcc: 'svLcc', freight: 'svFreight' };
 
 function openShipView(so) {
-  ['clientView', 'editorView', 'queueView', 'revenueView', 'ptspView', 'prodView'].forEach(function (id) {
+  ['clientView', 'editorView', 'queueView', 'revenueView', 'ptspView', 'prodView', 'planView'].forEach(function (id) {
     $(id).style.display = 'none';
   });
   setSidebar(false);
@@ -2004,6 +2040,7 @@ function openProdMgr() {
   $('revenueView').style.display = 'none';
   $('ptspView').style.display = 'none';
   $('shipView').style.display = 'none';
+  $('planView').style.display = 'none';
   $('prodView').style.display = 'block';
   $('pmTabFeedback').style.display = isAdminLevel() ? '' : 'none'; // Duyệt Agent: chỉ admin/master
   // nạp CompTotal (cho tab BOM) + đổ gợi ý
@@ -2695,6 +2732,7 @@ function loadPtsp(force) {
   $('revenueView').style.display = 'none';
   $('prodView').style.display = 'none';
   $('shipView').style.display = 'none';
+  $('planView').style.display = 'none';
   $('ptspView').style.display = 'block';
   if (S.ptsp && !force) { renderPtsp(); return; }
   $('ptspMeta').textContent = 'Đang tải từ Jira…';
@@ -2809,6 +2847,145 @@ $('pmHomeBtn').addEventListener('click', goHome);
 $('ptspRefreshBtn').addEventListener('click', function () { loadPtsp(true); });
 $('ptspSearch').addEventListener('input', renderPtsp);
 
+/* ================= Kế hoạch & Thực hiện (Plan vs Done) theo tháng ================= */
+var PLAN_SEG_LABEL_ = { total: 'Total Export', oem: 'OEM', dev: 'DEV', hunt: 'Hunt', branding: 'Branding' };
+
+/** Mức xem báo cáo Kế hoạch theo vai trò — khớp planReportAccess_ ở Data.gs:
+ *  admin/master/leader -> 'full' (cả 5 khu vực); lead -> 'oem' (không thấy Branding);
+ *  sale tên "Brand" -> 'branding' (chỉ phần của mình); sale khác -> 'none' (không có trang này). */
+function planPersonaOfUser_() {
+  if (isAdminLevel() || S.user.role === 'leader') return 'full';
+  if (S.user.role === 'lead') return 'oem';
+  if (S.user.role === 'sale' && S.user.name.toLowerCase() === 'brand') return 'branding';
+  return 'none';
+}
+function planSegsForPersona_(persona) {
+  if (persona === 'full') return ['total', 'oem', 'dev', 'hunt', 'branding'];
+  if (persona === 'oem') return ['oem', 'dev', 'hunt'];
+  if (persona === 'branding') return ['branding'];
+  return [];
+}
+
+function loadPlanReport() {
+  setSidebar(false);
+  $('emptyState').style.display = 'none';
+  $('clientView').style.display = 'none';
+  $('editorView').style.display = 'none';
+  $('queueView').style.display = 'none';
+  $('revenueView').style.display = 'none';
+  $('ptspView').style.display = 'none';
+  $('prodView').style.display = 'none';
+  $('shipView').style.display = 'none';
+  $('planView').style.display = 'block';
+  var persona = planPersonaOfUser_();
+  if (persona === 'none') {
+    $('planMeta').textContent = 'Bạn không có quyền xem báo cáo này.';
+    $('planSegChips').innerHTML = '';
+    return;
+  }
+  if (!S.planSeg || planSegsForPersona_(persona).indexOf(S.planSeg) < 0) S.planSeg = planSegsForPersona_(persona)[0];
+  if (S.planData) { renderPlanReport(); return; }
+  loading(true);
+  gs('api_planVsDone', S.token).then(function (res) {
+    S.planData = res;
+    renderPlanReport();
+  }).catch(function (e) {
+    $('planMeta').textContent = 'Lỗi: ' + e.message;
+  }).finally(function () { loading(false); });
+}
+
+function renderPlanReport() {
+  var d = S.planData;
+  if (!d) return;
+  var persona = planPersonaOfUser_();
+  var segs = planSegsForPersona_(persona);
+  $('planMeta').textContent = 'Kế hoạch năm ' + d.year + ' · Thực hiện = Order (Ops) + PITotal (Hub) cộng theo PIC.';
+
+  var chips = $('planSegChips');
+  chips.innerHTML = segs.map(function (s) {
+    return '<button class="btn small' + (S.planSeg === s ? ' primary' : '') + '" data-seg="' + s + '">' + PLAN_SEG_LABEL_[s] + '</button>';
+  }).join('');
+  chips.querySelectorAll('button').forEach(function (btn) {
+    btn.addEventListener('click', function () { S.planSeg = btn.getAttribute('data-seg'); renderPlanReport(); });
+  });
+
+  var seg = d[S.planSeg] || { plan: new Array(12).fill(0), done: new Array(12).fill(0) };
+  var CUR = new Date().getMonth(); // tháng hiện tại (0-based) — chỉ tháng <= CUR mới có Thực hiện thật
+  var ytdPlan = seg.plan.slice(0, CUR + 1).reduce(function (a, b) { return a + b; }, 0);
+  var ytdDone = seg.done.slice(0, CUR + 1).reduce(function (a, b) { return a + b; }, 0);
+  var pct = ytdPlan ? (ytdDone / ytdPlan * 100) : 0;
+  $('planKpiPlan').textContent = fmt$(ytdPlan);
+  $('planKpiDone').textContent = fmt$(ytdDone);
+  $('planKpiPct').textContent = fmtN(pct, 0) + '%';
+  $('planKpiPct').style.color = pct >= 90 ? 'var(--accent)' : (pct >= 70 ? 'var(--warn)' : 'var(--danger)');
+
+  $('planChartWrap').innerHTML = buildPlanChartSvg_(seg, CUR);
+
+  var tb = $('planTable').querySelector('tbody');
+  tb.innerHTML = seg.plan.map(function (p, i) {
+    var doneVal = i <= CUR ? seg.done[i] : null;
+    var pctM = i <= CUR ? (p ? (seg.done[i] / p * 100) : 0) : null;
+    return '<tr><td>Tháng ' + (i + 1) + '/' + d.year + '</td>' +
+      '<td class="num">' + fmt$(p) + '</td>' +
+      '<td class="num">' + (doneVal === null ? '—' : fmt$(doneVal)) + '</td>' +
+      '<td class="num">' + (pctM === null ? '—' : fmtN(pctM, 0) + '%') + '</td></tr>';
+  }).join('');
+}
+
+/** Vẽ combo chart SVG thuần (không phụ thuộc thư viện ngoài, khớp bản build tĩnh GitHub Pages):
+ *  cột Kế hoạch/Thực hiện theo trục $ trái + đường % hoàn thành theo trục % phải (0-120%). */
+function buildPlanChartSvg_(seg, curMonthIdx) {
+  var W = 900, H = 300, padL = 8, padR = 8, padT = 16, padB = 28;
+  var plotW = W - padL - padR, plotH = H - padT - padB;
+  var maxVal = Math.max(1,
+    seg.plan.reduce(function (a, b) { return Math.max(a, b); }, 0),
+    seg.done.reduce(function (a, b) { return Math.max(a, b); }, 0)) * 1.15;
+  var slot = plotW / 12;
+  var barW = Math.min(16, slot * 0.28);
+  function x(i, off) { return padL + i * slot + slot / 2 + (off || 0); }
+  function yVal(v) { return padT + plotH - (v / maxVal) * plotH; }
+  function yPct(p) { return padT + plotH - (Math.min(p, 120) / 120) * plotH; }
+
+  var grid = [0, 0.25, 0.5, 0.75, 1].map(function (f) {
+    var yy = padT + plotH * (1 - f);
+    return '<line x1="' + padL + '" y1="' + yy + '" x2="' + (W - padR) + '" y2="' + yy + '" stroke="var(--line)" stroke-width="1"/>';
+  }).join('');
+  var target100 = '<line x1="' + padL + '" y1="' + yPct(100) + '" x2="' + (W - padR) + '" y2="' + yPct(100) +
+    '" stroke="var(--warn)" stroke-width="1" stroke-dasharray="4 4"/>';
+
+  var bars = '', months = '';
+  for (var i = 0; i < 12; i++) {
+    var pv = seg.plan[i] || 0;
+    var xp = x(i, -barW - 2), xd = x(i, 2);
+    bars += '<rect x="' + xp + '" y="' + yVal(pv) + '" width="' + barW + '" height="' + (padT + plotH - yVal(pv)) + '" fill="#b9c4bb" rx="2"/>';
+    if (i <= curMonthIdx) {
+      var dv = seg.done[i] || 0;
+      bars += '<rect x="' + xd + '" y="' + yVal(dv) + '" width="' + barW + '" height="' + (padT + plotH - yVal(dv)) + '" fill="var(--accent)" rx="2"/>';
+    }
+    months += '<text x="' + x(i, 0) + '" y="' + (H - 8) + '" text-anchor="middle" font-size="11" fill="var(--muted)">T' + (i + 1) + '</text>';
+  }
+
+  var linePts = [], dots = '';
+  for (var j = 0; j <= curMonthIdx; j++) {
+    var pct = seg.plan[j] ? (seg.done[j] / seg.plan[j] * 100) : 0;
+    var px = x(j, 0), py = yPct(pct);
+    linePts.push(px + ',' + py);
+    var col = pct >= 90 ? 'var(--accent)' : (pct >= 70 ? 'var(--warn)' : 'var(--danger)');
+    dots += '<circle cx="' + px + '" cy="' + py + '" r="4" fill="' + col + '"/>';
+  }
+  var line = linePts.length > 1
+    ? '<polyline points="' + linePts.join(' ') + '" fill="none" stroke="var(--accent-strong)" stroke-width="2"/>'
+    : '';
+
+  return '<svg viewBox="0 0 ' + W + ' ' + H + '" style="width:100%;height:auto;max-height:320px" role="img" ' +
+    'aria-label="Kế hoạch và thực hiện theo tháng, kèm phần trăm hoàn thành">' +
+    grid + target100 + bars + line + dots + months + '</svg>';
+}
+
+$('planBtn').addEventListener('click', function () { loadPlanReport(); });
+$('planHomeBtn').addEventListener('click', goHome);
+$('planRefreshBtn').addEventListener('click', function () { S.planData = null; loadPlanReport(); });
+
 /* ================= Hàng đợi review (technician) ================= */
 function loadReviewQueue() {
   setSidebar(true); // giữ panel khách bên trái
@@ -2818,6 +2995,7 @@ function loadReviewQueue() {
   $('ptspView').style.display = 'none';
   $('prodView').style.display = 'none';
   $('shipView').style.display = 'none';
+  $('planView').style.display = 'none';
   $('queueView').style.display = 'block';
   var tb = $('queueTable').querySelector('tbody');
   tb.innerHTML = '<tr><td colspan="7" style="color:var(--muted)">Đang tải…</td></tr>';
