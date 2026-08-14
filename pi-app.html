@@ -363,6 +363,7 @@ td.note-cell.expanded { white-space: normal; max-width: none; }
           <button class="btn small" id="revFilterBrand" data-filter="brand">Brand</button>
           <button class="btn small" id="revFilterOem" data-filter="oem">OEM</button>
         </div>
+        <div id="revStatusFilterWrap" style="display:flex;gap:6px;align-items:center;flex-wrap:wrap;margin:0 0 10px"></div>
         <div class="totals-panel" style="grid-template-columns:repeat(auto-fit,minmax(150px,1fr))">
           <div class="tp-cell"><div class="tp-label">Tổng FOB tháng</div><div class="tp-value big" id="revTotal">$0.00</div></div>
           <div class="tp-cell"><div class="tp-label">Số đơn</div><div class="tp-value" id="revCount">0</div></div>
@@ -654,7 +655,6 @@ td.note-cell.expanded { white-space: normal; max-width: none; }
             <div class="client-meta" id="planMeta"></div>
           </div>
           <div class="order-picker" style="display:flex;align-items:center;gap:8px">
-            <button class="btn small" id="planRefreshBtn" title="Lấy lại dữ liệu mới nhất">⟳ Làm mới</button>
             <button class="btn small ghost" id="planHomeBtn">⟵ Trang đầu</button>
           </div>
         </div>
@@ -732,7 +732,7 @@ td.note-cell.expanded { white-space: normal; max-width: none; }
               <thead><tr>
                 <th>#</th><th>Code</th><th>Sản phẩm</th><th class="num">Qty</th>
                 <th class="num">Đơn giá</th><th class="num">Thành tiền</th><th class="num">%LN</th><th class="num">Item CBM</th>
-                <th class="num">Marking</th><th>Ghi chú</th>
+                <th class="num">Marking</th><th>Ghi chú</th><th></th>
               </tr></thead>
               <tbody></tbody>
             </table>
@@ -746,7 +746,7 @@ td.note-cell.expanded { white-space: normal; max-width: none; }
             <button class="btn" id="confirmPiBtn" style="display:none" title="Chuyển đơn của sale vào Export Order (chỉ admin)">✔ Confirm SO</button>
             <button class="btn" id="shipDocsBtn" style="display:none" title="Xuất ĐNXH + form Marking gửi nhà máy">⬇ Chứng từ NM</button>
             <button class="btn" id="shipInfoBtn" style="display:none" title="Nhập Deposit/ETD/ETA/Invoice/Booking… + Ship Qty, xuất Custom Docs">🚢 Thông tin lô hàng</button>
-            <button class="btn danger" id="deletePiBtn" style="display:none" title="Xóa hẳn PI (chỉ đơn targeted)">🗑 Xóa PI</button>
+            <button class="btn danger" id="deletePiBtn" style="display:none" title="Admin/master: mọi đơn trừ opened/closed. Lead/sale: đơn drafted/targeted của mình (sale) hoặc của mọi sale (lead).">🗑 Xóa đơn</button>
           </div>
         </div>
       </section>
@@ -980,6 +980,23 @@ td.note-cell.expanded { white-space: normal; max-width: none; }
     <div class="modal-actions">
       <button class="btn ghost" id="vbCloseBtn">Đóng</button>
       <button class="btn primary" id="vbSubmitBtn" disabled>Submit Edit</button>
+    </div>
+  </div>
+</div>
+
+<!-- ========== Modal Lịch sử đặt hàng theo mã (nút "Lịch sử" trên bảng chi tiết đơn — View) ========== -->
+<div class="overlay" id="ihOverlay" style="display:none">
+  <div class="modal wide">
+    <h3>Lịch sử đặt hàng <span id="ihCode" class="code-chip"></span></h3>
+    <div class="vb-subtitle" id="ihProduct"></div>
+    <div class="table-wrap" style="max-height:50vh">
+      <table class="data-table" id="ihTable">
+        <thead><tr><th>Khách</th><th class="num">Ship Qty</th><th class="num">Đơn giá</th><th>Load Date</th><th>Brand</th></tr></thead>
+        <tbody></tbody>
+      </table>
+    </div>
+    <div class="modal-actions">
+      <button class="btn ghost" id="ihCloseBtn">Đóng</button>
     </div>
   </div>
 </div>
@@ -1478,6 +1495,17 @@ $('loginPin').addEventListener('keydown', function (e) { if (e.key === 'Enter') 
 /** Quyền cấp quản trị (admin + master). */
 function isAdminLevel() { return S.user && (S.user.role === 'admin' || S.user.role === 'master'); }
 
+/** Quyền xóa đơn (mirror canDeleteOrder_, Confirm.gs): admin/master xóa mọi status trừ opened/closed;
+ *  lead xóa được đơn drafted/targeted của mọi sale; sale chỉ xóa đơn drafted/targeted của chính mình. */
+function canDeleteOrderUi_(o) {
+  var st = String(o.status || '').trim().toLowerCase();
+  if (isAdminLevel()) return st !== 'opened' && st !== 'closed';
+  if (st !== 'drafted' && st !== 'targeted') return false;
+  if (S.user.role === 'lead') return true;
+  if (S.user.role === 'sale') return String(o.pic || '').trim().toLowerCase() === S.user.name.trim().toLowerCase();
+  return false;
+}
+
 /** Rút gọn userAgent thành "Trình duyệt / HĐH" cho cột Device trong ActivityLogs. */
 function shortUA() {
   var ua = navigator.userAgent;
@@ -1556,6 +1584,7 @@ $('logoutBtn').addEventListener('click', function () {
 $('refreshBtn').addEventListener('click', function () {
   loading(true);
   S.revOrders = null; // "Làm mới" phải đọc lại doanh thu từ server, không dùng cache cũ trong bộ nhớ
+  S.planData = null; // và cả báo cáo Kế hoạch (trang Kế hoạch không còn nút Làm mới riêng)
   gs('api_refreshCache', S.token)
     .then(function () { return bootstrap(); })
     .then(function () { toast('Đã tải lại dữ liệu mới nhất.'); })
@@ -1821,6 +1850,29 @@ function isBrandOrder(o) { return String(o.pic || '').trim().toLowerCase() === '
   });
 });
 
+/** Chip lọc Trạng thái trên bảng doanh thu tháng — xây động theo status thực có trong dữ liệu (không
+ *  hardcode danh sách, vì Order/PITotal có thể thêm status mới mà app chưa biết). */
+function renderRevStatusFilter() {
+  var wrap = $('revStatusFilterWrap');
+  var sts = {};
+  (S.revOrders || []).forEach(function (o) { if (o.status) sts[o.status] = 1; });
+  var list = Object.keys(sts).sort();
+  if (!list.length) { wrap.innerHTML = ''; return; }
+  if (!S.revStatusFilter) S.revStatusFilter = 'all';
+  wrap.innerHTML = '<span class="tp-label" style="margin:0">Trạng thái:</span>' +
+    '<button class="btn small' + (S.revStatusFilter === 'all' ? ' primary' : '') + '" data-status="all">Tất cả</button>' +
+    list.map(function (st) {
+      return '<button class="btn small' + (S.revStatusFilter === st ? ' primary' : '') + '" data-status="' + esc(st) + '">' + esc(st) + '</button>';
+    }).join('');
+  wrap.querySelectorAll('button').forEach(function (btn) {
+    btn.addEventListener('click', function () {
+      S.revStatusFilter = btn.getAttribute('data-status');
+      renderRevStatusFilter();
+      renderRevenue();
+    });
+  });
+}
+
 /** Bản đồ tên khách (lowercase) -> quốc gia, để gom theo thị trường. */
 function clientCountry(name) {
   if (!S._countryMap) {
@@ -1832,11 +1884,14 @@ function clientCountry(name) {
 
 function renderRevenue() {
   $('revMonthLabel').textContent = S.revMonth;
+  renderRevStatusFilter();
   var filter = S.revFilter || 'all';
+  var stFilter = S.revStatusFilter || 'all';
   var rows = (S.revOrders || []).filter(function (o) {
     if (o.monthKey !== S.revMonth) return false;
-    if (filter === 'brand') return isBrandOrder(o);
-    if (filter === 'oem') return !isBrandOrder(o);
+    if (filter === 'brand' && !isBrandOrder(o)) return false;
+    if (filter === 'oem' && isBrandOrder(o)) return false;
+    if (stFilter !== 'all' && o.status !== stFilter) return false;
     return true;
   });
   var total = 0, clients = {};
@@ -1862,6 +1917,12 @@ function renderRevenue() {
         esc(o.source === 'ops2025' ? o.so : o.piNumber) + '" data-pic="' + esc(o.pic || '') +
         '" value="' + esc(o.realLoad || '') + '" style="width:130px">'
       : esc(o.realLoad || '—');
+    // admin/master sửa Order note tại chỗ — cùng cơ chế/khóa với Ngày load (canEditLoad).
+    var noteCell = canEditLoad
+      ? '<input type="text" class="rev-note-input" data-source="' + esc(o.source) + '" data-key="' +
+        esc(o.source === 'ops2025' ? o.so : o.piNumber) + '" data-pic="' + esc(o.pic || '') +
+        '" value="' + esc(o.note || '') + '" style="width:100%;min-width:140px">'
+      : '<span title="' + esc(o.note || '') + '">' + esc(o.note || '—') + '</span>';
     return '<tr data-i="' + i + '" style="cursor:pointer">' +
       '<td class="card-title">' + esc(o.client) + '</td>' +
       '<td data-label="Thị trường">' + esc(clientCountry(o.client)) + '</td>' +
@@ -1869,16 +1930,18 @@ function renderRevenue() {
       '<td data-label="Ngày load" class="' + (canEditLoad ? 'rev-load-cell' : '') + '">' + loadCell + '</td>' +
       '<td class="num" data-label="FOB">' + fmt$(o.fob) + '</td>' +
       '<td data-label="Status">' + statusBadge(o.status) + '</td>' +
-      '<td class="note-cell" data-label="Order note" title="' + esc(o.note || '') + '">' + esc(o.note || '—') + '</td></tr>';
+      '<td class="note-cell" data-label="Order note">' + noteCell + '</td></tr>';
   }).join('') : '<tr><td colspan="7" style="color:var(--muted)">Không có đơn nào trong tháng ' + esc(S.revMonth) + '.</td></tr>';
   mtb.querySelectorAll('tr[data-i]').forEach(function (tr) {
     tr.addEventListener('click', function () { openQueueRow(ord[parseInt(tr.getAttribute('data-i'), 10)]); });
   });
-  mtb.querySelectorAll('.note-cell').forEach(function (td) {
-    td.addEventListener('click', function (e) { e.stopPropagation(); td.classList.toggle('expanded'); });
+  mtb.querySelectorAll('.note-cell > span').forEach(function (span) {
+    span.addEventListener('click', function (e) { e.stopPropagation(); span.parentNode.classList.toggle('expanded'); });
+  });
+  mtb.querySelectorAll('.rev-load-input, .rev-note-input').forEach(function (inp) {
+    inp.addEventListener('click', function (e) { e.stopPropagation(); });
   });
   mtb.querySelectorAll('.rev-load-input').forEach(function (inp) {
-    inp.addEventListener('click', function (e) { e.stopPropagation(); });
     inp.addEventListener('change', function (e) {
       e.stopPropagation();
       var source = inp.getAttribute('data-source');
@@ -1895,6 +1958,26 @@ function renderRevenue() {
         loadRevenue();
       }).catch(function (e) {
         toast('Lỗi sửa Ngày load: ' + e.message);
+        inp.disabled = false;
+      });
+    });
+  });
+  mtb.querySelectorAll('.rev-note-input').forEach(function (inp) {
+    inp.addEventListener('change', function (e) {
+      e.stopPropagation();
+      var source = inp.getAttribute('data-source');
+      var key = inp.getAttribute('data-key');
+      var newNote = inp.value;
+      inp.disabled = true;
+      var req = source === 'ops2025'
+        ? gs('api_updateRevenueNote', S.token, key, newNote)
+        : gs('api_updateSaleNote', S.token, key, inp.getAttribute('data-pic'), newNote);
+      req.then(function () {
+        S.revOrders = null; // đọc lại từ server để đồng bộ
+        toast('Đã sửa Order note ' + (source === 'ops2025' ? 'SO' : 'PI') + ' ' + key + '.');
+        loadRevenue();
+      }).catch(function (e) {
+        toast('Lỗi sửa Order note: ' + e.message);
         inp.disabled = false;
       });
     });
@@ -2894,7 +2977,7 @@ function loadPlanReport() {
   if (!S.planSeg || planSegsForPersona_(persona).indexOf(S.planSeg) < 0) S.planSeg = planSegsForPersona_(persona)[0];
   if (S.planData) { renderPlanReport(); return; }
   loading(true);
-  gs('api_planVsDone', S.token).then(function (res) {
+  return gs('api_planVsDone', S.token).then(function (res) {
     S.planData = res;
     renderPlanReport();
   }).catch(function (e) {
@@ -3019,7 +3102,6 @@ function buildPlanChartSvg_(seg, curMonthIdx) {
 
 $('planBtn').addEventListener('click', function () { loadPlanReport(); });
 $('planHomeBtn').addEventListener('click', goHome);
-$('planRefreshBtn').addEventListener('click', function () { S.planData = null; loadPlanReport(); });
 
 /* ================= Hàng đợi review (technician) ================= */
 function loadReviewQueue() {
@@ -3122,11 +3204,9 @@ function selectOrder(i) {
   $('reviewPiBtn').style.display = (isTech && isSalePi) ? '' : 'none';
   $('reviewPiBtn').textContent = st === 'reviewed' ? '✔ Đã reviewed (xác nhận lại)' : '✔ Xác nhận (reviewed)';
   $('rdFormBtn').style.display = ((isTech || isAdminLevel()) && isSalePi) ? '' : 'none';
-  // Xóa PI: đơn sale status targeted, cho sale (chủ đơn) / lead / admin-master
-  var canDelete = o.source === 'sale' && st === 'targeted' &&
-    (S.user.role === 'lead' || isAdminLevel() ||
-      (S.user.role === 'sale' && String(o.pic || '').toLowerCase() === S.user.name.toLowerCase()));
-  $('deletePiBtn').style.display = canDelete ? '' : 'none';
+  // Xóa đơn: admin/master xóa mọi status trừ opened/closed (cả đơn sale & đơn đã ở Export Order); lead
+  // xóa được đơn drafted/targeted của mọi sale; sale chỉ xóa đơn drafted/targeted của chính mình.
+  $('deletePiBtn').style.display = canDeleteOrderUi_(o) ? '' : 'none';
   $('orderSummary').innerHTML =
     '<span>PI: <b>' + esc(o.piNumber || o.so) + '</b></span>' +
     '<span>Sale Order <b>' + esc(o.so || '—') + '</b></span>' +
@@ -3137,7 +3217,7 @@ function selectOrder(i) {
     '<span>Status: <b>' + esc(o.status || '—') + '</b></span>' +
     (o.note ? '<span style="flex-basis:100%">📝 Ghi chú: <b>' + esc(o.note) + '</b></span>' : '');
   var tbody = $('orderDetailTable').querySelector('tbody');
-  tbody.innerHTML = '<tr><td colspan="10" style="color:var(--muted)">Đang tải chi tiết…</td></tr>';
+  tbody.innerHTML = '<tr><td colspan="11" style="color:var(--muted)">Đang tải chi tiết…</td></tr>';
   loading(true);
   gs('api_orderDetails', S.token, {
     source: o.source, so: o.so, piNumber: o.piNumber, clientName: S.currentClient.name, pic: o.pic
@@ -3161,10 +3241,14 @@ function renderOrderDetailRows() {
   var totalLn = 0, totalCbm = 0;
   var enOn = !!S._enNames;
   tbody.innerHTML = S.currentLines.length ? S.currentLines.map(function (d, j) {
-    // Item CBM (theo mục hàng): ưu tiên cột ICBM; nếu trống thì tự tính từ packing. KHÔNG dùng cột CBM (theo thùng).
-    var cbm = d.icbm || (d.qtyCt ? (d.orderQty / d.qtyCt) * (d.l * d.w * d.h / 1e9) : 0);
-    totalCbm += Number(cbm) || 0;
     var p = findProduct(d.code);
+    // Item CBM (theo mục hàng): ưu tiên cột ICBM; nếu trống thì tự tính từ packing — đơn nháp (source
+    // 'sale') chưa có qty/ct, L/W/H trên PIDetails (chỉ Details của Ops mới có) -> lấy fallback từ
+    // catalog hub (giống enrichFromCatalog dùng cho bảng Edit) để không hiện sai thành 0.
+    var qtyCt = d.qtyCt, l = d.l, w = d.w, h = d.h;
+    if (!qtyCt && p) { qtyCt = p.qtyCt; l = p.l; w = p.w; h = p.h; }
+    var cbm = d.icbm || (qtyCt ? (d.orderQty / qtyCt) * (l * w * h / 1e9) : 0);
+    totalCbm += Number(cbm) || 0;
     var ln = lineLnPct(d.price, p ? p.price : 0);
     var value = d.value || d.orderQty * d.price;
     if (ln != null) totalLn += (d.price - p.price * 0.88) * d.orderQty;
@@ -3175,10 +3259,14 @@ function renderOrderDetailRows() {
       '<td>' + esc(name) + '</td><td class="num">' + fmtN(d.orderQty, 0) + '</td>' +
       '<td class="num">' + fmt$(d.price) + '</td><td class="num">' + fmt$(value) + '</td>' +
       '<td class="num ' + lnCls + '">' + (ln == null ? '—' : fmtN(ln, 1) + '%') + '</td>' +
-      '<td class="num">' + fmtN(cbm) + '</td>' +
+      '<td class="num">' + (cbm ? fmtN(cbm) : '—') + '</td>' +
       '<td class="num">' + (normMarking(d.marking) === 'Y' ? '✔' : (normMarking(d.marking) === 'N' ? '—' : '')) + '</td>' +
-      '<td>' + esc(d.note || '') + '</td></tr>';
-  }).join('') : '<tr><td colspan="10" style="color:var(--muted)">Không có dòng chi tiết.</td></tr>';
+      '<td>' + esc(d.note || '') + '</td>' +
+      '<td><button class="btn small ghost" data-hist="' + esc(d.code) + '" data-prod="' + esc(name) + '" title="Lịch sử đặt hàng mã ' + esc(d.code) + '">🕘</button></td></tr>';
+  }).join('') : '<tr><td colspan="11" style="color:var(--muted)">Không có dòng chi tiết.</td></tr>';
+  tbody.querySelectorAll('[data-hist]').forEach(function (btn) {
+    btn.addEventListener('click', function () { openItemHistory(btn.getAttribute('data-hist'), btn.getAttribute('data-prod')); });
+  });
   // %LN tổng = (Tổng LN từng dòng − Chiết khấu) / FOB (FOB đã là Grand Total lúc lưu đơn — xem edSaveBtn).
   var el = $('ordLnTotal');
   if (el) {
@@ -3191,6 +3279,25 @@ function renderOrderDetailRows() {
   var btn = $('enToggleBtn');
   if (btn) btn.textContent = enOn ? '🌐 Tên: EN' : '🌐 Tên: VI';
 }
+
+/** Lịch sử đặt hàng của 1 mã (nút 🕘 trên bảng chi tiết đơn — View) — chỉ lấy từ file Ops, không gộp
+ *  đơn nháp chưa Confirm (xem getItemOrderHistory_, Data.gs). */
+function openItemHistory(code, product) {
+  $('ihCode').textContent = code;
+  $('ihProduct').textContent = product || '';
+  $('ihTable').querySelector('tbody').innerHTML = '<tr><td colspan="5" style="color:var(--muted)">Đang tải…</td></tr>';
+  $('ihOverlay').style.display = 'flex';
+  loading(true);
+  gs('api_itemHistory', S.token, code).then(function (res) {
+    var rows = res.rows || [];
+    $('ihTable').querySelector('tbody').innerHTML = rows.length ? rows.map(function (r) {
+      return '<tr><td>' + esc(r.client) + '</td><td class="num">' + fmtN(r.shipQty, 0) + '</td>' +
+        '<td class="num">' + fmt$(r.price) + '</td><td>' + esc(r.loadDate || '—') + '</td><td>' + esc(r.brand || '') + '</td></tr>';
+    }).join('') : '<tr><td colspan="5" style="color:var(--muted)">Mã này chưa có lịch sử trên Export Order.</td></tr>';
+  }).catch(function (e) { toast('Lỗi tải lịch sử: ' + e.message); })
+    .finally(function () { loading(false); });
+}
+$('ihCloseBtn').addEventListener('click', function () { $('ihOverlay').style.display = 'none'; });
 
 /** Copy 1 bảng HTML sang TSV (tab-separated) để dán thẳng vào Excel giữ nguyên cột.
  *  Bỏ các cột "kỹ thuật": header rỗng (nút xóa) hoặc header chứa checkbox chọn-tất-cả. */
@@ -5066,15 +5173,15 @@ $('ckSubmitBtn').addEventListener('click', function () {
     .finally(function () { loading(false); });
 });
 
-/* ================= Xóa PI (đơn targeted — sale/lead/admin) ================= */
+/* ================= Xóa đơn (admin/master mọi status trừ opened/closed; lead/sale: drafted/targeted) ================= */
 $('deletePiBtn').addEventListener('click', function () {
   var o = S.currentOrder;
   if (!o) return;
-  appConfirm('Xóa hẳn PI ' + (o.piNumber || o.so) + ' (khách ' + S.currentClient.name + ')? Hành động này không hoàn tác được.', function () {
+  appConfirm('Xóa hẳn đơn ' + (o.piNumber || o.so) + ' (khách ' + S.currentClient.name + ')? Hành động này không hoàn tác được.', function () {
     loading(true);
-    gs('api_deletePI', S.token, { piNumber: o.piNumber, ownerPic: o.pic || '' }).then(function () {
+    gs('api_deleteOrder', S.token, { source: o.source, so: o.so || '', piNumber: o.piNumber, ownerPic: o.pic || '' }).then(function () {
       S.revOrders = null; // đơn vừa xóa -> dashboard doanh thu tháng phải đọc lại
-      toast('Đã xóa PI ' + (o.piNumber || o.so) + '.');
+      toast('Đã xóa đơn ' + (o.piNumber || o.so) + '.');
       selectClient(S.currentClient); // nạp lại danh sách đơn
     }).catch(function (e) { toast('Lỗi xóa: ' + e.message); })
       .finally(function () { loading(false); });
