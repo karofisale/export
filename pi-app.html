@@ -667,13 +667,11 @@ td.note-cell.expanded { white-space: normal; max-width: none; }
           <span><span style="display:inline-block;width:10px;height:10px;background:#b9c4bb;border-radius:2px;vertical-align:-1px"></span> Kế hoạch</span>
           <span><span style="display:inline-block;width:10px;height:10px;background:var(--accent);border-radius:2px;vertical-align:-1px"></span> Thực hiện</span>
           <span><span style="display:inline-block;width:10px;height:2px;background:var(--accent-strong);vertical-align:2px"></span> % hoàn thành</span>
+          <span>┊ Nét đứt = mốc tháng hiện tại — bên phải là số dự kiến (đơn nháp/kế hoạch đang có)</span>
         </div>
         <div id="planChartWrap" style="margin:6px 0 16px"></div>
         <div class="table-wrap">
-          <table class="data-table" id="planTable">
-            <thead><tr><th>Tháng</th><th class="num">Kế hoạch</th><th class="num">Thực hiện</th><th class="num">%</th></tr></thead>
-            <tbody></tbody>
-          </table>
+          <table class="data-table" id="planTable"></table>
         </div>
       </section>
 
@@ -2921,15 +2919,22 @@ function renderPlanReport() {
 
   $('planChartWrap').innerHTML = buildPlanChartSvg_(seg, CUR);
 
-  var tb = $('planTable').querySelector('tbody');
-  tb.innerHTML = seg.plan.map(function (p, i) {
-    var doneVal = i <= CUR ? seg.done[i] : null;
-    var pctM = i <= CUR ? (p ? (seg.done[i] / p * 100) : 0) : null;
-    return '<tr><td>Tháng ' + (i + 1) + '/' + d.year + '</td>' +
-      '<td class="num">' + fmt$(p) + '</td>' +
-      '<td class="num">' + (doneVal === null ? '—' : fmt$(doneVal)) + '</td>' +
-      '<td class="num">' + (pctM === null ? '—' : fmtN(pctM, 0) + '%') + '</td></tr>';
-  }).join('');
+  // Bảng bổ trợ để ngang (chỉ tiêu = dòng, tháng = cột) — hợp desktop hơn 12 dòng dọc; Thực hiện các
+  // tháng sau tháng hiện tại là số dự kiến (đơn nháp/kế hoạch đang có trên Order + PITotal, không chỉ đơn đã chốt).
+  var monthsHead = '';
+  for (var mi = 0; mi < 12; mi++) monthsHead += '<th class="num">T' + (mi + 1) + '</th>';
+  var pctRow = seg.plan.map(function (p, i) { return p ? (seg.done[i] / p * 100) : 0; });
+  function pctCellHtml(v) {
+    var col = v >= 90 ? 'var(--accent)' : (v >= 70 ? 'var(--warn)' : 'var(--danger)');
+    return '<td class="num" style="color:' + col + '">' + fmtN(v, 0) + '%</td>';
+  }
+  $('planTable').innerHTML =
+    '<thead><tr><th>Chỉ tiêu</th>' + monthsHead + '</tr></thead>' +
+    '<tbody>' +
+    '<tr><td>Kế hoạch</td>' + seg.plan.map(function (v) { return '<td class="num">' + fmt$(v) + '</td>'; }).join('') + '</tr>' +
+    '<tr><td>Thực hiện</td>' + seg.done.map(function (v) { return '<td class="num">' + fmt$(v) + '</td>'; }).join('') + '</tr>' +
+    '<tr><td>% hoàn thành</td>' + pctRow.map(pctCellHtml).join('') + '</tr>' +
+    '</tbody>';
 }
 
 /** Vẽ combo chart SVG thuần (không phụ thuộc thư viện ngoài, khớp bản build tĩnh GitHub Pages):
@@ -2952,34 +2957,43 @@ function buildPlanChartSvg_(seg, curMonthIdx) {
   }).join('');
   var target100 = '<line x1="' + padL + '" y1="' + yPct(100) + '" x2="' + (W - padR) + '" y2="' + yPct(100) +
     '" stroke="var(--warn)" stroke-width="1" stroke-dasharray="4 4"/>';
+  var todayX = padL + (curMonthIdx + 1) * slot;
+  var todayMark = (curMonthIdx >= 0 && curMonthIdx < 11)
+    ? '<line x1="' + todayX + '" y1="' + padT + '" x2="' + todayX + '" y2="' + (padT + plotH) + '" stroke="var(--muted)" stroke-width="1" stroke-dasharray="2 3"/>' +
+      '<text x="' + (todayX + 4) + '" y="' + (padT + 10) + '" font-size="10" fill="var(--muted)">Hôm nay</text>'
+    : '';
 
+  // Cột Thực hiện + đường % vẽ đủ 12 tháng — các tháng sau tháng hiện tại là số dự kiến (đơn nháp/kế
+  // hoạch đang có trên Order + PITotal), thể hiện mờ hơn (fill-opacity) để phân biệt với số đã chốt.
   var bars = '', months = '';
   for (var i = 0; i < 12; i++) {
-    var pv = seg.plan[i] || 0;
+    var pv = seg.plan[i] || 0, dv = seg.done[i] || 0;
     var xp = x(i, -barW - 2), xd = x(i, 2);
+    var future = i > curMonthIdx;
     bars += '<rect x="' + xp + '" y="' + yVal(pv) + '" width="' + barW + '" height="' + (padT + plotH - yVal(pv)) + '" fill="#b9c4bb" rx="2"/>';
-    if (i <= curMonthIdx) {
-      var dv = seg.done[i] || 0;
-      bars += '<rect x="' + xd + '" y="' + yVal(dv) + '" width="' + barW + '" height="' + (padT + plotH - yVal(dv)) + '" fill="var(--accent)" rx="2"/>';
-    }
+    bars += '<rect x="' + xd + '" y="' + yVal(dv) + '" width="' + barW + '" height="' + (padT + plotH - yVal(dv)) +
+      '" fill="var(--accent)" fill-opacity="' + (future ? '0.5' : '1') + '" rx="2"/>';
     months += '<text x="' + x(i, 0) + '" y="' + (H - 8) + '" text-anchor="middle" font-size="11" fill="var(--muted)">T' + (i + 1) + '</text>';
   }
 
-  var linePts = [], dots = '';
-  for (var j = 0; j <= curMonthIdx; j++) {
+  var pastPts = [], futurePts = [], dots = '';
+  for (var j = 0; j < 12; j++) {
     var pct = seg.plan[j] ? (seg.done[j] / seg.plan[j] * 100) : 0;
     var px = x(j, 0), py = yPct(pct);
-    linePts.push(px + ',' + py);
+    if (j <= curMonthIdx) pastPts.push(px + ',' + py);
+    if (j >= curMonthIdx) futurePts.push(px + ',' + py);
+    var future2 = j > curMonthIdx;
     var col = pct >= 90 ? 'var(--accent)' : (pct >= 70 ? 'var(--warn)' : 'var(--danger)');
-    dots += '<circle cx="' + px + '" cy="' + py + '" r="4" fill="' + col + '"/>';
+    dots += '<circle cx="' + px + '" cy="' + py + '" r="' + (future2 ? 3 : 4) + '" fill="' + col + '" fill-opacity="' + (future2 ? '0.6' : '1') + '"/>';
   }
-  var line = linePts.length > 1
-    ? '<polyline points="' + linePts.join(' ') + '" fill="none" stroke="var(--accent-strong)" stroke-width="2"/>'
-    : '';
+  var pastLine = pastPts.length > 1
+    ? '<polyline points="' + pastPts.join(' ') + '" fill="none" stroke="var(--accent-strong)" stroke-width="2"/>' : '';
+  var futureLine = futurePts.length > 1
+    ? '<polyline points="' + futurePts.join(' ') + '" fill="none" stroke="var(--accent-strong)" stroke-width="2" stroke-dasharray="5 4"/>' : '';
 
   return '<svg viewBox="0 0 ' + W + ' ' + H + '" style="width:100%;height:auto;max-height:320px" role="img" ' +
-    'aria-label="Kế hoạch và thực hiện theo tháng, kèm phần trăm hoàn thành">' +
-    grid + target100 + bars + line + dots + months + '</svg>';
+    'aria-label="Kế hoạch và thực hiện theo tháng, kèm phần trăm hoàn thành; các tháng sau tháng hiện tại là số dự kiến">' +
+    grid + target100 + todayMark + bars + pastLine + futureLine + dots + months + '</svg>';
 }
 
 $('planBtn').addEventListener('click', function () { loadPlanReport(); });
