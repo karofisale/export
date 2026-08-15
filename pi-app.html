@@ -380,6 +380,23 @@ td.note-cell.expanded { white-space: normal; max-width: none; }
             <tbody></tbody>
           </table>
         </div>
+
+        <!-- Báo cáo thị trường theo năm: Top 10 nước theo FOB + "Khác", dùng chung dữ liệu S.revOrders
+             và bộ lọc Tất cả/Brand/OEM ở trên — không gọi API riêng. -->
+        <div class="tp-label" style="margin:24px 0 8px;font-weight:600;display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap">
+          <span>🌍 Báo cáo thị trường theo năm</span>
+          <select id="mktYearSel" style="padding:6px 10px;border:1px solid var(--line);border-radius:6px;font-size:13.5px"></select>
+        </div>
+        <div class="client-meta" style="margin:0 0 10px">Tổng FOB: <b id="mktTotalFob">$0.00</b> · Số thị trường: <b id="mktMarketCount">0</b></div>
+        <div style="display:flex;flex-wrap:wrap;gap:20px;align-items:flex-start">
+          <div id="mktChartWrap" style="flex:0 0 280px;max-width:100%"></div>
+          <div class="table-wrap" style="flex:1 1 320px;max-height:360px">
+            <table class="data-table" id="mktTable">
+              <thead><tr><th>Thị trường</th><th class="num">FOB</th><th class="num">%</th></tr></thead>
+              <tbody></tbody>
+            </table>
+          </div>
+        </div>
       </section>
 
       <!-- #12 Quản lý Shipment (Shipment/Shpt_Detail, nhiều Shipment/container per SO) + xuất Custom Docs -->
@@ -2029,11 +2046,94 @@ function renderRevenue() {
       });
     });
   });
+  renderMarketReport();
 }
 $('revShowNote').addEventListener('change', function () {
   S.revShowNote = this.checked;
   $('monthOrdersTable').classList.toggle('show-notes', this.checked);
 });
+
+/* ================= Báo cáo thị trường theo năm (Top 10 nước theo FOB + "Khác") =================
+   Dùng chung S.revOrders (đã tải cho bảng doanh thu tháng) + bộ lọc Tất cả/Brand/OEM ở trên —
+   không gọi API riêng. Năm hiện tại tự nhiên là số tích lũy tới hiện tại (chỉ cộng dữ liệu thật). */
+function mktColor_(i, n) {
+  var hue = Math.round(i * (360 / Math.max(n, 1)));
+  return 'hsl(' + hue + ',58%,50%)';
+}
+
+function renderMarketReport() {
+  var years = {};
+  (S.revOrders || []).forEach(function (o) { if (o.monthKey) years[o.monthKey.substring(0, 4)] = 1; });
+  var yearList = Object.keys(years).sort().reverse();
+  if (!S.mktYear || (yearList.indexOf(S.mktYear) < 0 && S.mktYear !== 'all')) S.mktYear = yearList[0] || 'all';
+  var sel = $('mktYearSel');
+  sel.innerHTML = '<option value="all">Tất cả các năm</option>' +
+    yearList.map(function (y) { return '<option value="' + y + '">' + y + '</option>'; }).join('');
+  sel.value = S.mktYear;
+
+  var filter = S.revFilter || 'all';
+  var rows = (S.revOrders || []).filter(function (o) {
+    if (filter === 'brand' && !isBrandOrder(o)) return false;
+    if (filter === 'oem' && isBrandOrder(o)) return false;
+    if (S.mktYear !== 'all' && (!o.monthKey || o.monthKey.substring(0, 4) !== S.mktYear)) return false;
+    return true;
+  });
+
+  var byCountry = {}, total = 0;
+  rows.forEach(function (o) {
+    var c = clientCountry(o.client) || '(không rõ)';
+    byCountry[c] = (byCountry[c] || 0) + (Number(o.fob) || 0);
+    total += Number(o.fob) || 0;
+  });
+  var list = Object.keys(byCountry).map(function (c) { return { country: c, fob: byCountry[c] }; })
+    .sort(function (a, b) { return b.fob - a.fob; });
+  var slices = list.slice(0, 10);
+  var restSum = list.slice(10).reduce(function (a, r) { return a + r.fob; }, 0);
+  if (restSum > 0) slices.push({ country: 'Khác', fob: restSum });
+
+  $('mktTotalFob').textContent = fmt$(total);
+  $('mktMarketCount').textContent = list.length;
+  $('mktChartWrap').innerHTML = buildMarketPieSvg_(slices, total);
+
+  var tbody = $('mktTable').querySelector('tbody');
+  tbody.innerHTML = slices.length ? slices.map(function (s, i) {
+    var pct = total ? (s.fob / total * 100) : 0;
+    return '<tr><td><span style="display:inline-block;width:10px;height:10px;border-radius:2px;background:' +
+      mktColor_(i, slices.length) + ';margin-right:6px;vertical-align:-1px"></span>' + esc(s.country) + '</td>' +
+      '<td class="num">' + fmt$(s.fob) + '</td><td class="num">' + pct.toFixed(1) + '%</td></tr>';
+  }).join('') : '<tr><td colspan="3" style="color:var(--muted)">Không có dữ liệu.</td></tr>';
+}
+$('mktYearSel').addEventListener('change', function () {
+  S.mktYear = this.value;
+  renderMarketReport();
+});
+
+/** Donut chart SVG: mỗi slice là 1 thị trường, giữa hiện tổng FOB gọn ($…K/$…M). */
+function buildMarketPieSvg_(slices, total) {
+  if (!total || !slices.length) return '<div style="color:var(--muted);padding:30px 0;text-align:center">Không có dữ liệu.</div>';
+  var W = 280, H = 280, cx = 140, cy = 140, r = 110, rInner = 60;
+  function pt(angleDeg, rad) {
+    var a = angleDeg * Math.PI / 180;
+    return [cx + rad * Math.cos(a), cy + rad * Math.sin(a)];
+  }
+  var paths = '', angleAcc = -90; // bắt đầu từ 12 giờ
+  slices.forEach(function (s, i) {
+    var frac = total ? (s.fob / total) : 0;
+    var angle = frac * 360;
+    var a0 = angleAcc, a1 = angleAcc + angle;
+    angleAcc = a1;
+    var large = angle > 180 ? 1 : 0;
+    var p0 = pt(a0, r), p1 = pt(a1, r), p2 = pt(a1, rInner), p3 = pt(a0, rInner);
+    var d = 'M' + p0[0] + ',' + p0[1] + ' A' + r + ',' + r + ' 0 ' + large + ' 1 ' + p1[0] + ',' + p1[1] +
+      ' L' + p2[0] + ',' + p2[1] + ' A' + rInner + ',' + rInner + ' 0 ' + large + ' 0 ' + p3[0] + ',' + p3[1] + ' Z';
+    paths += '<path d="' + d + '" fill="' + mktColor_(i, slices.length) + '" stroke="var(--panel,#fff)" stroke-width="1.5">' +
+      '<title>' + esc(s.country) + ': ' + fmt$(s.fob) + ' (' + (frac * 100).toFixed(1) + '%)</title></path>';
+  });
+  var centerLabel = '<text x="' + cx + '" y="' + (cy - 6) + '" text-anchor="middle" font-size="12" fill="var(--muted)">Tổng FOB</text>' +
+    '<text x="' + cx + '" y="' + (cy + 15) + '" text-anchor="middle" font-size="16" font-weight="700" fill="var(--accent-strong)">' + fmt$Compact(total) + '</text>';
+  return '<svg viewBox="0 0 ' + W + ' ' + H + '" style="width:100%;max-width:280px;height:auto;display:block;margin:0 auto" role="img" aria-label="Tỷ trọng doanh thu theo thị trường">' +
+    paths + centerLabel + '</svg>';
+}
 
 /* ================= #12 Quản lý Shipment (Shipment/Shpt_Detail) + Custom Docs (admin/master) ================= */
 var SV_LOT_FIELDS = { status: 'svStatus', booking: 'svBooking', line: 'svLine', loadingPoint: 'svLoadingPoint',
