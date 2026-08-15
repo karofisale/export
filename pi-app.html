@@ -4,7 +4,7 @@
   <base target="_top">
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
-  <title>Export Ops Hub — Báo giá PI</title>
+  <title>Export Hub</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -277,7 +277,7 @@ td.note-cell.expanded { white-space: normal; max-width: none; }
 <!-- ========== Màn hình đăng nhập ========== -->
 <div id="loginScreen" class="screen">
   <div class="login-card">
-    <div class="eyebrow">Export Ops Hub · Phòng Vận hành Kinh doanh</div>
+    <div class="eyebrow">Export Hub · Phòng Vận hành Kinh doanh</div>
     <h1>Đăng nhập</h1>
     <label>Người dùng
       <select id="loginName"><option value="">Đang tải…</option></select>
@@ -298,7 +298,7 @@ td.note-cell.expanded { white-space: normal; max-width: none; }
   <header class="topbar">
     <div class="topbar-title">
       <button class="btn ghost" id="drawerToggleBtn" title="Danh sách khách hàng">☰</button>
-      <span class="logo">Export Ops Hub</span>
+      <span class="logo">Export Hub</span>
       <span class="sub" id="rateInfo"></span>
     </div>
     <div class="topbar-actions" id="topbarActions">
@@ -308,7 +308,6 @@ td.note-cell.expanded { white-space: normal; max-width: none; }
         <button class="btn ghost" id="prodMgrBtn" style="display:none" title="Thêm/sửa sản phẩm, model, BOM trên hub"><span class="tb-ic">🧩</span><span class="tb-label">Danh mục SP</span></button>
         <button class="btn ghost" id="ptspBtn" style="display:none" title="Dashboard tiến độ phát triển sản phẩm (đọc live từ Jira)"><span class="tb-ic">📊</span><span class="tb-label">Tiến độ PTSP</span></button>
         <button class="btn ghost" id="planBtn" style="display:none" title="Kế hoạch và thực hiện doanh thu xuất khẩu theo tháng"><span class="tb-ic">📈</span><span class="tb-label">Kế hoạch</span></button>
-        <a class="btn ghost" href="https://karofisale.github.io/export/shipment-tracking.html" target="_blank" rel="noopener" title="Xem lịch trình shipment (chỉ xem — cập nhật cần mã admin)"><span class="tb-ic">🚢</span><span class="tb-label">Shipment</span></a>
         <button class="btn ghost" id="refreshBtn" title="Xóa cache, tải lại dữ liệu mới nhất từ Google Sheets"><span class="tb-ic">⟳</span><span class="tb-label">Làm mới</span></button>
         <div class="tb-divider"></div>
         <button class="btn ghost" id="changePinBtn" title="Đổi mật khẩu (PIN) của bạn"><span class="tb-ic">🔑</span><span class="tb-label">Đổi mật khẩu</span></button>
@@ -383,61 +382,82 @@ td.note-cell.expanded { white-space: normal; max-width: none; }
         </div>
       </section>
 
-      <!-- #12 Nhập thông tin lô hàng + xuất Custom Docs (admin/master) -->
+      <!-- #12 Quản lý Shipment (Shipment/Shpt_Detail, nhiều Shipment/container per SO) + xuất Custom Docs -->
       <section id="shipView" style="display:none">
         <div class="client-header">
           <div>
-            <h2>Thông tin lô hàng — SO <span id="svSo"></span></h2>
+            <h2>Quản lý Shipment — SO <span id="svSo"></span></h2>
             <div class="client-meta" id="svMeta"></div>
           </div>
           <button class="btn ghost" id="svHomeBtn">⟵ Trang đầu</button>
         </div>
 
+        <div class="tp-label" style="margin:10px 0 6px;font-weight:600">Thanh toán (theo cả đơn, không theo từng Shipment)</div>
         <div class="editor-header" style="display:block">
           <div class="picker-grid" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:10px">
-            <label>Deposit ($) <input type="number" step="0.01" id="svDeposit"></label>
-            <label>Ngày cọc <input type="date" id="svDepositDate"></label>
-            <label>RealLoad <input type="date" id="svRealLoad"></label>
-            <label>ETD <input type="date" id="svEtd"></label>
-            <label>ETA <input type="date" id="svEta"></label>
             <label>Ngày TT <input type="date" id="svPayDate"></label>
             <label>Payment ($) <input type="number" step="0.01" id="svPayment"></label>
-            <label>Status <input type="text" id="svStatus" list="svStatusList"><datalist id="svStatusList">
-              <option value="targeted"><option value="drafted"><option value="reviewed"><option value="opened"><option value="booked"><option value="shipped"><option value="closed">
-            </datalist></label>
-            <label>INVOICE# <input type="text" id="svInvoiceNo"></label>
-            <label>INV Date <input type="date" id="svInvDate"></label>
-            <label>Số TK <input type="text" id="svCustomsNo"></label>
-            <label>Ngày TK <input type="date" id="svCustomsDate"></label>
-            <label>Booking <input type="text" id="svBooking"></label>
-            <label>Line <input type="text" id="svLine"></label>
-            <label>Loading point <input type="text" id="svLoadingPoint"></label>
-            <label>Shipment No. <input type="text" id="svShipmentNo"></label>
-            <label>Trucking (VND) <input type="number" id="svTrucking"></label>
-            <label>LCC (VND) <input type="number" id="svLcc"></label>
-            <label>Cước ($) <input type="number" step="0.01" id="svFreight"></label>
           </div>
-          <div id="svLocked" style="margin-top:8px;font-size:12.5px;color:var(--muted)"></div>
-          <div class="modal-actions" style="justify-content:flex-start;margin-top:12px">
-            <button class="btn primary" id="svSaveBtn">💾 Lưu thông tin lô hàng</button>
-            <button class="btn ghost" id="svReloadBtn">⟳ Nạp lại</button>
+          <div class="modal-actions" style="justify-content:flex-start;margin-top:10px">
+            <button class="btn ghost" id="svSavePaymentBtn">💾 Lưu thanh toán</button>
           </div>
         </div>
 
-        <div class="tp-label" style="margin:14px 0 6px;font-weight:600">Số lượng giao thực tế (Ship Qty)</div>
-        <div class="table-wrap" style="max-height:40vh">
-          <table class="data-table editable" id="svLinesTable">
-            <thead><tr><th>Code</th><th>Sản phẩm</th><th class="num">Order Qty</th><th class="num">Ship Qty</th><th class="num">Marking</th><th>Ghi chú</th></tr></thead>
-            <tbody></tbody>
-          </table>
-        </div>
+        <div class="tp-label" style="margin:16px 0 6px;font-weight:600">Các Shipment đã tạo</div>
+        <div id="svLotList" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:10px"></div>
         <div class="action-row">
-          <button class="btn ghost" id="svFillAllBtn" title="Điền Ship Qty = Order Qty cho mọi dòng">= Order Qty</button>
+          <button class="btn primary" id="svNewLotBtn">+ Thêm Shipment mới</button>
+          <button class="btn ghost" id="svReloadBtn">⟳ Nạp lại</button>
+        </div>
+
+        <div id="svLotEditor" style="display:none;margin-top:16px;border-top:1px solid var(--line);padding-top:14px">
+          <div class="tp-label" style="margin:0 0 6px;font-weight:600">Shipment <span id="svLotTitle"></span></div>
+          <div class="editor-header" style="display:block">
+            <div class="picker-grid" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:10px">
+              <label>Shipment Status <input type="text" id="svStatus" list="svStatusList"><datalist id="svStatusList">
+                <option value="booked"><option value="shipped"><option value="customs cleared"><option value="delivered">
+              </datalist></label>
+              <label>Booking <input type="text" id="svBooking"></label>
+              <label>Line <input type="text" id="svLine"></label>
+              <label>Loading point <input type="text" id="svLoadingPoint"></label>
+              <label>Shipment No. <input type="text" id="svShipmentNo"></label>
+              <label>ETD <input type="date" id="svEtd"></label>
+              <label>ETA <input type="date" id="svEta"></label>
+              <label>RealLoad <input type="date" id="svRealLoad"></label>
+              <label>Trucking (VND) <input type="number" id="svTrucking"></label>
+              <label>LCC (VND) <input type="number" id="svLcc"></label>
+              <label>Cước ($) <input type="number" step="0.01" id="svFreight"></label>
+              <label>INVOICE# <input type="text" id="svInvoiceNo"></label>
+              <label>INV Date <input type="date" id="svInvDate"></label>
+              <label>Số TK <input type="text" id="svCustomsNo"></label>
+              <label>Ngày TK <input type="date" id="svCustomsDate"></label>
+              <label>Ghi chú Shipment <input type="text" id="svNote"></label>
+            </div>
+            <div class="modal-actions" style="justify-content:flex-start;margin-top:12px">
+              <button class="btn primary" id="svSaveLotBtn">💾 Lưu Shipment</button>
+              <button class="btn danger" id="svDeleteLotBtn" style="display:none">🗑 Xóa Shipment</button>
+              <button class="btn ghost" id="svCancelLotBtn">Hủy</button>
+            </div>
+          </div>
+
+          <div class="tp-label" style="margin:14px 0 6px;font-weight:600">Phân bổ số lượng từng mã hàng vào Shipment này</div>
+          <div style="font-size:12.5px;color:var(--muted);margin-bottom:6px">Điền Container No. nếu Shipment này dùng nhiều hơn 1 container, để biết mã hàng nào lên container nào.</div>
+          <div class="table-wrap" style="max-height:40vh">
+            <table class="data-table editable" id="svLinesTable">
+              <thead><tr><th>Code</th><th>Sản phẩm</th><th class="num">Order Qty</th><th class="num">Đã giao (tổng)</th><th class="num">Qty trong Shipment này</th><th>Container No.</th></tr></thead>
+              <tbody></tbody>
+            </table>
+          </div>
         </div>
 
         <div class="tp-label" style="margin:18px 0 6px;font-weight:600">Xuất bộ chứng từ xuất khẩu (Custom Docs)</div>
         <div class="editor-header" style="display:block">
           <div class="picker-grid" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:10px">
+            <label>Lấy Invoice/Loading point/Cước từ Shipment
+              <select id="svDocsLot" style="padding:8px 10px;border:1px solid var(--line);border-radius:6px;font-size:14px">
+                <option value="">— Nhập tay bên dưới —</option>
+              </select>
+            </label>
             <label>Loại container
               <select id="svContType" style="padding:8px 10px;border:1px solid var(--line);border-radius:6px;font-size:14px">
                 <option value="20GP">20GP</option><option value="40GP">40GP</option><option value="40HC">40HC</option>
@@ -745,8 +765,32 @@ td.note-cell.expanded { white-space: normal; max-width: none; }
             <button class="btn" id="rdFormBtn" style="display:none" title="Xuất form Yêu cầu phát triển sản phẩm gửi R&D">⬇ Form RD</button>
             <button class="btn" id="confirmPiBtn" style="display:none" title="Chuyển đơn của sale vào Export Order (chỉ admin)">✔ Confirm SO</button>
             <button class="btn" id="shipDocsBtn" style="display:none" title="Xuất ĐNXH + form Marking gửi nhà máy">⬇ Chứng từ NM</button>
-            <button class="btn" id="shipInfoBtn" style="display:none" title="Nhập Deposit/ETD/ETA/Invoice/Booking… + Ship Qty, xuất Custom Docs">🚢 Thông tin lô hàng</button>
+            <button class="btn" id="shipInfoBtn" style="display:none" title="Nhập Deposit/ETD/ETA/Invoice/Booking… + Ship Qty, xuất Custom Docs">🚢 Quản lý Shipment</button>
             <button class="btn danger" id="deletePiBtn" style="display:none" title="Admin/master: mọi đơn trừ opened/closed. Lead/sale: đơn drafted/targeted của mình (sale) hoặc của mọi sale (lead).">🗑 Xóa đơn</button>
+          </div>
+
+          <!-- Chia Shipment/container ngay tại màn xem/review đơn — admin/master mọi lúc, technician
+               chỉ khi đơn đang drafted/opened. Chỉ phân bổ mã hàng (không sửa ETD/ETA/Booking/Invoice...
+               — sửa các trường đó vẫn phải qua "🚢 Quản lý Shipment", admin/master mới thấy nút đó). -->
+          <div id="odShipmentWrap" style="display:none;margin-top:16px;border-top:1px solid var(--line);padding-top:14px">
+            <div class="tp-label" style="margin:0 0 8px;font-weight:600">Chia Shipment / Container</div>
+            <div id="odShipmentList" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:8px"></div>
+            <div class="action-row">
+              <button class="btn small primary" id="odNewShipmentBtn">+ Thêm Shipment</button>
+            </div>
+            <div id="odShipmentEditor" style="display:none;margin-top:10px;border-top:1px dashed var(--line);padding-top:10px">
+              <div class="tp-label" style="margin:0 0 6px;font-weight:600">Shipment <span id="odShipmentTitle"></span></div>
+              <div class="table-wrap" style="max-height:35vh">
+                <table class="data-table editable" id="odShipmentLinesTable">
+                  <thead><tr><th>Code</th><th>Sản phẩm</th><th class="num">Order Qty</th><th class="num">Đã giao (tổng)</th><th class="num">Qty vào Shipment này</th><th>Container No.</th></tr></thead>
+                  <tbody></tbody>
+                </table>
+              </div>
+              <div class="modal-actions" style="justify-content:flex-start;margin-top:10px">
+                <button class="btn small primary" id="odSaveShipmentBtn">💾 Lưu phân bổ</button>
+                <button class="btn small ghost" id="odCancelShipmentBtn">Hủy</button>
+              </div>
+            </div>
           </div>
         </div>
       </section>
@@ -1340,7 +1384,7 @@ function agentOpenRevenue(prefill) {
 }
 
 function agentOpenShipment(prefill) {
-  if (!isAdminLevel()) { toast('Agent: màn "Thông tin lô hàng" chỉ dành cho admin/master.'); return; } // UX sớm; requireShipManager_ ở backend mới là chốt chặn thật
+  if (!isAdminLevel()) { toast('Agent: màn "Quản lý Shipment" chỉ dành cho admin/master.'); return; } // UX sớm; requireShipManager_ ở backend mới là chốt chặn thật
   var so = String(prefill.so || '').trim();
   if (!so) { toast('Agent: thiếu số SO.'); return; }
   openShipView(so);
@@ -1908,13 +1952,16 @@ function renderRevenue() {
   var ord = rows.slice().sort(function (a, b) { return String(b.realLoad || b.piDate).localeCompare(String(a.realLoad || a.piDate)); });
   var mtb = $('monthOrdersTable').querySelector('tbody');
   mtb.innerHTML = ord.length ? ord.map(function (o, i) {
-    var soLabel = o.so ? esc(o.so) : (o.source === 'sale' ? '<span class="pill warn">Nháp</span>' : '—');
-    // admin/master sửa Load Date tại chỗ — đơn đã Confirm (có SO) ghi RealLoad trên Export Order,
-    // đơn nháp (chưa Confirm, chưa có SO) ghi Expected_Load trên file sale (khớp PIC + PI Number).
+    var soLabel = o.so ? esc(o.so) + (o.shipmentId ? ' <span class="pill">Shipment ' + esc(o.shipmentId.split('-').pop()) + '</span>' : '')
+      : (o.source === 'sale' ? '<span class="pill warn">Nháp</span>' : '—');
+    // admin/master sửa Load Date tại chỗ — đơn đã Confirm (có SO) ghi RealLoad của SHIPMENT (tab
+    // Shipment; chưa có Shipment nào thì tự tạo Shipment đầu), đơn nháp (chưa Confirm, chưa có SO)
+    // ghi Expected_Load trên file sale (khớp PIC + PI Number).
     var canEditLoad = isAdminLevel() && (o.source === 'ops2025' ? !!o.so : !!o.piNumber);
     var loadCell = canEditLoad
       ? '<input type="date" class="rev-load-input" data-source="' + esc(o.source) + '" data-key="' +
         esc(o.source === 'ops2025' ? o.so : o.piNumber) + '" data-pic="' + esc(o.pic || '') +
+        '" data-shipment-id="' + esc(o.shipmentId || '') +
         '" value="' + esc(o.realLoad || '') + '" style="width:130px">'
       : esc(o.realLoad || '—');
     // admin/master sửa Order note tại chỗ — cùng cơ chế/khóa với Ngày load (canEditLoad).
@@ -1950,7 +1997,7 @@ function renderRevenue() {
       if (!newDate) return;
       inp.disabled = true;
       var req = source === 'ops2025'
-        ? gs('api_updateRevenueLoadDate', S.token, key, newDate)
+        ? gs('api_updateRevenueLoadDate', S.token, key, newDate, inp.getAttribute('data-shipment-id') || '')
         : gs('api_updateSaleExpectedLoad', S.token, key, inp.getAttribute('data-pic'), newDate);
       req.then(function () {
         S.revOrders = null; // đổi Load Date có thể đổi tháng -> đọc lại từ server
@@ -1988,12 +2035,11 @@ $('revShowNote').addEventListener('change', function () {
   $('monthOrdersTable').classList.toggle('show-notes', this.checked);
 });
 
-/* ================= #12 Thông tin lô hàng + Custom Docs (admin/master) ================= */
-var SV_FIELDS = { deposit: 'svDeposit', depositDate: 'svDepositDate', realLoad: 'svRealLoad', etd: 'svEtd',
-  eta: 'svEta', payDate: 'svPayDate', payment: 'svPayment', status: 'svStatus', invoiceNo: 'svInvoiceNo',
-  invDate: 'svInvDate', customsNo: 'svCustomsNo', customsDate: 'svCustomsDate', booking: 'svBooking',
-  line: 'svLine', loadingPoint: 'svLoadingPoint', shipmentNo: 'svShipmentNo', trucking: 'svTrucking',
-  lcc: 'svLcc', freight: 'svFreight' };
+/* ================= #12 Quản lý Shipment (Shipment/Shpt_Detail) + Custom Docs (admin/master) ================= */
+var SV_LOT_FIELDS = { status: 'svStatus', booking: 'svBooking', line: 'svLine', loadingPoint: 'svLoadingPoint',
+  shipmentNo: 'svShipmentNo', etd: 'svEtd', eta: 'svEta', realLoad: 'svRealLoad', trucking: 'svTrucking',
+  lcc: 'svLcc', freight: 'svFreight', invoiceNo: 'svInvoiceNo', invDate: 'svInvDate', customsNo: 'svCustomsNo',
+  customsDate: 'svCustomsDate', note: 'svNote' };
 
 function openShipView(so) {
   ['clientView', 'editorView', 'queueView', 'revenueView', 'ptspView', 'prodView', 'planView'].forEach(function (id) {
@@ -2003,6 +2049,7 @@ function openShipView(so) {
   $('emptyState').style.display = 'none';
   $('shipView').style.display = 'block';
   S._shipSo = so;
+  S._shipEditingLotId = '';
   $('svSo').textContent = so;
   $('svMeta').textContent = 'Đang tải…';
   loadShipment();
@@ -2010,78 +2057,69 @@ function openShipView(so) {
 
 function loadShipment() {
   loading(true);
-  gs('api_shipmentInfo', S.token, S._shipSo).then(function (res) {
+  $('svLotEditor').style.display = 'none';
+  gs('api_listShipments', S.token, S._shipSo).then(function (res) {
     S.shipInfo = res;
     $('svMeta').textContent = [res.client, res.country, res.content, res.fob ? 'FOB ' + fmt$(res.fob) : '',
       res.piNumber ? 'PI ' + res.piNumber : ''].filter(Boolean).join(' · ');
-    Object.keys(SV_FIELDS).forEach(function (k) {
-      var el = $(SV_FIELDS[k]);
-      var v = res.fields[k];
-      el.value = (v === 0 ? '' : (v || ''));
-      var lk = res.locked[k];
-      el.disabled = (lk === 'formula');
-      el.title = lk === 'formula' ? 'Ô này là công thức trên sheet — app không ghi'
-        : (lk === 'missing' ? 'Không tìm thấy cột này trong tab Order' : '');
-    });
-    var locked = Object.keys(res.locked).filter(function (k) { return res.locked[k]; });
-    $('svLocked').textContent = locked.length
-      ? '⚠ Không ghi được: ' + locked.map(function (k) { return k + ' (' + res.locked[k] + ')'; }).join(', ')
-      : '';
+    $('svPayDate').value = res.payDate || '';
+    $('svPayment').value = res.payment || '';
     if (!$('svOrderRef').value) $('svOrderRef').value = res.piNumber || res.so;
-    renderShipLines();
+    renderLotList();
+    renderDocsLotSelect();
   }).catch(function (e) {
     $('svMeta').textContent = 'Lỗi: ' + e.message;
-    toast('Lỗi tải thông tin lô hàng: ' + e.message);
+    toast('Lỗi tải thông tin Shipment: ' + e.message);
   }).finally(function () { loading(false); });
 }
 
-function renderShipLines() {
-  var lines = (S.shipInfo && S.shipInfo.lines) || [];
-  var tb = $('svLinesTable').querySelector('tbody');
-  tb.innerHTML = lines.length ? lines.map(function (l, i) {
-    return '<tr><td><span class="code-chip">' + esc(l.code) + '</span></td>' +
-      '<td>' + esc(String(l.product).substring(0, 70)) + '</td>' +
-      '<td class="num">' + fmtN(l.orderQty, 0) + '</td>' +
-      '<td class="num"><input type="number" min="0" data-sq="' + i + '" value="' + (l.shipQty || '') + '" style="width:90px"' +
-        (l.shipIsFormula ? ' title="Đang là công thức =Order Qty; nhập số để ghi đè"' : '') + '></td>' +
-      '<td class="num">' + (normMarking(l.marking) === 'Y' ? '✔' : '—') + '</td>' +
-      '<td>' + esc(l.note || '') + '</td></tr>';
-  }).join('') : '<tr><td colspan="6" style="color:var(--muted)">Đơn không có dòng hàng nào.</td></tr>';
-  tb.querySelectorAll('input[data-sq]').forEach(function (inp) {
-    inp.addEventListener('change', function () {
-      lines[parseInt(inp.getAttribute('data-sq'), 10)].shipQty = parseFloat(inp.value) || 0;
-    });
+function renderLotList() {
+  var lots = (S.shipInfo && S.shipInfo.shipments) || [];
+  var wrap = $('svLotList');
+  wrap.innerHTML = lots.length ? lots.map(function (s) {
+    var qty = (s.lines || []).reduce(function (a, l) { return a + (Number(l.qty) || 0); }, 0);
+    return '<div data-lot="' + esc(s.shipmentId) + '" style="border:1px solid var(--line);border-radius:8px;padding:10px;cursor:pointer">' +
+      '<div style="font-weight:600">' + esc(s.shipmentId) + (s.status ? ' <span class="pill">' + esc(s.status) + '</span>' : '') + '</div>' +
+      '<div style="font-size:12.5px;color:var(--muted);margin-top:4px">' +
+      [s.realLoad ? 'Load ' + esc(s.realLoad) : '', s.booking ? 'Booking ' + esc(s.booking) : '',
+        qty ? fmtN(qty, 0) + ' sp' : ''].filter(Boolean).join(' · ') + '</div></div>';
+  }).join('') : '<div style="color:var(--muted);grid-column:1/-1">Đơn chưa có Shipment nào — bấm "+ Thêm Shipment mới" để tạo.</div>';
+  wrap.querySelectorAll('[data-lot]').forEach(function (card) {
+    card.addEventListener('click', function () { openLotEditor(card.getAttribute('data-lot')); });
   });
 }
 
-$('svFillAllBtn').addEventListener('click', function () {
-  var lines = (S.shipInfo && S.shipInfo.lines) || [];
-  lines.forEach(function (l) { l.shipQty = l.orderQty; });
-  renderShipLines();
-  toast('Đã điền Ship Qty = Order Qty cho ' + lines.length + ' dòng (bấm Lưu để ghi).');
-});
+function openLotEditor(shipmentId) {
+  var lots = (S.shipInfo && S.shipInfo.shipments) || [];
+  var lot = lots.filter(function (s) { return s.shipmentId === shipmentId; })[0] || null;
+  S._shipEditingLotId = shipmentId || '';
+  $('svLotTitle').textContent = lot ? lot.shipmentId : '(mới)';
+  Object.keys(SV_LOT_FIELDS).forEach(function (k) { $(SV_LOT_FIELDS[k]).value = lot ? (lot[k] || '') : ''; });
+  $('svDeleteLotBtn').style.display = lot ? '' : 'none';
+  renderLotLines(lot);
+  $('svLotEditor').style.display = 'block';
+  $('svLotEditor').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+}
 
-$('svSaveBtn').addEventListener('click', function () {
-  var fields = {};
-  Object.keys(SV_FIELDS).forEach(function (k) {
-    var el = $(SV_FIELDS[k]);
-    if (el.disabled) return;
-    var v = el.value.trim();
-    if (v !== '') fields[k] = v;
-  });
-  var lines = ((S.shipInfo && S.shipInfo.lines) || []).map(function (l) {
-    return { row: l.row, shipQty: l.shipQty };
-  }).filter(function (l) { return l.shipQty !== '' && l.shipQty != null; });
-  loading(true);
-  gs('api_saveShipment', S.token, { so: S._shipSo, fields: fields, lines: lines }).then(function (res) {
-    toast('Đã lưu ' + res.wrote.length + ' trường' + (res.lines ? ' · ' + res.lines + ' dòng Ship Qty' : '') + '.');
-    if (res.skipped && res.skipped.length) toast('Bỏ qua: ' + res.skipped.join(', '));
-    S.revOrders = null; // dashboard tháng đọc lại
-    loadShipment();
-  }).catch(function (e) { toast('Lỗi lưu: ' + e.message); })
-    .finally(function () { loading(false); });
-});
+function renderLotLines(lot) {
+  var orderLines = (S.shipInfo && S.shipInfo.lines) || [];
+  var qtyByCode = {}, containerByCode = {};
+  ((lot && lot.lines) || []).forEach(function (l) { qtyByCode[l.code] = l.qty; containerByCode[l.code] = l.containerNo || ''; });
+  var tb = $('svLinesTable').querySelector('tbody');
+  tb.innerHTML = orderLines.length ? orderLines.map(function (l) {
+    return '<tr><td><span class="code-chip">' + esc(l.code) + '</span></td>' +
+      '<td>' + esc(String(l.product).substring(0, 70)) + '</td>' +
+      '<td class="num">' + fmtN(l.orderQty, 0) + '</td>' +
+      '<td class="num">' + fmtN(l.shipQty, 0) + '</td>' +
+      '<td class="num"><input type="number" min="0" data-code="' + esc(l.code) + '" value="' +
+        (qtyByCode[l.code] || '') + '" style="width:90px"></td>' +
+      '<td><input type="text" data-container="' + esc(l.code) + '" value="' + esc(containerByCode[l.code] || '') +
+        '" placeholder="VD: cont 1" style="width:110px"></td></tr>';
+  }).join('') : '<tr><td colspan="6" style="color:var(--muted)">Đơn không có dòng hàng nào.</td></tr>';
+}
 
+$('svNewLotBtn').addEventListener('click', function () { openLotEditor(''); });
+$('svCancelLotBtn').addEventListener('click', function () { $('svLotEditor').style.display = 'none'; });
 $('svReloadBtn').addEventListener('click', loadShipment);
 $('svHomeBtn').addEventListener('click', goHome);
 $('shipInfoBtn').addEventListener('click', function () {
@@ -2090,16 +2128,70 @@ $('shipInfoBtn').addEventListener('click', function () {
   openShipView(o.so || o.piNumber);
 });
 
+$('svSavePaymentBtn').addEventListener('click', function () {
+  loading(true);
+  gs('api_updateOrderPayment', S.token, S._shipSo, $('svPayDate').value, $('svPayment').value).then(function (res) {
+    toast(res.wrote.length ? 'Đã lưu thanh toán (' + res.wrote.join(', ') + ').' : 'Không có gì để ghi.');
+    S.revOrders = null;
+  }).catch(function (e) { toast('Lỗi lưu thanh toán: ' + e.message); })
+    .finally(function () { loading(false); });
+});
+
+$('svSaveLotBtn').addEventListener('click', function () {
+  var fields = {};
+  Object.keys(SV_LOT_FIELDS).forEach(function (k) {
+    var v = $(SV_LOT_FIELDS[k]).value.trim();
+    if (v !== '') fields[k] = v;
+  });
+  var lines = Array.prototype.slice.call($('svLinesTable').querySelectorAll('input[data-code]')).map(function (inp) {
+    var code = inp.getAttribute('data-code');
+    var containerInp = $('svLinesTable').querySelector('input[data-container="' + CSS.escape(code) + '"]');
+    return { code: code, qty: parseFloat(inp.value) || 0, containerNo: containerInp ? containerInp.value.trim() : '' };
+  });
+  loading(true);
+  gs('api_saveShipmentLot', S.token, { so: S._shipSo, shipmentId: S._shipEditingLotId, fields: fields, lines: lines })
+    .then(function (res) {
+      toast('Đã lưu Shipment ' + res.shipmentId + ' · ' + res.lines + ' mã hàng' +
+        (res.skipped && res.skipped.length ? ' · bỏ qua: ' + res.skipped.join(', ') : ''));
+      S.revOrders = null; // dashboard tháng đọc lại
+      $('svLotEditor').style.display = 'none';
+      loadShipment();
+    }).catch(function (e) { toast('Lỗi lưu Shipment: ' + e.message); })
+    .finally(function () { loading(false); });
+});
+
+$('svDeleteLotBtn').addEventListener('click', function () {
+  if (!S._shipEditingLotId) return;
+  var id = S._shipEditingLotId;
+  appConfirm('Xóa hẳn Shipment ' + id + '? Toàn bộ phân bổ số lượng của Shipment này sẽ mất.', function () {
+    loading(true);
+    gs('api_deleteShipmentLot', S.token, id).then(function () {
+      toast('Đã xóa Shipment ' + id + '.');
+      S.revOrders = null;
+      $('svLotEditor').style.display = 'none';
+      loadShipment();
+    }).catch(function (e) { toast('Lỗi xóa Shipment: ' + e.message); })
+      .finally(function () { loading(false); });
+  });
+});
+
+function renderDocsLotSelect() {
+  var lots = (S.shipInfo && S.shipInfo.shipments) || [];
+  var sel = $('svDocsLot');
+  var cur = sel.value;
+  sel.innerHTML = '<option value="">— Nhập tay bên dưới —</option>' +
+    lots.map(function (s) { return '<option value="' + esc(s.shipmentId) + '">' + esc(s.shipmentId) + '</option>'; }).join('');
+  sel.value = lots.some(function (s) { return s.shipmentId === cur; }) ? cur : '';
+}
+
 $('svCustomDocsBtn').addEventListener('click', function () {
   var payload = {
     so: S._shipSo,
+    shipmentId: $('svDocsLot').value,
     containerType: $('svContType').value,
     tare: parseFloat($('svTare').value) || '',
     containerNo: $('svContainerNo').value.trim(),
-    orderRef: $('svOrderRef').value.trim(),
-    invoiceNo: $('svInvoiceNo').value.trim(),
-    invDate: $('svInvDate').value,
-    freight: parseFloat($('svFreight').value) || ''
+    orderRef: $('svOrderRef').value.trim()
   };
   $('svDocsInfo').textContent = 'Đang tạo file…';
   loading(true);
@@ -3197,7 +3289,7 @@ function selectOrder(i) {
   $('confirmPiBtn').style.display = (isAdminLevel() && isSalePi) ? '' : 'none';
   // #7 Chứng từ nhà máy (ĐNXH + Marking): admin/master, đơn đã ở Operations2025
   $('shipDocsBtn').style.display = (isAdminLevel() && o.source === 'ops2025' && (o.so || o.piNumber)) ? '' : 'none';
-  // #12 Thông tin lô hàng: admin/master, đơn đã ở Operations2025
+  // #12 Quản lý Shipment: admin/master, đơn đã ở Operations2025
   $('shipInfoBtn').style.display = (isAdminLevel() && o.source === 'ops2025' && (o.so || o.piNumber)) ? '' : 'none';
   // nút review + form RD: technician
   var isTech = S.user.role === 'technician';
@@ -3207,6 +3299,12 @@ function selectOrder(i) {
   // Xóa đơn: admin/master xóa mọi status trừ opened/closed (cả đơn sale & đơn đã ở Export Order); lead
   // xóa được đơn drafted/targeted của mọi sale; sale chỉ xóa đơn drafted/targeted của chính mình.
   $('deletePiBtn').style.display = canDeleteOrderUi_(o) ? '' : 'none';
+  // Chia Shipment/container tại chỗ: admin/master mọi lúc (đơn đã ở Ops), technician CHỈ khi đơn
+  // đang drafted/opened (khớp requireShipmentAllocator_/saveShipmentLot_ ở backend).
+  var isTechAllocator = S.user.role === 'technician' && ['drafted', 'opened'].indexOf(st) >= 0;
+  var canAllocateShipment = o.source === 'ops2025' && (o.so || o.piNumber) && (isAdminLevel() || isTechAllocator);
+  $('odShipmentWrap').style.display = canAllocateShipment ? 'block' : 'none';
+  if (canAllocateShipment) loadOdShipments(o.so || o.piNumber); else $('odShipmentEditor').style.display = 'none';
   $('orderSummary').innerHTML =
     '<span>PI: <b>' + esc(o.piNumber || o.so) + '</b></span>' +
     '<span>Sale Order <b>' + esc(o.so || '—') + '</b></span>' +
@@ -3298,6 +3396,78 @@ function openItemHistory(code, product) {
     .finally(function () { loading(false); });
 }
 $('ihCloseBtn').addEventListener('click', function () { $('ihOverlay').style.display = 'none'; });
+
+/* ================= Chia Shipment/container nhúng trong màn xem/review đơn (admin/master + technician
+   giới hạn) — dùng api_listShipments/api_saveShipmentLot giống màn Quản lý Shipment, nhưng gọn hơn:
+   không có form field logistics/thanh toán/Custom Docs, chỉ list + phân bổ mã hàng. ================= */
+function loadOdShipments(so) {
+  S._odShipSo = so;
+  gs('api_listShipments', S.token, so).then(function (res) {
+    S._odShipInfo = res;
+    renderOdShipmentList();
+    $('odShipmentEditor').style.display = 'none';
+  }).catch(function (e) { toast('Lỗi tải Shipment: ' + e.message); });
+}
+
+function renderOdShipmentList() {
+  var lots = (S._odShipInfo && S._odShipInfo.shipments) || [];
+  var wrap = $('odShipmentList');
+  wrap.innerHTML = lots.length ? lots.map(function (s) {
+    var qty = (s.lines || []).reduce(function (a, l) { return a + (Number(l.qty) || 0); }, 0);
+    return '<div data-odlot="' + esc(s.shipmentId) + '" style="border:1px solid var(--line);border-radius:8px;padding:8px 10px;cursor:pointer;font-size:13px">' +
+      '<b>' + esc(s.shipmentId) + '</b>' + (s.status ? ' <span class="pill">' + esc(s.status) + '</span>' : '') +
+      '<div style="color:var(--muted)">' + (qty ? fmtN(qty, 0) + ' sp' : 'Chưa phân bổ') + '</div></div>';
+  }).join('') : '<div style="color:var(--muted);grid-column:1/-1;font-size:13px">Đơn chưa có Shipment nào.</div>';
+  wrap.querySelectorAll('[data-odlot]').forEach(function (card) {
+    card.addEventListener('click', function () { openOdShipmentEditor(card.getAttribute('data-odlot')); });
+  });
+}
+
+function openOdShipmentEditor(shipmentId) {
+  var lots = (S._odShipInfo && S._odShipInfo.shipments) || [];
+  var lot = lots.filter(function (s) { return s.shipmentId === shipmentId; })[0] || null;
+  S._odShipEditingId = shipmentId || '';
+  $('odShipmentTitle').textContent = lot ? lot.shipmentId : '(mới)';
+  renderOdShipmentLines(lot);
+  $('odShipmentEditor').style.display = 'block';
+}
+
+function renderOdShipmentLines(lot) {
+  var orderLines = (S._odShipInfo && S._odShipInfo.lines) || [];
+  var qtyByCode = {}, containerByCode = {};
+  ((lot && lot.lines) || []).forEach(function (l) { qtyByCode[l.code] = l.qty; containerByCode[l.code] = l.containerNo || ''; });
+  var tb = $('odShipmentLinesTable').querySelector('tbody');
+  tb.innerHTML = orderLines.length ? orderLines.map(function (l) {
+    return '<tr><td><span class="code-chip">' + esc(l.code) + '</span></td>' +
+      '<td>' + esc(String(l.product).substring(0, 60)) + '</td>' +
+      '<td class="num">' + fmtN(l.orderQty, 0) + '</td>' +
+      '<td class="num">' + fmtN(l.shipQty, 0) + '</td>' +
+      '<td class="num"><input type="number" min="0" data-odcode="' + esc(l.code) + '" value="' +
+        (qtyByCode[l.code] || '') + '" style="width:80px"></td>' +
+      '<td><input type="text" data-odcont="' + esc(l.code) + '" value="' + esc(containerByCode[l.code] || '') +
+        '" style="width:100px" placeholder="Cont 1"></td></tr>';
+  }).join('') : '<tr><td colspan="6" style="color:var(--muted)">Đơn không có dòng hàng nào.</td></tr>';
+}
+
+$('odNewShipmentBtn').addEventListener('click', function () { openOdShipmentEditor(''); });
+$('odCancelShipmentBtn').addEventListener('click', function () { $('odShipmentEditor').style.display = 'none'; });
+
+$('odSaveShipmentBtn').addEventListener('click', function () {
+  var lines = Array.prototype.slice.call($('odShipmentLinesTable').querySelectorAll('input[data-odcode]')).map(function (inp) {
+    var code = inp.getAttribute('data-odcode');
+    var contInp = $('odShipmentLinesTable').querySelector('input[data-odcont="' + CSS.escape(code) + '"]');
+    return { code: code, qty: parseFloat(inp.value) || 0, containerNo: contInp ? contInp.value.trim() : '' };
+  });
+  loading(true);
+  gs('api_saveShipmentLot', S.token, { so: S._odShipSo, shipmentId: S._odShipEditingId, lines: lines })
+    .then(function (res) {
+      toast('Đã lưu Shipment ' + res.shipmentId + ' · ' + res.lines + ' mã hàng.');
+      $('odShipmentEditor').style.display = 'none';
+      S.revOrders = null;
+      loadOdShipments(S._odShipSo);
+    }).catch(function (e) { toast('Lỗi lưu Shipment: ' + e.message); })
+    .finally(function () { loading(false); });
+});
 
 /** Copy 1 bảng HTML sang TSV (tab-separated) để dán thẳng vào Excel giữ nguyên cột.
  *  Bỏ các cột "kỹ thuật": header rỗng (nút xóa) hoặc header chứa checkbox chọn-tất-cả. */
@@ -4047,7 +4217,7 @@ $('edSaveBtn').addEventListener('click', function () {
  * Chỉ tách đơn CHƯA Confirm (bản nháp trên hub) — SO chỉ sinh ra ở bước Confirm. */
 
 /** Tách được: bản nháp trên hub (source 'sale') hoặc đơn đã Confirm trên Operations2025 (source
- *  'ops2025') MIỄN LÀ chưa 'closed' — closed nghĩa là lô đã xong, không còn gì để tách nữa. */
+ *  'ops2025') MIỄN LÀ chưa 'closed' — closed nghĩa là Shipment đã xong, không còn gì để tách nữa. */
 function splitEligible(ed) {
   if (!ed) return false;
   if (ed.source === 'sale') return true;
@@ -5227,7 +5397,7 @@ function applyConfirmMatch_(piNumber, desc) {
     $('cfSo').disabled = false;
   }
   // Đơn đã có sẵn trên Export Order (update/rename) có thể đã ghi Deposit/Ngày cọc/Deposit Passed từ
-  // trước (vd qua màn Thông tin lô hàng hoặc Sửa đơn) — điền sẵn, vẫn cho sửa lại nếu cần.
+  // trước (vd qua màn Quản lý Shipment hoặc Sửa đơn) — điền sẵn, vẫn cho sửa lại nếu cần.
   if (m && m.deposit && !$('cfDeposit').value) $('cfDeposit').value = m.deposit;
   if (m && m.depositDate && !$('cfDepositDate').value) $('cfDepositDate').value = m.depositDate;
   if (m && m.depositPassed) $('cfDepositPassed').checked = true;
