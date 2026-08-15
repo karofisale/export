@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Export Ops Hub — Giới thiệu, cấu trúc &amp; Hướng dẫn sử dụng</title>
+<title>Export Hub — Giới thiệu, cấu trúc &amp; Hướng dẫn sử dụng</title>
 <style>
   :root{
     --bg:#f5f7f5; --panel:#ffffff; --sunken:#eef2ee;
@@ -152,12 +152,12 @@
 
 <header class="hero">
   <p class="eyebrow">Phòng Vận hành Kinh doanh · Karofi</p>
-  <h1>Export Ops Hub</h1>
-  <p class="lede">Nền tảng vận hành đơn hàng xuất khẩu: lập báo giá PI, duyệt kỹ thuật, xác nhận đơn vào hệ theo dõi sản xuất, quản lý danh mục sản phẩm, nhập thông tin lô hàng và xuất trọn bộ chứng từ xuất khẩu — tất cả trên một nguồn dữ liệu duy nhất.</p>
+  <h1>Export Hub</h1>
+  <p class="lede">Nền tảng vận hành đơn hàng xuất khẩu: lập báo giá PI, duyệt kỹ thuật, xác nhận đơn vào hệ theo dõi sản xuất, quản lý danh mục sản phẩm, chia Shipment/container và xuất trọn bộ chứng từ xuất khẩu — tất cả trên một nguồn dữ liệu duy nhất.</p>
   <div class="hero-meta">
     <span class="chip">🔗 <a href="https://karofisale.github.io/export/pi-app.html">karofisale.github.io/export/pi-app.html</a></span>
     <span class="chip">🔐 Đăng nhập bằng <b>Tên + PIN</b></span>
-    <span class="chip">🚢 <b>Shipment Tracking</b></span>
+    <span class="chip">🚢 <b>Quản lý Shipment</b></span>
     <span class="chip">📊 <b>Tiến độ PTSP</b> (live từ Jira)</span>
   </div>
 </header>
@@ -175,11 +175,10 @@
       <li><a href="#sale">Dành cho Sale</a></li>
       <li><a href="#technician">Dành cho Kỹ thuật</a></li>
       <li><a href="#danhmuc">Quản lý danh mục sản phẩm</a></li>
-      <li><a href="#lead">Doanh thu theo tháng</a></li>
+      <li><a href="#lead">Doanh thu theo tháng &amp; Revenue Report</a></li>
       <li><a href="#admin">Dành cho Admin / Master</a></li>
-      <li><a href="#lohang">Thông tin lô hàng &amp; Custom Docs</a></li>
+      <li><a href="#lohang">Quản lý Shipment &amp; Custom Docs</a></li>
       <li><a href="#ptsp">Tiến độ PTSP (Jira)</a></li>
-      <li><a href="#shipment">Shipment Tracking</a></li>
       <li><a href="#chungtu">Bảng chứng từ xuất ra được</a></li>
       <li><a href="#congthuc">Công thức &amp; quy ước tính toán</a></li>
       <li><a href="#meo">Mẹo, lưu ý &amp; xử lý sự cố</a></li>
@@ -188,7 +187,7 @@
 
   <section id="gioithieu">
     <h2><span class="num">01</span> App này giải quyết gì</h2>
-    <p class="section-sub">Trước đây mỗi sale lập PI trên một file Google Sheet riêng; dữ liệu sản phẩm, giá vốn, khách hàng bị sao chép nhiều bản và lệch nhau; chứng từ xuất khẩu gõ tay lại từ đầu ở mỗi khâu. Export Ops Hub đọc <b>trực tiếp</b> từ nguồn gốc và gom toàn bộ vòng đời đơn hàng vào một nơi.</p>
+    <p class="section-sub">Trước đây mỗi sale lập PI trên một file Google Sheet riêng; dữ liệu sản phẩm, giá vốn, khách hàng bị sao chép nhiều bản và lệch nhau; chứng từ xuất khẩu gõ tay lại từ đầu ở mỗi khâu. Export Hub đọc <b>trực tiếp</b> từ nguồn gốc và gom toàn bộ vòng đời đơn hàng vào một nơi.</p>
     <div class="card">
       <ul>
         <li><b>Một nguồn dữ liệu duy nhất:</b> sản phẩm, giá thành, BOM, khách hàng, lịch sử đơn — lấy thẳng từ hệ thống trung tâm, không còn bản sao lệch phiên bản.</li>
@@ -213,7 +212,6 @@
         <div class="lname">Tầng giao diện — trang web tĩnh (GitHub Pages)</div>
         <div class="boxes">
           <div class="box"><b>pi-app.html</b><span>App báo giá PI — màn hình chính</span></div>
-          <div class="box"><b>shipment-tracking.html</b><span>Theo dõi lịch trình vận chuyển</span></div>
           <div class="box"><b>hdsd.html</b><span>Tài liệu này</span></div>
         </div>
       </div>
@@ -233,6 +231,7 @@
         <div class="boxes">
           <div class="box"><b>ExportSystem</b><span>Products · Clients · BOM · Model · Packing · Users · PITotal · PIDetails</span></div>
           <div class="box"><b>Operations2025</b><span>Order · Details — đơn đã xác nhận, đang chạy</span></div>
+          <div class="box"><b>Shipment · Shpt_Detail</b><span>Từng lô/container giao hàng của 1 SO</span></div>
           <div class="box"><b>Operations</b><span>Lịch sử đơn 2020–2024 (chỉ đọc)</span></div>
           <div class="box"><b>Thư mục biểu mẫu</b><span>PI · PYC phát triển SPM · YC mã KH · ĐNXH · Marking · Custom Docs</span></div>
         </div>
@@ -254,12 +253,12 @@
         <tr><td>Đơn hàng của tôi</td><td>Sale</td><td>Danh sách đơn của mình theo tháng, mở nhanh một đơn</td></tr>
         <tr><td>Doanh thu theo tháng</td><td>Lead, Leader, Admin, Master</td><td>Tổng FOB tháng, số đơn, số khách + danh sách đơn trong tháng (trang chủ của 4 vai trò này)</td></tr>
         <tr><td>Đơn hàng cần kiểm tra</td><td>Kỹ thuật</td><td>Hàng đợi mọi đơn của các sale đang chờ duyệt kỹ thuật</td></tr>
-        <tr><td>Chi tiết khách &amp; đơn</td><td>Tất cả</td><td>Xem dòng hàng, %LN, Item CBM, Marking, ghi chú; nơi chứa mọi nút hành động</td></tr>
+        <tr><td>Chi tiết khách &amp; đơn</td><td>Tất cả</td><td>Xem dòng hàng, %LN, Item CBM, Marking, ghi chú, lịch sử đặt hàng của mã, chia Shipment/container; nơi chứa mọi nút hành động</td></tr>
         <tr><td>Form báo giá</td><td>Sale, Kỹ thuật, Admin, Master</td><td>Soạn/sửa dòng hàng, chiết khấu, đóng gói, tổng CBM &amp; container; Admin tách 1 PI thành nhiều đơn</td></tr>
         <tr><td>Quản lý danh mục SP</td><td>Kỹ thuật, Admin, Master</td><td>Sản phẩm · Nhập batch · Model · BOM máy · cấp mã cho hàng mới</td></tr>
-        <tr><td>Thông tin lô hàng</td><td>Admin, Master</td><td>Deposit/ETD/ETA/Invoice/Booking… + Ship Qty + xuất Custom Docs</td></tr>
+        <tr><td>Quản lý Shipment</td><td>Admin, Master (đầy đủ) · Kỹ thuật (giới hạn)</td><td>Tạo/sửa nhiều Shipment (lô/container) cho 1 SO, thanh toán, Ship Qty tự cộng, xuất Custom Docs</td></tr>
+        <tr><td>Revenue Report (Kế hoạch &amp; Thực hiện)</td><td>Leader/Admin/Master (đầy đủ) · Lead (riêng OEM) · Sale nhánh Brand (riêng Branding)</td><td>Kế hoạch vs Thực hiện doanh thu theo tháng, theo khu vực DEV/Hunt/Branding</td></tr>
         <tr><td>Tiến độ PTSP</td><td>Kỹ thuật, Lead, Leader, Admin, Master</td><td>Dashboard dự án phát triển sản phẩm đọc live từ Jira</td></tr>
-        <tr><td>Shipment Tracking</td><td>Tất cả (sửa: Admin/Master)</td><td>Lịch trình vận chuyển, tra cứu vận đơn theo hãng tàu</td></tr>
       </tbody>
     </table></div>
   </section>
@@ -303,8 +302,8 @@
         <tr><td><code>booked</code> / <code>shipped</code> / <code>closed</code></td><td>Đơn đã vào Operations2025 và đang chạy theo tiến độ sản xuất/xuất hàng.</td><td>Admin, Master</td></tr>
       </tbody>
     </table></div>
-    <div class="note"><b>Nguyên tắc “một bản duy nhất”:</b> trước khi Confirm, đơn chỉ nằm trên hub (bản nháp của sale). Sau khi Confirm, đơn chỉ nằm trên Operations2025. Không bao giờ có hai bản song song để phải đối chiếu.
-    <br><b>Ai sửa được trạng thái nào:</b> Sale/Lead chỉ sửa đơn ở trạng thái mở (targeted, drafted, Sale Edited, New Created) và chỉ chuyển được targeted ↔ drafted. <b>Kỹ thuật, Admin và Master sửa được mọi đơn ở mọi trạng thái</b>; riêng Admin/Master còn đặt được trạng thái bất kỳ.</div>
+    <div class="note"><b>Nguyên tắc “một bản duy nhất”:</b> trước khi Confirm, đơn chỉ nằm trên hub (bản nháp của sale). Sau khi Confirm, đơn chỉ nằm trên Operations2025. Không bao giờ có hai bản song song để phải đối chiếu — kể cả khi <b>Sale/Lead sửa lại một đơn đã Confirm</b>: app ghi thẳng vào đúng SO đó trên Operations2025, không tạo bản nháp trung gian, không cần Confirm lại lần hai.
+    <br><b>Ai sửa được trạng thái nào:</b> Sale/Lead sửa được đơn đang <code>targeted</code>/<code>drafted</code> (dù đơn còn ở hub hay đã Confirm sang Operations2025) và chỉ chuyển được targeted ↔ drafted; Sale chỉ sửa đơn của chính mình, Lead sửa được đơn của mọi sale. <b>Kỹ thuật sửa được mọi đơn ở mọi trạng thái</b> (kể cả đã reviewed/booked…) nhưng khi lưu cũng chỉ đặt lại được targeted/drafted. <b>Admin và Master sửa được mọi đơn ở mọi trạng thái và đặt được trạng thái bất kỳ</b>, kể cả đổi số SO và Deposit/Ngày cọc.</div>
   </section>
 
   <section id="vaitro">
@@ -333,8 +332,9 @@
         <tr><td>Xem khách &amp; đơn</td><td>của mình</td><td class="y">toàn bộ</td><td class="y">toàn bộ</td><td class="y">toàn bộ</td><td class="y">toàn bộ</td><td class="y">tất cả</td></tr>
         <tr><td>Bảng đơn hàng theo tháng</td><td>đơn của mình</td><td class="y">✔</td><td class="y">✔</td><td class="n">—</td><td class="y">✔</td><td class="y">✔</td></tr>
         <tr><td>Tạo / nhân bản đơn</td><td class="y">✔</td><td class="n">—</td><td class="n">—</td><td class="n">—</td><td class="y">✔</td><td class="y">✔</td></tr>
-        <tr><td>Sửa dòng hàng</td><td>đơn của mình,<br>trạng thái mở</td><td class="n">—</td><td class="n">—</td><td class="y">mọi đơn,<br>mọi trạng thái</td><td class="y">mọi đơn,<br>mọi trạng thái</td><td class="y">mọi đơn,<br>mọi trạng thái</td></tr>
-        <tr><td>Đổi trạng thái đơn</td><td>targeted ↔ drafted</td><td class="n">—</td><td class="n">—</td><td>targeted ↔ drafted</td><td class="y">mọi trạng thái</td><td class="y">mọi trạng thái</td></tr>
+        <tr><td>Sửa dòng hàng</td><td>đơn của mình,<br>đang targeted/drafted<br>(dù ở hub hay đã Confirm)</td><td>đơn của mọi sale,<br>đang targeted/drafted</td><td class="n">—</td><td class="y">mọi đơn,<br>mọi trạng thái</td><td class="y">mọi đơn,<br>mọi trạng thái</td><td class="y">mọi đơn,<br>mọi trạng thái</td></tr>
+        <tr><td>Đổi trạng thái đơn</td><td>targeted ↔ drafted</td><td>targeted ↔ drafted</td><td class="n">—</td><td>targeted ↔ drafted</td><td class="y">mọi trạng thái</td><td class="y">mọi trạng thái</td></tr>
+        <tr><td>Chia Shipment / Container</td><td class="n">—</td><td class="n">—</td><td class="n">—</td><td>đơn drafted/opened,<br>chỉ phân bổ mã hàng</td><td class="y">✔ đầy đủ</td><td class="y">✔ đầy đủ</td></tr>
         <tr><td>Tách 1 PI thành nhiều đơn</td><td class="n">—</td><td class="n">—</td><td class="n">—</td><td class="n">—</td><td class="y">✔</td><td class="y">✔</td></tr>
         <tr><td>Xuất PI (Excel/PDF)</td><td class="y">✔</td><td class="y">✔</td><td class="y">✔</td><td class="y">✔</td><td class="y">✔</td><td class="y">✔</td></tr>
         <tr><td>Xoá PI (<code>targeted</code>)</td><td>của mình</td><td class="n">—</td><td class="n">—</td><td class="n">—</td><td class="y">✔</td><td class="y">✔</td></tr>
@@ -343,10 +343,10 @@
         <tr><td>Confirm → Operations2025</td><td class="n">—</td><td class="n">—</td><td class="n">—</td><td class="n">—</td><td class="y">✔</td><td class="y">✔</td></tr>
         <tr><td>Mã khách / YC tạo mã KH</td><td class="n">—</td><td class="n">—</td><td class="n">—</td><td class="n">—</td><td class="y">✔</td><td class="y">✔</td></tr>
         <tr><td>Chứng từ NM (ĐNXH + Marking)</td><td class="n">—</td><td class="n">—</td><td class="n">—</td><td class="n">—</td><td class="y">✔</td><td class="y">✔</td></tr>
-        <tr><td>Thông tin lô hàng + Custom Docs</td><td class="n">—</td><td class="n">—</td><td class="n">—</td><td class="n">—</td><td class="y">✔</td><td class="y">✔</td></tr>
+        <tr><td>Quản lý Shipment đầy đủ + Custom Docs</td><td class="n">—</td><td class="n">—</td><td class="n">—</td><td class="n">—</td><td class="y">✔</td><td class="y">✔</td></tr>
         <tr><td>Quản lý danh mục SP</td><td class="n">—</td><td class="n">—</td><td class="n">—</td><td class="y">✔</td><td class="y">✔</td><td class="y">✔</td></tr>
         <tr><td>Dashboard tiến độ PTSP</td><td class="n">—</td><td class="y">✔</td><td class="y">✔</td><td class="y">✔</td><td class="y">✔</td><td class="y">✔</td></tr>
-        <tr><td>Sửa Shipment Tracking</td><td class="n">chỉ xem</td><td class="n">chỉ xem</td><td class="n">chỉ xem</td><td class="n">chỉ xem</td><td class="y">✔</td><td class="y">✔</td></tr>
+        <tr><td>Revenue Report</td><td class="n">—</td><td>riêng OEM</td><td class="y">✔ đầy đủ</td><td class="n">—</td><td class="y">✔ đầy đủ</td><td class="y">✔ đầy đủ</td></tr>
       </tbody>
     </table></div>
   </section>
@@ -390,11 +390,12 @@
     <div class="tbl-wrap"><table class="feat">
       <thead><tr><th>Nút</th><th>Dùng khi</th></tr></thead>
       <tbody>
-        <tr><td><span class="btn-ex">✎ Edit Details</span></td><td>Sửa đơn đang có (chỉ đơn ở trạng thái cho sửa).</td></tr>
+        <tr><td><span class="btn-ex">✎ Edit Details</span></td><td>Sửa đơn đang có (đơn đang <code>targeted</code>/<code>drafted</code>) — <b>kể cả đơn đã Confirm sang Operations2025</b>: app ghi thẳng vào đúng SO đó, không cần Confirm lại.</td></tr>
         <tr><td><span class="btn-ex">⧉ Clone</span></td><td>Lấy cấu hình đơn hiện tại làm đơn mới — <b>có thể chọn khách khác</b> cho đơn nhân bản.</td></tr>
         <tr><td><span class="btn-ex">+ Create New</span></td><td>Tạo đơn mới: app nạp sẵn tất cả mã khách từng đặt (<b>sắp xếp theo mã</b>) để bạn xoá/sửa/thêm.</td></tr>
       </tbody>
     </table></div>
+    <div class="tip">Sửa 1 đơn <b>đã có SO trên Operations2025</b> mà đang targeted/drafted → app tự nhận biết và ghi thẳng vào đúng dòng đó (không tạo bản nháp trung gian). Bạn chỉ sửa được đơn <b>đứng tên mình</b>; đơn đang ở trạng thái khác (reviewed, opened, booked…) thì liên hệ Lead/Admin.</div>
 
     <h3>Form báo giá</h3>
     <ul>
@@ -435,12 +436,13 @@
     <h2><span class="num">07</span> Dành cho Kỹ thuật <span class="rolebadge b-tech">Technician</span></h2>
     <p class="section-sub">Đăng nhập xong bạn thấy ngay <b>Đơn hàng cần kiểm tra</b> — mọi đơn của các sale đang chờ xử lý, kèm ô lọc theo khách/PI/SO. Bấm một dòng để mở đơn.</p>
     <ol class="steps">
-      <li><b>Kiểm tra &amp; sửa:</b> mở đơn → <span class="btn-ex">✎ Edit Details</span> → đối chiếu và sửa <b>mã sản phẩm mới, quy cách đóng gói, Qty/CT, kích thước carton L/W/H, net weight</b>. Sửa được <b>mọi đơn ở mọi trạng thái</b>, kể cả đơn đã Confirm. Đơn vẫn giữ tên sale gốc.</li>
+      <li><b>Kiểm tra &amp; sửa:</b> mở đơn → <span class="btn-ex">✎ Edit Details</span> → đối chiếu và sửa <b>mã sản phẩm mới, quy cách đóng gói, Qty/CT, kích thước carton L/W/H, net weight</b>. Sửa được <b>mọi đơn ở mọi trạng thái</b>, kể cả đơn đã Confirm — ghi thẳng vào Operations2025, khi lưu chỉ đặt lại được targeted/drafted. Đơn vẫn giữ tên sale gốc.</li>
       <li><b>Xác nhận:</b> bấm <span class="btn-ex">✔ Xác nhận (reviewed)</span> — chuyển đơn sang trạng thái <b>reviewed</b> để Admin duyệt tiếp. Bạn vẫn mở lại sửa được sau đó.</li>
+      <li><b>Chia Shipment/Container:</b> với đơn đã ở Operations2025 và đang <code>drafted</code>/<code>opened</code>, khu vực <b>"Chia Shipment / Container"</b> hiện ngay dưới bảng chi tiết đơn — bấm từng mã hàng để phân bổ số lượng vào 1 Shipment (lô/container) cụ thể, ghi Container No. nếu lô đó tách nhiều container. Chỉ phân bổ được số lượng; các trường lịch trình/thanh toán (ETD, Booking, Invoice…) vẫn chỉ Admin/Master sửa qua màn <b>🚢 Quản lý Shipment</b> — xem mục 11.</li>
       <li><b>Yêu cầu R&amp;D:</b> với đơn có mã mới hoặc máy đã đổi BOM, bấm <span class="btn-ex">⬇ Form RD</span> để xuất <b>Yêu cầu phát triển sản phẩm mới</b> (mỗi mã một trang, đã điền sẵn cấu hình/lõi/màng/giá) gửi bộ phận R&amp;D.</li>
       <li><b>Cấp mã &amp; cập nhật danh mục:</b> bấm <span class="btn-ex">🧩 Danh mục SP</span> — xem mục 08 bên dưới.</li>
     </ol>
-    <div class="tip">Kỹ thuật kiểm tra/duyệt và quản lý danh mục, <b>không</b> tạo hay nhân bản đơn mới.</div>
+    <div class="tip">Kỹ thuật kiểm tra/duyệt, chia Shipment/container và quản lý danh mục, <b>không</b> tạo hay nhân bản đơn mới.</div>
   </section>
 
   <section id="danhmuc">
@@ -474,14 +476,25 @@
   </section>
 
   <section id="lead">
-    <h2><span class="num">09</span> Doanh thu theo tháng <span class="rolebadge b-lead">Lead</span> <span class="rolebadge b-leader">Leader</span> <span class="rolebadge b-admin">Admin</span> <span class="rolebadge b-master">Master</span></h2>
+    <h2><span class="num">09</span> Doanh thu theo tháng &amp; Revenue Report <span class="rolebadge b-lead">Lead</span> <span class="rolebadge b-leader">Leader</span> <span class="rolebadge b-admin">Admin</span> <span class="rolebadge b-master">Master</span></h2>
     <p class="section-sub">Trang chủ của Lead, Leader, Admin và Master là <b>Doanh thu theo tháng</b> — tính trên các đơn đã vào Operations2025 theo tháng Load Date. (Sale thấy cùng bảng này nhưng chỉ gồm đơn của mình, tên là “Đơn hàng của tôi theo tháng”.)</p>
     <ul>
-      <li>Ba chỉ số tháng: <b>Tổng FOB</b>, <b>Số đơn</b>, <b>Số khách</b>. Đổi tháng bằng ◀ ▶.</li>
-      <li><b>Danh sách đơn trong tháng</b>: Khách · <b>Thị trường</b> · SO · Ngày load · FOB · Status — bấm một dòng để xem chi tiết ngay, không cần chọn khách trước. Trong chi tiết có nút <span class="btn-ex">⟵ Doanh thu theo tháng</span> để quay lại.</li>
+      <li>Ba chỉ số tháng: <b>Tổng FOB</b>, <b>Số đơn</b>, <b>Số khách</b>. Đổi tháng bằng ◀ ▶. Lọc thêm theo <b>Brand/OEM</b> và theo <b>Status</b> (nút chip ngay trên bảng).</li>
+      <li><b>Danh sách đơn trong tháng</b>: Khách · Thị trường · SO · Ngày load · FOB · Status · Order note — bấm một dòng để xem chi tiết ngay, không cần chọn khách trước. Trong chi tiết có nút <span class="btn-ex">⟵ Doanh thu theo tháng</span> để quay lại.</li>
+      <li><b>Đơn đã tách nhiều Shipment</b> (xem mục 11) hiện thành <b>nhiều dòng</b> trong bảng, mỗi dòng 1 Shipment (nhãn "Shipment 01/02…" cạnh số SO) — FOB được <b>chia theo tỷ trọng giá trị hàng</b> đã phân bổ vào lô đó, xếp đúng tháng theo ngày load thật của từng lô. Đơn chưa tách lô nào vẫn hiện 1 dòng như trước.</li>
+      <li><span class="rolebadge b-admin">Admin</span> <span class="rolebadge b-master">Master</span> sửa nhanh được ngay trên bảng: bấm vào ô <b>Ngày load</b> hoặc <b>Order note</b> để sửa tại chỗ, không cần mở đơn.</li>
+      <li>Trong chi tiết đơn, mỗi dòng hàng có nút <b>🕘</b> để xem <b>lịch sử đặt hàng của mã đó</b> (khách, số lượng, đơn giá, ngày load, brand — lấy trên Operations2025) và nút <span class="btn-ex dg">🗑 Xóa đơn</span> theo đúng quyền vai trò (xem ma trận quyền mục 04).</li>
       <li>Vẫn có cột khách bên trái để mở chi tiết một khách như thường.</li>
-      <li>Xem được <span class="btn-ex">📊 Tiến độ PTSP</span> và <span class="btn-ex">🚢 Shipment</span> (chỉ xem).</li>
+      <li>Xem được <span class="btn-ex">📊 Tiến độ PTSP</span>.</li>
       <li><b>Leader:</b> thấy y hệt Master ở mọi màn hình trên, nhưng mọi nút hành động (Tạo mới, Sửa, Tách đơn, Confirm, Xoá…) đều ẩn hoặc bị chặn — chỉ xem.</li>
+    </ul>
+
+    <h3>Revenue Report — Kế hoạch &amp; Thực hiện</h3>
+    <p>Bấm <span class="btn-ex">📈 Revenue Report</span> trên thanh công cụ. So sánh <b>Kế hoạch</b> (mục tiêu công ty đặt sẵn) với <b>Thực hiện</b> (gộp từ Operations2025 + PI còn nháp trên hub) theo tháng, chia theo khu vực <b>DEV, Hunt, Branding</b> (và tổng OEM/Total Export).</p>
+    <ul>
+      <li>Ba chỉ số lũy kế: Kế hoạch lũy kế, Thực hiện lũy kế, % hoàn thành — cùng biểu đồ cột (Kế hoạch/Thực hiện) và đường % hoàn thành theo từng tháng trong năm. Nét đứt đánh dấu tháng hiện tại; bên phải nét đứt là số dự kiến (đơn nháp/kế hoạch đang có, chưa chắc chắn).</li>
+      <li><b>Phạm vi xem theo vai trò:</b> Admin/Master/Leader xem đầy đủ mọi khu vực; Lead chỉ xem riêng khu vực OEM; Sale thuộc nhánh Brand chỉ xem riêng khu vực Branding của mình.</li>
+      <li>Bấm <span class="btn-ex">⟵ Trang đầu</span> để quay lại. Refresh dữ liệu dùng nút <span class="btn-ex">⟳ Làm mới</span> chung trên thanh công cụ (trang này không có nút làm mới riêng).</li>
     </ul>
   </section>
 
@@ -495,7 +508,7 @@
     <ul>
       <li>Sửa được đơn của mọi sale, ở <b>mọi trạng thái</b> — kể cả đơn đã Confirm (<code>booked</code>, <code>shipped</code>, <code>closed</code>). Đơn vẫn giữ tên sale gốc.</li>
       <li>Ô <b>Trạng thái</b> trong form báo giá mở đầy đủ cho Admin/Master: targeted · drafted · reviewed · booked · shipped · closed.</li>
-      <li>Sửa đơn đã vào Operations2025: đơn thành bản nháp <code>Sale Edited</code> trên hub; bấm <b>Confirm</b> lần nữa để ghi ngược cập nhật vào đúng SO đó.</li>
+      <li>Sửa đơn đã vào Operations2025: app ghi <b>thẳng vào đúng SO đó</b>, không tạo bản nháp trung gian, không cần Confirm lại — riêng Admin/Master mới đổi được số SO và Deposit/Ngày cọc khi sửa.</li>
       <li>Khi sửa đơn, ô <b>Mã KH</b> cho phép cập nhật/bổ sung mã khách — ghi thẳng vào danh mục khách trung tâm.</li>
       <li>Khách chưa có mã: bấm <span class="btn-ex">⬇ YC tạo mã KH</span> → mở form <b>kiểm tra/sửa thông tin khách</b> (tên, tên đầy đủ, địa chỉ, quốc gia, cảng). Bấm <b>Submit</b>: app xuất phiếu <b>Yêu cầu cấp mã khách hàng</b> đúng biểu mẫu theo giá trị đã sửa (chỉ dùng cho lần xuất này, không ghi ngược vào danh mục khách), đồng thời mở tab tạo <b>ticket Helpdesk</b> trên Odoo — dùng nút <span class="btn-ex">📋 Copy</span> để dán thông tin khách vào mô tả ticket.</li>
     </ul>
@@ -524,28 +537,31 @@
   </section>
 
   <section id="lohang">
-    <h2><span class="num">11</span> Thông tin lô hàng &amp; Custom Docs <span class="rolebadge b-admin">Admin</span> <span class="rolebadge b-master">Master</span></h2>
-    <p class="section-sub">Mở đơn đã Confirm → <span class="btn-ex">🚢 Thông tin lô hàng</span>. Đây là nơi cập nhật tiến độ thanh toán/vận chuyển và xuất trọn bộ chứng từ xuất khẩu. Dữ liệu ghi vào tab <b>Order</b> và <b>Details</b> của Operations2025.</p>
+    <h2><span class="num">11</span> Quản lý Shipment &amp; Custom Docs <span class="rolebadge b-admin">Admin</span> <span class="rolebadge b-master">Master</span></h2>
+    <p class="section-sub">Mở đơn đã Confirm → <span class="btn-ex">🚢 Quản lý Shipment</span>. Một SO có thể giao thành <b>nhiều Shipment</b> (lô/container) — mỗi Shipment có lịch trình/chứng từ riêng và phân bổ số lượng hàng riêng. Dữ liệu ghi vào 2 tab mới trên Operations2025: <b>Shipment</b> (thông tin từng lô) và <b>Shpt_Detail</b> (mã hàng nào vào lô nào, container nào).</p>
+    <div class="note"><b>Technician cũng chia được Shipment/container</b> — nhưng gọn hơn nhiều và ngay tại màn xem đơn, không cần mở màn riêng này. Xem mục 07.</div>
 
-    <h3>Nhập thông tin lô hàng</h3>
+    <h3>Thanh toán (theo cả đơn)</h3>
+    <p>Deposit/Ngày cọc sửa khi Confirm hoặc Sửa đơn (mục 10). Riêng <b>Ngày TT</b> và <b>Payment ($)</b> có ô nhập ngay đầu màn Quản lý Shipment — áp dụng cho <b>cả đơn</b>, không chia theo từng Shipment (khách trả tiền theo SO/PI, không theo từng container).</p>
+
+    <h3>Các Shipment đã tạo</h3>
+    <p>Danh sách hiện dưới dạng thẻ, mỗi thẻ là 1 Shipment (mã dạng <code>&lt;SO&gt;-01</code>, <code>-02</code>…) kèm Status và tổng số lượng đã phân bổ. Bấm <span class="btn-ex">+ Thêm Shipment mới</span> để tạo thêm lô, hoặc bấm vào 1 thẻ để sửa.</p>
     <div class="tbl-wrap"><table class="feat">
-      <thead><tr><th>Nhóm</th><th>Trường</th></tr></thead>
+      <thead><tr><th>Nhóm</th><th>Trường (theo từng Shipment)</th></tr></thead>
       <tbody>
-        <tr><td>Thanh toán</td><td>Deposit ($) · Ngày cọc · Payment ($) · Ngày TT</td></tr>
-        <tr><td>Lịch trình</td><td>RealLoad · ETD · ETA · Status</td></tr>
+        <tr><td>Trạng thái lô</td><td>Shipment Status (booked → shipped → customs cleared → delivered)</td></tr>
+        <tr><td>Lịch trình</td><td>RealLoad · ETD · ETA</td></tr>
         <tr><td>Chứng từ</td><td>INVOICE# · INV Date · Số TK · Ngày TK</td></tr>
         <tr><td>Vận chuyển</td><td>Booking · Line · Loading point · Shipment No.</td></tr>
         <tr><td>Chi phí</td><td>Trucking (VND) · LCC (VND) · Cước ($)</td></tr>
+        <tr><td>Khác</td><td>Ghi chú Shipment</td></tr>
       </tbody>
     </table></div>
-    <p>Bấm <span class="btn-ex">💾 Lưu thông tin lô hàng</span> để ghi, <span class="btn-ex">⟳ Nạp lại</span> để lấy lại số hiện có trên sheet.</p>
-    <div class="note"><b>Ô bị khoá:</b> một số cột trên Operations2025 là <b>công thức</b> (Balance, CBM, Machine…). App không ghi đè chúng và sẽ liệt kê ngay dưới form những trường đang bị khoá. Muốn đổi thì sửa trực tiếp trên sheet.</div>
-
-    <h3>Số lượng giao thực tế (Ship Qty)</h3>
-    <p>Bảng dưới liệt kê từng dòng hàng: Code · Sản phẩm · Order Qty · <b>Ship Qty</b> · Marking · Ghi chú. Sửa Ship Qty cho từng dòng, hoặc bấm <span class="btn-ex">= Order Qty</span> để điền toàn bộ bằng Order Qty. Ship Qty là số dùng cho Packing List, VGM và Invoice.</p>
+    <p>Dưới form là bảng <b>phân bổ số lượng</b>: mỗi mã hàng của đơn có ô <b>Qty vào Shipment này</b> và <b>Container No.</b> (điền khi 1 Shipment tách nhiều hơn 1 container). Bấm <span class="btn-ex">💾 Lưu Shipment</span> để ghi, <span class="btn-ex">🗑 Xóa Shipment</span> để xoá hẳn lô đó.</p>
+    <div class="tip"><b>Ship Qty tự cộng:</b> cột Ship Qty trên bảng Details của đơn giờ là công thức tự cộng tổng số lượng đã phân bổ vào tất cả Shipment của mã đó — mã chưa phân bổ lô nào thì Ship Qty mặc định bằng Order Qty.</div>
 
     <h3>Xuất bộ Custom Docs</h3>
-    <p>Chọn <b>Loại container</b> (20GP / 40GP / 40HC), <b>Tare cont (kg)</b>, <b>Container No. / Seal</b>, <b>Order ref (PO)</b> → bấm <span class="btn-ex">⬇ Xuất Custom Docs</span>. App trả về <b>một file Excel gồm 6 form</b>:</p>
+    <p>Chọn <b>lô lấy Invoice/Loading point/Cước</b> (để trống thì nhập tay), <b>Loại container</b> (20GP / 40GP / 40HC), <b>Tare cont (kg)</b>, <b>Container No. / Seal</b>, <b>Order ref (PO)</b> → bấm <span class="btn-ex">⬇ Xuất Custom Docs</span>. App trả về <b>một file Excel gồm 6 form</b>:</p>
     <ul>
       <li><b>PO</b> — đơn đặt hàng nhà máy</li>
       <li><b>Invoice tạo SO</b> — hoá đơn nội bộ để tạo SO</li>
@@ -571,19 +587,8 @@
     <div class="note"><b>Đây là dữ liệu roadmap nội bộ.</b> Không chụp lại và chia sẻ ra ngoài công ty.</div>
   </section>
 
-  <section id="shipment">
-    <h2><span class="num">13</span> Shipment Tracking</h2>
-    <p class="section-sub">Trang theo dõi lịch trình vận chuyển, liên kết hai chiều với app báo giá.</p>
-    <ul>
-      <li>Từ app báo giá bấm <span class="btn-ex">🚢 Shipment</span> để mở. Đã đăng nhập app rồi thì <b>xem được ngay, không cần mật khẩu</b>.</li>
-      <li><b>Sale/Lead/Kỹ thuật: chỉ xem</b> (Load date, ETD/ETA, trạng thái, tra cứu vận đơn theo hãng tàu). <b>Chỉ Admin/Master mới sửa</b> được lịch trình.</li>
-      <li><b>Double-click số SO</b> trên trang Shipment để mở thẳng đơn đó bên app báo giá (theo phân quyền của bạn).</li>
-      <li>Phía trên bảng có <b>tổng FOB theo tháng</b>; đổi tháng bằng ô chọn tháng.</li>
-    </ul>
-  </section>
-
   <section id="chungtu">
-    <h2><span class="num">14</span> Bảng chứng từ xuất ra được</h2>
+    <h2><span class="num">13</span> Bảng chứng từ xuất ra được</h2>
     <p class="section-sub">Toàn bộ chứng từ đều điền vào <b>biểu mẫu gốc của công ty</b> đặt trên Shared Drive — đúng định dạng, không phải gõ lại.</p>
     <div class="tbl-wrap"><table class="feat">
       <thead><tr><th>Chứng từ</th><th>Nút</th><th>Ai xuất</th><th>Định dạng</th></tr></thead>
@@ -591,7 +596,7 @@
         <tr><td>Proforma Invoice (PI)</td><td>⬇ Export PI</td><td>Tất cả</td><td>Excel / PDF</td></tr>
         <tr><td>YC phát triển sản phẩm (R&amp;D)</td><td>⬇ Form RD</td><td>Tech, Admin, Master</td><td>Excel (mỗi mã một trang)</td></tr>
         <tr><td>YC cấp mã khách hàng</td><td>⬇ YC tạo mã KH</td><td>Admin, Master</td><td>Excel + ticket Helpdesk Odoo</td></tr>
-        <tr><td>ĐNXH (Đề nghị xuất hàng)</td><td>⬇ Chứng từ NM / sau Confirm</td><td>Admin, Master</td><td>Excel</td></tr>
+        <tr><td>ĐNXH (Đề nghị xuất hàng)</td><td>⬇ Chứng từ NM / sau Confirm</td><td>Admin, Master</td><td>Excel — cột "Chia cont" theo Container No. đã phân bổ; kèm sheet "Theo Shipment" nếu đơn có &gt;1 Shipment</td></tr>
         <tr><td>Marking carton</td><td>⬇ Chứng từ NM / sau Confirm</td><td>Admin, Master</td><td>Excel (các mã Marking = Y)</td></tr>
         <tr><td>Custom Docs (6 form)</td><td>⬇ Xuất Custom Docs</td><td>Admin, Master</td><td>Excel nhiều tab</td></tr>
       </tbody>
@@ -601,7 +606,7 @@
   <hr class="divider">
 
   <section id="congthuc">
-    <h2><span class="num">15</span> Công thức &amp; quy ước tính toán</h2>
+    <h2><span class="num">14</span> Công thức &amp; quy ước tính toán</h2>
     <p class="section-sub">Để mọi người đọc cùng một con số theo cùng một cách.</p>
     <div class="card">
       <ul>
@@ -617,7 +622,7 @@
   </section>
 
   <section id="meo">
-    <h2><span class="num">16</span> Mẹo, lưu ý &amp; xử lý sự cố</h2>
+    <h2><span class="num">15</span> Mẹo, lưu ý &amp; xử lý sự cố</h2>
     <div class="card">
       <ul>
         <li><b>Tự lưu nháp:</b> đang soạn báo giá mà đóng nhầm/mất mạng — mở lại app sẽ hỏi khôi phục bản nháp.</li>
@@ -632,8 +637,8 @@
   </section>
 
   <footer>
-    Export Ops Hub · Phòng Vận hành Kinh doanh — Công ty CP Tập đoàn Karofi<br>
-    Tài liệu hướng dẫn nội bộ · cập nhật 05/08/2026
+    Export Hub · Phòng Vận hành Kinh doanh — Công ty CP Tập đoàn Karofi<br>
+    Tài liệu hướng dẫn nội bộ · cập nhật 15/08/2026
   </footer>
 
 </div>

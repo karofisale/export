@@ -307,7 +307,7 @@ td.note-cell.expanded { white-space: normal; max-width: none; }
       <div class="tb-menu" id="tbMenu">
         <button class="btn ghost" id="prodMgrBtn" style="display:none" title="Thêm/sửa sản phẩm, model, BOM trên hub"><span class="tb-ic">🧩</span><span class="tb-label">Danh mục SP</span></button>
         <button class="btn ghost" id="ptspBtn" style="display:none" title="Dashboard tiến độ phát triển sản phẩm (đọc live từ Jira)"><span class="tb-ic">📊</span><span class="tb-label">Tiến độ PTSP</span></button>
-        <button class="btn ghost" id="planBtn" style="display:none" title="Kế hoạch và thực hiện doanh thu xuất khẩu theo tháng"><span class="tb-ic">📈</span><span class="tb-label">Kế hoạch</span></button>
+        <button class="btn ghost" id="planBtn" style="display:none" title="Kế hoạch và thực hiện doanh thu xuất khẩu theo tháng"><span class="tb-ic">📈</span><span class="tb-label">Revenue Report</span></button>
         <button class="btn ghost" id="refreshBtn" title="Xóa cache, tải lại dữ liệu mới nhất từ Google Sheets"><span class="tb-ic">⟳</span><span class="tb-label">Làm mới</span></button>
         <div class="tb-divider"></div>
         <button class="btn ghost" id="changePinBtn" title="Đổi mật khẩu (PIN) của bạn"><span class="tb-ic">🔑</span><span class="tb-label">Đổi mật khẩu</span></button>
@@ -667,11 +667,11 @@ td.note-cell.expanded { white-space: normal; max-width: none; }
         </div>
       </section>
 
-      <!-- Kế hoạch & Thực hiện doanh thu xuất khẩu theo tháng -->
+      <!-- Revenue Report — Kế hoạch & Thực hiện doanh thu xuất khẩu theo tháng -->
       <section id="planView" style="display:none">
         <div class="client-header">
           <div>
-            <h2>Kế hoạch &amp; Thực hiện</h2>
+            <h2>Revenue Report</h2>
             <div class="client-meta" id="planMeta"></div>
           </div>
           <div class="order-picker" style="display:flex;align-items:center;gap:8px">
@@ -1217,7 +1217,7 @@ var S = {
   pickerRowIdx: null, bomRowIdx: null
 };
 
-var EDITABLE_STATUSES = ['drafted', 'targeted', 'sale edited', 'new created'];
+var EDITABLE_STATUSES = ['drafted', 'targeted', 'new created'];
 // Vai trò có trang đầu là bảng đơn hàng theo tháng (và nút ⟵ quay lại bảng đó).
 // technician có trang đầu riêng là hàng đợi cần kiểm tra.
 var MONTH_VIEW_ROLES = ['sale', 'lead', 'leader', 'admin', 'master', 'technician'];
@@ -3227,7 +3227,7 @@ function renderQueue() {
   var rows = S.queue.filter(function (o) {
     return !q || (o.client + ' ' + o.piNumber + ' ' + o.so + ' ' + o.pic).toLowerCase().indexOf(q) >= 0;
   });
-  $('queueMeta').textContent = rows.length + ' đơn (New Created / Sale Edited / reviewed / targeted / drafted)';
+  $('queueMeta').textContent = rows.length + ' đơn (New Created / reviewed / targeted / drafted)';
   var tb = $('queueTable').querySelector('tbody');
   tb.innerHTML = rows.length ? rows.map(function (o, i) {
     return '<tr data-i="' + i + '" style="cursor:pointer">' +
@@ -3257,8 +3257,10 @@ function openQueueRow(o) {
 
 /** Đơn có sửa được (Edit Details) với quyền hiện tại không?
  *  admin/master/technician: sửa được MỌI đơn ở MỌI trạng thái (kể cả đơn đã vào Operations2025 —
- *  sửa xong thành bản nháp "Sale Edited", admin Confirm để ghi ngược lại SO đó).
- *  sale/lead: chỉ các trạng thái trong EDITABLE_STATUSES. */
+ *  ghi thẳng lại đúng SO đó, xem directToOps ở edSaveBtn).
+ *  sale/lead: chỉ các trạng thái trong EDITABLE_STATUSES (targeted/drafted/new created) — dù đơn đang
+ *  nằm ở file sale hay đã Confirm trên Operations2025 (updateOpsOrderInPlace_ chặn thêm theo status
+ *  hiện tại + PIC ở backend). */
 function canEditOrder(o) {
   if (S.user.role === 'leader') return false; // leader: chỉ xem, không sửa đơn ở bất kỳ trạng thái nào
   if (isAdminLevel() || S.user.role === 'technician') return true;
@@ -3282,8 +3284,7 @@ function selectOrder(i) {
   $('cloneBtn').style.display = canCreate ? '' : 'none';
   $('createNewBtn').style.display = canCreate ? '' : 'none';
   $('cloneBtn').disabled = false;
-  // đơn nằm trong file sale (chưa ghi vào Operations2025) luôn chờ Confirm, bất kể status gì —
-  // admin/master sửa đơn đã Confirm giờ có thể giữ nguyên status gốc (vd "opened") thay vì luôn "Sale Edited".
+  // đơn nằm trong file sale (chưa ghi vào Operations2025) luôn chờ Confirm, bất kể status gì.
   var isSalePi = o.source === 'sale';
   // nút Confirm: admin/master, đơn file sale
   $('confirmPiBtn').style.display = (isAdminLevel() && isSalePi) ? '' : 'none';
@@ -3807,13 +3808,14 @@ function restoreDraft(client, ed) {
 }
 
 /* ================= Editor (form báo giá) ================= */
-/** Đổ options cho dropdown trạng thái. sale/lead: targeted/drafted. admin/master: mọi trạng thái.
- *  Trạng thái hiện tại của đơn luôn được giữ trong danh sách dù không nằm trong bộ chuẩn (Sale Edited…). */
+/** Đổ options cho dropdown trạng thái. sale/lead/technician: targeted/drafted. admin/master: mọi trạng
+ *  thái. Trạng thái hiện tại của đơn luôn được giữ trong danh sách dù không nằm trong bộ chuẩn (đơn cũ
+ *  còn "reviewed"/"New Created", hoặc hoạ hiếm còn sót "Sale Edited" từ trước khi bỏ trạng thái này). */
 function setEditorStatus(status) {
   var s = String(status || 'targeted');
   var base = (isAdminLevel() ? STATUS_OPTIONS_ADMIN : STATUS_OPTIONS).slice();
   var opts = base.slice();
-  if (base.indexOf(s.toLowerCase()) < 0) opts.unshift(s); // reviewed / Sale Edited / New Created -> giữ nguyên
+  if (base.indexOf(s.toLowerCase()) < 0) opts.unshift(s); // reviewed / New Created / (cũ) Sale Edited -> giữ nguyên
   $('edStatusSel').innerHTML = opts.map(function (o) {
     var v = (base.indexOf(o) >= 0) ? o : o; // giữ nguyên chuỗi gốc cho status đặc biệt
     return '<option value="' + esc(o) + '"' + (o === s || o.toLowerCase() === s.toLowerCase() ? ' selected' : '') + '>' + esc(o) + '</option>';
@@ -3822,21 +3824,10 @@ function setEditorStatus(status) {
 }
 
 function openEditor(mode, piNumber, lines, existingOrder) {
-  // Clone/New -> 'targeted' (sale chọn Expected Loading). Sửa đơn sale -> giữ status hiện tại.
-  // Sửa đơn đã Confirm (ops2025): admin/master giữ nguyên trạng thái gốc (tự chọn đổi trong dropdown nếu cần);
-  // technician vẫn tự chuyển "Sale Edited" để đơn quay lại đúng hàng đợi review.
-  var editStatus;
-  if (mode === 'edit') {
-    if (existingOrder && existingOrder.source === 'sale') {
-      editStatus = existingOrder.status;
-    } else if (existingOrder && isAdminLevel()) {
-      editStatus = existingOrder.status;
-    } else {
-      editStatus = 'Sale Edited';
-    }
-  } else {
-    editStatus = 'targeted';
-  }
+  // Clone/New -> 'targeted' (sale chọn Expected Loading). Sửa đơn (sale file hoặc đã Confirm trên Ops)
+  // -> luôn giữ đúng status hiện tại của đơn (không còn "Sale Edited" — mọi vai trò sửa được trực tiếp
+  // (targeted/drafted) đều ghi thẳng vào đúng chỗ đơn đang nằm, xem directToOps ở edSaveBtn).
+  var editStatus = (mode === 'edit' && existingOrder) ? existingOrder.status : 'targeted';
   S.editor = {
     mode: mode,
     piNumber: piNumber,
@@ -4160,16 +4151,20 @@ $('edSaveBtn').addEventListener('click', function () {
   if (!ed.expectedLoad) { toast('Nhập Expected Loading.'); return; }
   var lines = ed.lines.filter(function (l) { return l.code && l.qty > 0; });
   if (!lines.length) { toast('Đơn chưa có dòng nào (cần Code + Qty > 0).'); return; }
-  // admin/master sửa 1 đơn ĐÃ có SO trên Export Order -> ghi thẳng vào đúng SO đó, không tạo bản nháp
-  // ở file sale (đỡ phải Confirm lại) — đơn đang ở file nào thì lưu lại vào đúng file đó.
+  // Sửa 1 đơn ĐÃ có SO trên Export Order -> ghi thẳng vào đúng SO đó, không tạo bản nháp ở file sale
+  // (đỡ phải Confirm lại) — đơn đang ở file nào thì lưu lại vào đúng file đó. admin/master sửa được mọi
+  // trạng thái; sale/lead/technician sửa trực tiếp được khi đơn đang targeted/drafted (backend
+  // updateOpsOrderInPlace_ tự chặn nếu không đủ điều kiện — không còn status "Sale Edited" trung gian).
   // Đơn admin tự tạo trước trên Export Order (chưa có SO thật) vẫn phải qua Confirm (nhánh "rename")
   // để gán SO, nên đi theo đường cũ (api_savePI) như trước.
-  var directToOps = ed.mode === 'edit' && ed.source === 'ops2025' && !!ed.origSo && isAdminLevel();
-  var newSo = directToOps ? $('edSo').value.trim() : '';
-  var deposit = directToOps ? $('edDeposit').value : '';
-  var depositDate = directToOps ? $('edDepositDate').value : '';
-  var depositPassed = directToOps ? $('edDepositPassed').checked : false;
-  if (directToOps && ed.status.toLowerCase() === 'opened' && !depositPassed) {
+  var canDirectEdit = isAdminLevel() || S.user.role === 'sale' || S.user.role === 'lead' || S.user.role === 'technician';
+  var directToOps = ed.mode === 'edit' && ed.source === 'ops2025' && !!ed.origSo && canDirectEdit;
+  // Số SO / Deposit / Ngày cọc / Miễn Deposit: chỉ admin/master mới sửa được, dù đi theo directToOps nào.
+  var newSo = (directToOps && isAdminLevel()) ? $('edSo').value.trim() : '';
+  var deposit = (directToOps && isAdminLevel()) ? $('edDeposit').value : '';
+  var depositDate = (directToOps && isAdminLevel()) ? $('edDepositDate').value : '';
+  var depositPassed = (directToOps && isAdminLevel()) ? $('edDepositPassed').checked : false;
+  if (directToOps && isAdminLevel() && ed.status.toLowerCase() === 'opened' && !depositPassed) {
     if (!deposit || Number(deposit) <= 0) { toast('Trạng thái "opened" cần nhập Deposit (hoặc tick "Miễn Deposit").'); return; }
     if (!depositDate) { toast('Trạng thái "opened" cần nhập Ngày cọc (hoặc tick "Miễn Deposit").'); return; }
   }
