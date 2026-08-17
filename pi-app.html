@@ -694,7 +694,7 @@ td.note-cell.expanded { white-space: normal; max-width: none; }
           <span><span style="display:inline-block;width:10px;height:10px;background:#b9c4bb;border-radius:2px;vertical-align:-1px"></span> Kế hoạch</span>
           <span><span style="display:inline-block;width:10px;height:10px;background:var(--accent);border-radius:2px;vertical-align:-1px"></span> Thực hiện</span>
           <span><span style="display:inline-block;width:10px;height:2px;background:var(--accent-strong);vertical-align:2px"></span> % hoàn thành</span>
-          <span><span style="display:inline-block;width:10px;height:2px;background:#8b5cf6;vertical-align:2px"></span> Kế hoạch B (mục tiêu Budget, chỉ DEV/Hunt/OEM)</span>
+          <span><span style="display:inline-block;width:10px;height:10px;background:#8b5cf6;border-radius:2px;vertical-align:-1px"></span> Kế hoạch B (mục tiêu Budget, chỉ DEV/Hunt/OEM)</span>
           <span>┊ Nét đứt = mốc tháng hiện tại — bên phải là số dự kiến (đơn nháp/kế hoạch đang có)</span>
         </div>
         <div id="planChartWrap" style="margin:6px 0 16px"></div>
@@ -1989,7 +1989,9 @@ function isBrandOrder(o) { return String(o.pic || '').trim().toLowerCase() === '
 function renderRevStatusFilter() {
   var wrap = $('revStatusFilterWrap');
   var sts = {};
-  (S.revOrders || []).forEach(function (o) { if (o.status) sts[o.status] = 1; });
+  (S.revOrders || []).forEach(function (o) {
+    if (o.status && o.status.trim().toLowerCase() !== 'sale edited') sts[o.status] = 1; // trạng thái cũ, đã bỏ khỏi STATUS_OPTIONS
+  });
   var list = Object.keys(sts).sort();
   if (!list.length) { wrap.innerHTML = ''; return; }
   if (!S.revStatusFilter) S.revStatusFilter = 'all';
@@ -3507,8 +3509,13 @@ function buildPlanChartSvg_(seg, curMonthIdx) {
     seg.done.reduce(function (a, b) { return Math.max(a, b); }, 0),
     (seg.budgetPlan || []).reduce(function (a, b) { return Math.max(a, b); }, 0)) * 1.3; // chừa chỗ phía trên cho nhãn %/giá trị trên đầu cột
   var slot = plotW / 12;
-  var barW = Math.min(16, slot * 0.28);
+  var hasBudget = !!seg.budgetPlan;
+  var barCount = hasBudget ? 3 : 2; // có Kế hoạch B thì thêm 1 cột — tự thu hẹp mỗi cột để vẫn vừa tháng
+  var barGap = 2;
+  var barW = hasBudget ? Math.min(11, slot * 0.20) : Math.min(16, slot * 0.28);
+  var groupW = barCount * barW + (barCount - 1) * barGap;
   function x(i, off) { return padL + i * slot + slot / 2 + (off || 0); }
+  function barX(i, idx) { return x(i, 0) - groupW / 2 + idx * (barW + barGap); }
   function yVal(v) { return padT + plotH - (v / maxVal) * plotH; }
   function yPct(p) { return padT + plotH - (Math.min(p, 120) / 120) * plotH; }
 
@@ -3532,10 +3539,14 @@ function buildPlanChartSvg_(seg, curMonthIdx) {
   // Mỗi cột Thực hiện > 0 có nhãn %/giá trị (bỏ thập phân) ngay phía trên.
   var bars = '', months = '', barLabels = '';
   for (var i = 0; i < 12; i++) {
-    var pv = seg.plan[i] || 0, dv = seg.done[i] || 0;
-    var xp = x(i, -barW - 2), xd = x(i, 2);
+    var pv = seg.plan[i] || 0, dv = seg.done[i] || 0, bv = hasBudget ? (seg.budgetPlan[i] || 0) : 0;
+    var xp = barX(i, 0), xd = barX(i, hasBudget ? 2 : 1);
     var future = i > curMonthIdx;
     bars += '<rect x="' + xp + '" y="' + yVal(pv) + '" width="' + barW + '" height="' + (padT + plotH - yVal(pv)) + '" fill="#b9c4bb" rx="2"/>';
+    if (hasBudget) {
+      var xb = barX(i, 1);
+      bars += '<rect x="' + xb + '" y="' + yVal(bv) + '" width="' + barW + '" height="' + (padT + plotH - yVal(bv)) + '" fill="#8b5cf6" rx="2"/>';
+    }
     bars += '<rect x="' + xd + '" y="' + yVal(dv) + '" width="' + barW + '" height="' + (padT + plotH - yVal(dv)) +
       '" fill="var(--accent)" fill-opacity="' + (future ? '0.5' : '1') + '" rx="2"/>';
     if (dv > 0) {
@@ -3563,21 +3574,9 @@ function buildPlanChartSvg_(seg, curMonthIdx) {
   var futureLine = futurePts.length > 1
     ? '<polyline points="' + futurePts.join(' ') + '" fill="none" stroke="var(--accent-strong)" stroke-width="2" stroke-dasharray="5 4"/>' : '';
 
-  // Kế hoạch B (mục tiêu Budget riêng của team, chỉ DEV/Hunt/OEM) — đường tham chiếu đứt nét màu tím,
-  // vẽ đè lên cột theo đúng thang $ trục trái, phân biệt với đường % (đường đặc/đứt màu accent).
-  var budgetLine = '';
-  if (seg.budgetPlan) {
-    var bpts = [];
-    for (var k = 0; k < 12; k++) bpts.push(x(k, 0) + ',' + yVal(seg.budgetPlan[k] || 0));
-    budgetLine = '<polyline points="' + bpts.join(' ') + '" fill="none" stroke="#8b5cf6" stroke-width="2" stroke-dasharray="6 3"/>';
-    for (var k2 = 0; k2 < 12; k2++) {
-      budgetLine += '<circle cx="' + x(k2, 0) + '" cy="' + yVal(seg.budgetPlan[k2] || 0) + '" r="2.5" fill="#8b5cf6"/>';
-    }
-  }
-
   return '<svg viewBox="0 0 ' + W + ' ' + H + '" style="width:100%;height:auto;max-height:320px" role="img" ' +
     'aria-label="Kế hoạch và thực hiện theo tháng, kèm phần trăm hoàn thành; các tháng sau tháng hiện tại là số dự kiến">' +
-    grid + target100 + todayMark + bars + pastLine + futureLine + budgetLine + dots + barLabels + months + '</svg>';
+    grid + target100 + todayMark + bars + pastLine + futureLine + dots + barLabels + months + '</svg>';
 }
 
 $('planBtn').addEventListener('click', function () { loadPlanReport(); });
