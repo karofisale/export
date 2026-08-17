@@ -178,6 +178,7 @@
       <li><a href="#lead">Doanh thu theo tháng &amp; Revenue Report</a></li>
       <li><a href="#admin">Dành cho Admin / Master</a></li>
       <li><a href="#lohang">Quản lý Shipment &amp; Custom Docs</a></li>
+      <li><a href="#shiptrack">🚢 Shipment Tracking</a></li>
       <li><a href="#ptsp">Tiến độ PTSP (Jira)</a></li>
       <li><a href="#chungtu">Bảng chứng từ xuất ra được</a></li>
       <li><a href="#congthuc">Công thức &amp; quy ước tính toán</a></li>
@@ -585,8 +586,22 @@
 
   <hr class="divider">
 
+  <section id="shiptrack">
+    <h2><span class="num">12</span> 🚢 Shipment Tracking</h2>
+    <p class="section-sub">Bấm <span class="btn-ex">🚢 Shipment Tracking</span> trên thanh công cụ. Xem lịch trình <b>tất cả Shipment trong tháng</b> (đổi tháng bằng ◀ ▶) — thay cho tool ngoài "Shipment Tracking" cũ, nay nằm hẳn trong app và dùng chung đăng nhập/phân quyền của app.</p>
+    <ul>
+      <li><b>Cột hiển thị:</b> SO · Khách · Thị trường · FOB · Ngày load · Status · Booking · Line · Tracking.</li>
+      <li><b>Phạm vi xem theo vai trò</b> — giống hệt bảng "Doanh thu theo tháng": Sale chỉ thấy Shipment của đơn mình, Lead không thấy đơn của Brand, Admin/Master/Leader xem đầy đủ.</li>
+      <li>Bấm <span class="btn-ex">🔎 Tracking</span> để mở trang hãng tàu tương ứng kèm sẵn số Booking (xem chi tiết ở mục 11 — cùng cơ chế với nút Tracking trong Quản lý Shipment).</li>
+      <li><span class="rolebadge b-admin">Admin</span> <span class="rolebadge b-master">Master</span> có thêm nút <span class="btn-ex">✎ Quản lý</span> ở cuối mỗi dòng — bấm để nhảy thẳng vào màn <b>Quản lý Shipment</b> của đúng SO đó, mở sẵn đúng Shipment để sửa ngay, không cần tự tìm khách/đơn.</li>
+      <li>Chỉ liệt kê Shipment <b>đã có SO thật</b> (đơn đã Confirm) — đơn nháp/kế hoạch chưa tách Shipment thì chưa có gì để tra cứu vận đơn.</li>
+    </ul>
+  </section>
+
+  <hr class="divider">
+
   <section id="ptsp">
-    <h2><span class="num">12</span> Tiến độ PTSP (đọc live từ Jira) <span class="rolebadge b-lead">Lead</span> <span class="rolebadge b-leader">Leader</span> <span class="rolebadge b-tech">Tech</span> <span class="rolebadge b-admin">Admin</span> <span class="rolebadge b-master">Master</span></h2>
+    <h2><span class="num">13</span> Tiến độ PTSP (đọc live từ Jira) <span class="rolebadge b-lead">Lead</span> <span class="rolebadge b-leader">Leader</span> <span class="rolebadge b-tech">Tech</span> <span class="rolebadge b-admin">Admin</span> <span class="rolebadge b-master">Master</span></h2>
     <p class="section-sub">Bấm <span class="btn-ex">📊 Tiến độ PTSP</span>. Dashboard đọc <b>trực tiếp</b> từ Jira nội bộ (jira.karofi.com) — không phải bản chụp tay, nên số liệu luôn khớp với Jira.</p>
     <ul>
       <li><b>Sáu chỉ số tổng:</b> Hoàn thành chung (%), Số dự án, Tổng đầu việc, Đã xong, Đang làm, Chưa làm.</li>
@@ -598,7 +613,7 @@
   </section>
 
   <section id="chungtu">
-    <h2><span class="num">13</span> Bảng chứng từ xuất ra được</h2>
+    <h2><span class="num">14</span> Bảng chứng từ xuất ra được</h2>
     <p class="section-sub">Toàn bộ chứng từ đều điền vào <b>biểu mẫu gốc của công ty</b> đặt trên Shared Drive — đúng định dạng, không phải gõ lại.</p>
     <div class="tbl-wrap"><table class="feat">
       <thead><tr><th>Chứng từ</th><th>Nút</th><th>Ai xuất</th><th>Định dạng</th></tr></thead>
@@ -616,7 +631,7 @@
   <hr class="divider">
 
   <section id="congthuc">
-    <h2><span class="num">14</span> Công thức &amp; quy ước tính toán</h2>
+    <h2><span class="num">15</span> Công thức &amp; quy ước tính toán</h2>
     <p class="section-sub">Để mọi người đọc cùng một con số theo cùng một cách.</p>
     <div class="card">
       <ul>
@@ -632,7 +647,7 @@
   </section>
 
   <section id="meo">
-    <h2><span class="num">15</span> Mẹo, lưu ý &amp; xử lý sự cố</h2>
+    <h2><span class="num">16</span> Mẹo, lưu ý &amp; xử lý sự cố</h2>
     <div class="card">
       <ul>
         <li><b>Tự lưu nháp:</b> đang soạn báo giá mà đóng nhầm/mất mạng — mở lại app sẽ hỏi khôi phục bản nháp.</li>

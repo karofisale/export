@@ -308,6 +308,7 @@ td.note-cell.expanded { white-space: normal; max-width: none; }
         <button class="btn ghost" id="prodMgrBtn" style="display:none" title="Thêm/sửa sản phẩm, model, BOM trên hub"><span class="tb-ic">🧩</span><span class="tb-label">Danh mục SP</span></button>
         <button class="btn ghost" id="ptspBtn" style="display:none" title="Dashboard tiến độ phát triển sản phẩm (đọc live từ Jira)"><span class="tb-ic">📊</span><span class="tb-label">Tiến độ PTSP</span></button>
         <button class="btn ghost" id="planBtn" style="display:none" title="Kế hoạch và thực hiện doanh thu xuất khẩu theo tháng"><span class="tb-ic">📈</span><span class="tb-label">Revenue Report</span></button>
+        <button class="btn ghost" id="shipTrackBtn" style="display:none" title="Lịch trình các Shipment trong tháng, tra cứu vận đơn"><span class="tb-ic">🚢</span><span class="tb-label">Shipment Tracking</span></button>
         <button class="btn ghost" id="refreshBtn" title="Xóa cache, tải lại dữ liệu mới nhất từ Google Sheets"><span class="tb-ic">⟳</span><span class="tb-label">Làm mới</span></button>
         <div class="tb-divider"></div>
         <button class="btn ghost" id="changePinBtn" title="Đổi mật khẩu (PIN) của bạn"><span class="tb-ic">🔑</span><span class="tb-label">Đổi mật khẩu</span></button>
@@ -717,6 +718,32 @@ td.note-cell.expanded { white-space: normal; max-width: none; }
               <tbody></tbody>
             </table>
           </div>
+        </div>
+      </section>
+
+      <!-- Shipment Tracking: lịch trình các Shipment trong tháng theo đúng phạm vi dữ liệu của vai
+           trò (giống Doanh thu theo tháng) — bấm Tracking mở trang hãng tàu, admin/master bấm thêm
+           Quản lý để nhảy thẳng vào sửa Shipment đó. -->
+      <section id="shipTrackView" style="display:none">
+        <div class="client-header">
+          <div>
+            <h2>🚢 Shipment Tracking</h2>
+            <div class="client-meta" id="shipTrackMeta"></div>
+          </div>
+          <div class="order-picker" style="display:flex;align-items:center;gap:8px">
+            <button class="btn small" id="shipTrackPrev">◀</button>
+            <b id="shipTrackMonthLabel" style="min-width:90px;text-align:center"></b>
+            <button class="btn small" id="shipTrackNext">▶</button>
+          </div>
+        </div>
+        <div class="table-wrap">
+          <table class="data-table card-list" id="shipTrackTable">
+            <thead><tr>
+              <th>SO</th><th>Khách</th><th>Thị trường</th><th class="num">FOB</th><th>Ngày load</th>
+              <th>Status</th><th>Booking</th><th>Line</th><th>Tracking</th><th></th>
+            </tr></thead>
+            <tbody></tbody>
+          </table>
         </div>
       </section>
 
@@ -1630,6 +1657,7 @@ function bootstrap() {
     $('ptspBtn').style.display = PTSP_ROLES.indexOf(S.user.role) >= 0 ? '' : 'none';   // #10
     $('prodMgrBtn').style.display = PM_ROLES.indexOf(S.user.role) >= 0 ? '' : 'none';  // #11
     $('planBtn').style.display = planPersonaOfUser_() !== 'none' ? '' : 'none';
+    $('shipTrackBtn').style.display = MONTH_VIEW_ROLES.indexOf(S.user.role) >= 0 ? '' : 'none';
     renderClientList();
     renderPending(res.pendingProducts || []);
     var draftPrompted = checkDraft(); // hỏi khôi phục bản nháp chưa lưu (chỉ 1 lần mỗi phiên)
@@ -1710,7 +1738,7 @@ $('clientSort').addEventListener('change', renderClientList);
 
 /** #1 Về trang đầu theo vai trò (giống lúc mới đăng nhập). */
 function goHome() {
-  ['clientView', 'editorView', 'queueView', 'revenueView', 'ptspView', 'prodView', 'shipView', 'planView'].forEach(function (id) {
+  ['clientView', 'editorView', 'queueView', 'revenueView', 'ptspView', 'prodView', 'shipView', 'planView', 'shipTrackView'].forEach(function (id) {
     $(id).style.display = 'none';
   });
   if (S.user.role === 'technician') { loadReviewQueue(); return; }
@@ -1787,6 +1815,7 @@ function selectClient(c, targetSo) {
   $('prodView').style.display = 'none';
   $('shipView').style.display = 'none';
   $('planView').style.display = 'none';
+  $('shipTrackView').style.display = 'none';
   $('backToQueueBtn').style.display = S.user.role === 'technician' ? '' : 'none';
   $('backToRevenueBtn').style.display = MONTH_VIEW_ROLES.indexOf(S.user.role) >= 0 ? '' : 'none';
   $('backToRevenueBtn').textContent = S.user.role === 'sale' ? '⟵ Đơn theo tháng' : '⟵ Doanh thu theo tháng';
@@ -1878,6 +1907,7 @@ function loadRevenue() {
   $('prodView').style.display = 'none';
   $('shipView').style.display = 'none';
   $('planView').style.display = 'none';
+  $('shipTrackView').style.display = 'none';
   $('revenueView').style.display = 'block';
   var isLead = S.user.role === 'lead' || S.user.role === 'leader' || S.user.role === 'admin' || S.user.role === 'master' || S.user.role === 'technician';
   $('revTitle').textContent = isLead ? 'Doanh thu theo tháng' : 'Đơn hàng của tôi theo tháng';
@@ -2092,8 +2122,8 @@ var SV_LOT_FIELDS = { status: 'svStatus', booking: 'svBooking', line: 'svLine', 
   lcc: 'svLcc', freight: 'svFreight', invoiceNo: 'svInvoiceNo', invDate: 'svInvDate', customsNo: 'svCustomsNo',
   customsDate: 'svCustomsDate', note: 'svNote' };
 
-function openShipView(so) {
-  ['clientView', 'editorView', 'queueView', 'revenueView', 'ptspView', 'prodView', 'planView'].forEach(function (id) {
+function openShipView(so, autoOpenLotId) {
+  ['clientView', 'editorView', 'queueView', 'revenueView', 'ptspView', 'prodView', 'planView', 'shipTrackView'].forEach(function (id) {
     $(id).style.display = 'none';
   });
   setSidebar(false);
@@ -2101,6 +2131,7 @@ function openShipView(so) {
   $('shipView').style.display = 'block';
   S._shipSo = so;
   S._shipEditingLotId = '';
+  S._shipAutoOpenLotId = autoOpenLotId || '';
   $('svSo').textContent = so;
   $('svMeta').textContent = 'Đang tải…';
   loadShipment();
@@ -2118,6 +2149,10 @@ function loadShipment() {
     if (!$('svOrderRef').value) $('svOrderRef').value = res.piNumber || res.so;
     renderLotList();
     renderDocsLotSelect();
+    if (S._shipAutoOpenLotId) {
+      openLotEditor(S._shipAutoOpenLotId);
+      S._shipAutoOpenLotId = '';
+    }
   }).catch(function (e) {
     $('svMeta').textContent = 'Lỗi: ' + e.message;
     toast('Lỗi tải thông tin Shipment: ' + e.message);
@@ -2195,6 +2230,88 @@ function openCarrierTracking(lineRaw, bookingRaw) {
 $('svTrackBtn').addEventListener('click', function () {
   openCarrierTracking($('svLine').value, $('svBooking').value);
 });
+
+/* ================= Shipment Tracking: lịch trình các Shipment trong tháng =================
+   Tái hiện chức năng của tool ngoài "shipment-tracking.html" (đã gỡ khỏi doPost router) NGAY TRONG
+   APP — dùng chung S.revOrders (đã có Booking/Line/RealLoad per-Shipment từ getRevenueOrders_, mỗi
+   Shipment 1 dòng). Chỉ liệt kê dòng có SO thật (đã Confirm, đã có Shipment) — đơn nháp/kế hoạch
+   chưa có gì để track. Mọi vai trò trong MONTH_VIEW_ROLES xem theo đúng phạm vi dữ liệu của mình
+   (sale chỉ thấy đơn của mình, lead không thấy đơn Brand — giống bảng doanh thu tháng); riêng nút
+   "✎ Quản lý" (nhảy thẳng vào sửa Shipment đó) chỉ admin/master mới thấy. */
+function loadShipTrack() {
+  setSidebar(true);
+  $('emptyState').style.display = 'none';
+  $('clientView').style.display = 'none';
+  $('editorView').style.display = 'none';
+  $('queueView').style.display = 'none';
+  $('ptspView').style.display = 'none';
+  $('prodView').style.display = 'none';
+  $('shipView').style.display = 'none';
+  $('planView').style.display = 'none';
+  $('revenueView').style.display = 'none';
+  $('shipTrackView').style.display = 'block';
+  if (!S.shipTrackMonth) S.shipTrackMonth = new Date().toISOString().slice(0, 7);
+  if (S.revOrders) { renderShipTrack(); return; }
+  loading(true);
+  gs('api_revenueOrders', S.token).then(function (res) {
+    S.revOrders = res.orders || [];
+    renderShipTrack();
+  }).catch(function (e) { toast('Lỗi tải Shipment Tracking: ' + e.message); })
+    .finally(function () { loading(false); });
+}
+
+function shiftShipTrackMonth(delta) {
+  var y = +S.shipTrackMonth.slice(0, 4), m = +S.shipTrackMonth.slice(5, 7) - 1 + delta;
+  var d = new Date(y, m, 1);
+  S.shipTrackMonth = d.getFullYear() + '-' + ('0' + (d.getMonth() + 1)).slice(-2);
+  renderShipTrack();
+}
+$('shipTrackPrev').addEventListener('click', function () { shiftShipTrackMonth(-1); });
+$('shipTrackNext').addEventListener('click', function () { shiftShipTrackMonth(1); });
+$('shipTrackBtn').addEventListener('click', loadShipTrack);
+
+function renderShipTrack() {
+  $('shipTrackMonthLabel').textContent = S.shipTrackMonth;
+  var rows = (S.revOrders || []).filter(function (o) {
+    return o.so && o.monthKey === S.shipTrackMonth;
+  }).sort(function (a, b) { return String(a.realLoad || '').localeCompare(String(b.realLoad || '')); });
+  $('shipTrackMeta').textContent = rows.length
+    ? rows.length + ' Shipment trong tháng ' + S.shipTrackMonth + '.'
+    : 'Không có Shipment nào trong tháng ' + S.shipTrackMonth + '.';
+  var canManage = isAdminLevel();
+  var tb = $('shipTrackTable').querySelector('tbody');
+  tb.innerHTML = rows.length ? rows.map(function (o) {
+    var trackCell = o.booking
+      ? '<button type="button" class="btn small ghost st-track-btn" data-line="' + esc(o.line || '') +
+        '" data-booking="' + esc(o.booking) + '">🔎 Tracking</button>'
+      : '<span style="color:var(--muted)">—</span>';
+    var manageCell = canManage
+      ? '<button type="button" class="btn small ghost st-manage-btn" data-so="' + esc(o.so) +
+        '" data-lot="' + esc(o.shipmentId || '') + '">✎ Quản lý</button>'
+      : '';
+    return '<tr>' +
+      '<td class="card-title">' + esc(o.so) + (o.shipmentId ? ' <span class="pill">' + esc(o.shipmentId.split('-').pop()) + '</span>' : '') + '</td>' +
+      '<td data-label="Khách">' + esc(o.client) + '</td>' +
+      '<td data-label="Thị trường">' + esc(clientCountry(o.client)) + '</td>' +
+      '<td class="num" data-label="FOB">' + fmt$(o.fob) + '</td>' +
+      '<td data-label="Ngày load">' + esc(o.realLoad || '—') + '</td>' +
+      '<td data-label="Status">' + statusBadge(o.shipmentStatus || o.status) + '</td>' +
+      '<td data-label="Booking">' + esc(o.booking || '—') + '</td>' +
+      '<td data-label="Line">' + esc(o.line || '—') + '</td>' +
+      '<td data-label="Tracking">' + trackCell + '</td>' +
+      '<td>' + manageCell + '</td></tr>';
+  }).join('') : '<tr><td colspan="10" style="color:var(--muted)">Không có Shipment nào trong tháng này.</td></tr>';
+  tb.querySelectorAll('.st-track-btn').forEach(function (btn) {
+    btn.addEventListener('click', function () {
+      openCarrierTracking(btn.getAttribute('data-line'), btn.getAttribute('data-booking'));
+    });
+  });
+  tb.querySelectorAll('.st-manage-btn').forEach(function (btn) {
+    btn.addEventListener('click', function () {
+      openShipView(btn.getAttribute('data-so'), btn.getAttribute('data-lot'));
+    });
+  });
+}
 
 function openLotEditor(shipmentId) {
   var lots = (S.shipInfo && S.shipInfo.shipments) || [];
@@ -2331,6 +2448,7 @@ function openProdMgr() {
   $('ptspView').style.display = 'none';
   $('shipView').style.display = 'none';
   $('planView').style.display = 'none';
+  $('shipTrackView').style.display = 'none';
   $('prodView').style.display = 'block';
   $('pmTabFeedback').style.display = isAdminLevel() ? '' : 'none'; // Duyệt Agent: chỉ admin/master
   // nạp CompTotal (cho tab BOM) + đổ gợi ý
@@ -3023,6 +3141,7 @@ function loadPtsp(force) {
   $('prodView').style.display = 'none';
   $('shipView').style.display = 'none';
   $('planView').style.display = 'none';
+  $('shipTrackView').style.display = 'none';
   $('ptspView').style.display = 'block';
   if (S.ptsp && !force) { renderPtsp(); return; }
   $('ptspMeta').textContent = 'Đang tải từ Jira…';
@@ -3166,6 +3285,7 @@ function loadPlanReport() {
   $('ptspView').style.display = 'none';
   $('prodView').style.display = 'none';
   $('shipView').style.display = 'none';
+  $('shipTrackView').style.display = 'none';
   $('planView').style.display = 'block';
   var persona = planPersonaOfUser_();
   if (persona === 'none') {
@@ -3394,6 +3514,7 @@ function loadReviewQueue() {
   $('prodView').style.display = 'none';
   $('shipView').style.display = 'none';
   $('planView').style.display = 'none';
+  $('shipTrackView').style.display = 'none';
   $('queueView').style.display = 'block';
   var tb = $('queueTable').querySelector('tbody');
   tb.innerHTML = '<tr><td colspan="7" style="color:var(--muted)">Đang tải…</td></tr>';
