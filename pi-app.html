@@ -380,23 +380,6 @@ td.note-cell.expanded { white-space: normal; max-width: none; }
             <tbody></tbody>
           </table>
         </div>
-
-        <!-- Báo cáo thị trường theo năm: Top 10 nước theo FOB + "Khác", dùng chung dữ liệu S.revOrders
-             và bộ lọc Tất cả/Brand/OEM ở trên — không gọi API riêng. -->
-        <div class="tp-label" style="margin:24px 0 8px;font-weight:600;display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap">
-          <span>🌍 Báo cáo thị trường theo năm</span>
-          <select id="mktYearSel" style="padding:6px 10px;border:1px solid var(--line);border-radius:6px;font-size:13.5px"></select>
-        </div>
-        <div class="client-meta" style="margin:0 0 10px">Tổng FOB: <b id="mktTotalFob">$0.00</b> · Số thị trường: <b id="mktMarketCount">0</b></div>
-        <div style="display:flex;flex-wrap:wrap;gap:20px;align-items:flex-start">
-          <div id="mktChartWrap" style="flex:0 0 280px;max-width:100%"></div>
-          <div class="table-wrap" style="flex:1 1 320px;max-height:360px">
-            <table class="data-table" id="mktTable">
-              <thead><tr><th>Thị trường</th><th class="num">FOB</th><th class="num">%</th></tr></thead>
-              <tbody></tbody>
-            </table>
-          </div>
-        </div>
       </section>
 
       <!-- #12 Quản lý Shipment (Shipment/Shpt_Detail, nhiều Shipment/container per SO) + xuất Custom Docs -->
@@ -710,6 +693,29 @@ td.note-cell.expanded { white-space: normal; max-width: none; }
         <div id="planChartWrap" style="margin:6px 0 16px"></div>
         <div class="table-wrap">
           <table class="data-table plan-compact" id="planTable"></table>
+        </div>
+
+        <!-- Báo cáo thị trường theo năm: Top 10 nước theo FOB + "Khác", dựa trên S.revOrders (không tính
+             tháng tương lai/dự kiến). Bộ lọc Tất cả/Brand/OEM riêng cho báo cáo này. -->
+        <div class="tp-label" style="margin:28px 0 8px;font-weight:600;display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap">
+          <span>🌍 Báo cáo thị trường theo năm</span>
+          <select id="mktYearSel" style="padding:6px 10px;border:1px solid var(--line);border-radius:6px;font-size:13.5px"></select>
+        </div>
+        <div id="mktFilterWrap" style="display:none;gap:6px;align-items:center;margin:0 0 10px">
+          <span class="tp-label" style="margin:0">Lọc:</span>
+          <button class="btn small primary" id="mktFilterAll" data-filter="all">Tất cả</button>
+          <button class="btn small" id="mktFilterBrand" data-filter="brand">Brand</button>
+          <button class="btn small" id="mktFilterOem" data-filter="oem">OEM</button>
+        </div>
+        <div class="client-meta" style="margin:0 0 10px">Tổng FOB: <b id="mktTotalFob">$0.00</b> · Số thị trường: <b id="mktMarketCount">0</b></div>
+        <div style="display:flex;flex-wrap:wrap;gap:20px;align-items:flex-start">
+          <div id="mktChartWrap" style="flex:0 0 280px;max-width:100%"></div>
+          <div class="table-wrap" style="flex:1 1 320px;max-height:360px">
+            <table class="data-table" id="mktTable">
+              <thead><tr><th>Thị trường</th><th class="num">FOB</th><th class="num">%</th></tr></thead>
+              <tbody></tbody>
+            </table>
+          </div>
         </div>
       </section>
 
@@ -2046,66 +2052,10 @@ function renderRevenue() {
       });
     });
   });
-  renderMarketReport();
 }
 $('revShowNote').addEventListener('change', function () {
   S.revShowNote = this.checked;
   $('monthOrdersTable').classList.toggle('show-notes', this.checked);
-});
-
-/* ================= Báo cáo thị trường theo năm (Top 10 nước theo FOB + "Khác") =================
-   Dùng chung S.revOrders (đã tải cho bảng doanh thu tháng) + bộ lọc Tất cả/Brand/OEM ở trên —
-   không gọi API riêng. Năm hiện tại tự nhiên là số tích lũy tới hiện tại (chỉ cộng dữ liệu thật). */
-function mktColor_(i, n) {
-  var hue = Math.round(i * (360 / Math.max(n, 1)));
-  return 'hsl(' + hue + ',58%,50%)';
-}
-
-function renderMarketReport() {
-  var years = {};
-  (S.revOrders || []).forEach(function (o) { if (o.monthKey) years[o.monthKey.substring(0, 4)] = 1; });
-  var yearList = Object.keys(years).sort().reverse();
-  if (!S.mktYear || (yearList.indexOf(S.mktYear) < 0 && S.mktYear !== 'all')) S.mktYear = yearList[0] || 'all';
-  var sel = $('mktYearSel');
-  sel.innerHTML = '<option value="all">Tất cả các năm</option>' +
-    yearList.map(function (y) { return '<option value="' + y + '">' + y + '</option>'; }).join('');
-  sel.value = S.mktYear;
-
-  var filter = S.revFilter || 'all';
-  var rows = (S.revOrders || []).filter(function (o) {
-    if (filter === 'brand' && !isBrandOrder(o)) return false;
-    if (filter === 'oem' && isBrandOrder(o)) return false;
-    if (S.mktYear !== 'all' && (!o.monthKey || o.monthKey.substring(0, 4) !== S.mktYear)) return false;
-    return true;
-  });
-
-  var byCountry = {}, total = 0;
-  rows.forEach(function (o) {
-    var c = clientCountry(o.client) || '(không rõ)';
-    byCountry[c] = (byCountry[c] || 0) + (Number(o.fob) || 0);
-    total += Number(o.fob) || 0;
-  });
-  var list = Object.keys(byCountry).map(function (c) { return { country: c, fob: byCountry[c] }; })
-    .sort(function (a, b) { return b.fob - a.fob; });
-  var slices = list.slice(0, 10);
-  var restSum = list.slice(10).reduce(function (a, r) { return a + r.fob; }, 0);
-  if (restSum > 0) slices.push({ country: 'Khác', fob: restSum });
-
-  $('mktTotalFob').textContent = fmt$(total);
-  $('mktMarketCount').textContent = list.length;
-  $('mktChartWrap').innerHTML = buildMarketPieSvg_(slices, total);
-
-  var tbody = $('mktTable').querySelector('tbody');
-  tbody.innerHTML = slices.length ? slices.map(function (s, i) {
-    var pct = total ? (s.fob / total * 100) : 0;
-    return '<tr><td><span style="display:inline-block;width:10px;height:10px;border-radius:2px;background:' +
-      mktColor_(i, slices.length) + ';margin-right:6px;vertical-align:-1px"></span>' + esc(s.country) + '</td>' +
-      '<td class="num">' + fmt$(s.fob) + '</td><td class="num">' + pct.toFixed(1) + '%</td></tr>';
-  }).join('') : '<tr><td colspan="3" style="color:var(--muted)">Không có dữ liệu.</td></tr>';
-}
-$('mktYearSel').addEventListener('change', function () {
-  S.mktYear = this.value;
-  renderMarketReport();
 });
 
 /** Donut chart SVG: mỗi slice là 1 thị trường, giữa hiện tổng FOB gọn ($…K/$…M). */
@@ -3167,10 +3117,13 @@ function loadPlanReport() {
     return;
   }
   if (!S.planSeg || planSegsForPersona_(persona).indexOf(S.planSeg) < 0) S.planSeg = planSegsForPersona_(persona)[0];
-  if (S.planData) { renderPlanReport(); return; }
+  var needPlan = !S.planData, needRev = !S.revOrders; // revOrders cần cho Báo cáo thị trường bên dưới
+  if (!needPlan && !needRev) { renderPlanReport(); return; }
   loading(true);
-  return gs('api_planVsDone', S.token).then(function (res) {
-    S.planData = res;
+  return Promise.all([
+    needPlan ? gs('api_planVsDone', S.token).then(function (res) { S.planData = res; }) : Promise.resolve(),
+    needRev ? gs('api_revenueOrders', S.token).then(function (res) { S.revOrders = res.orders || []; }) : Promise.resolve()
+  ]).then(function () {
     renderPlanReport();
   }).catch(function (e) {
     $('planMeta').textContent = 'Lỗi: ' + e.message;
@@ -3220,6 +3173,85 @@ function renderPlanReport() {
     '<tr><td>Thực hiện</td>' + seg.done.map(function (v) { return '<td class="num">' + fmt$0(v) + '</td>'; }).join('') + '</tr>' +
     '<tr><td>% hoàn thành</td>' + pctRow.map(pctCellHtml).join('') + '</tr>' +
     '</tbody>';
+
+  renderMarketReport();
+}
+
+/* ================= Báo cáo thị trường theo năm (Top 10 nước theo FOB + "Khác") =================
+   Dùng S.revOrders (được nạp cùng Revenue Report ở loadPlanReport nếu chưa có sẵn). Không tính
+   tháng tương lai (dự kiến) — chỉ cộng dữ liệu thật tính đến tháng hiện tại, mặc định năm hiện tại.
+   Bộ lọc Tất cả/Brand/OEM chỉ hiện cho persona 'full' (admin/master/leader): lead/sale-Brand đã bị
+   giới hạn dữ liệu từ backend (getRevenueOrders_) nên không còn gì để lọc thêm. */
+function mktColor_(i, n) {
+  var hue = Math.round(i * (360 / Math.max(n, 1)));
+  return 'hsl(' + hue + ',58%,50%)';
+}
+
+['mktFilterAll', 'mktFilterBrand', 'mktFilterOem'].forEach(function (id) {
+  $(id).addEventListener('click', function () {
+    S.mktFilter = this.getAttribute('data-filter');
+    ['mktFilterAll', 'mktFilterBrand', 'mktFilterOem'].forEach(function (bid) {
+      $(bid).classList.toggle('primary', bid === id);
+    });
+    renderMarketReport();
+  });
+});
+$('mktYearSel').addEventListener('change', function () {
+  S.mktYear = this.value;
+  renderMarketReport();
+});
+
+function renderMarketReport() {
+  var persona = planPersonaOfUser_();
+  var showFilter = persona === 'full';
+  $('mktFilterWrap').style.display = showFilter ? 'flex' : 'none';
+  if (!showFilter) S.mktFilter = 'all';
+
+  var now = new Date();
+  var curYM = now.getFullYear() + '-' + ('0' + (now.getMonth() + 1)).slice(-2);
+  var notFuture = (S.revOrders || []).filter(function (o) { return o.monthKey && o.monthKey <= curYM; });
+
+  var years = {};
+  notFuture.forEach(function (o) { years[o.monthKey.substring(0, 4)] = 1; });
+  years[String(now.getFullYear())] = 1; // luôn có năm hiện tại để chọn, kể cả chưa có dữ liệu thật
+  var yearList = Object.keys(years).sort().reverse();
+  if (!S.mktYear || (S.mktYear !== 'all' && yearList.indexOf(S.mktYear) < 0)) S.mktYear = String(now.getFullYear());
+  var sel = $('mktYearSel');
+  sel.innerHTML = '<option value="all">Tất cả các năm</option>' +
+    yearList.map(function (y) { return '<option value="' + y + '">' + y + '</option>'; }).join('');
+  sel.value = S.mktYear;
+
+  var filter = S.mktFilter || 'all';
+  var rows = notFuture.filter(function (o) {
+    if (filter === 'brand' && !isBrandOrder(o)) return false;
+    if (filter === 'oem' && isBrandOrder(o)) return false;
+    if (S.mktYear !== 'all' && o.monthKey.substring(0, 4) !== S.mktYear) return false;
+    return true;
+  });
+
+  var byCountry = {}, total = 0;
+  rows.forEach(function (o) {
+    var c = clientCountry(o.client) || '(không rõ)';
+    byCountry[c] = (byCountry[c] || 0) + (Number(o.fob) || 0);
+    total += Number(o.fob) || 0;
+  });
+  var list = Object.keys(byCountry).map(function (c) { return { country: c, fob: byCountry[c] }; })
+    .sort(function (a, b) { return b.fob - a.fob; });
+  var slices = list.slice(0, 10);
+  var restSum = list.slice(10).reduce(function (a, r) { return a + r.fob; }, 0);
+  if (restSum > 0) slices.push({ country: 'Khác', fob: restSum });
+
+  $('mktTotalFob').textContent = fmt$(total);
+  $('mktMarketCount').textContent = list.length;
+  $('mktChartWrap').innerHTML = buildMarketPieSvg_(slices, total);
+
+  var tbody = $('mktTable').querySelector('tbody');
+  tbody.innerHTML = slices.length ? slices.map(function (s, i) {
+    var pct = total ? (s.fob / total * 100) : 0;
+    return '<tr><td><span style="display:inline-block;width:10px;height:10px;border-radius:2px;background:' +
+      mktColor_(i, slices.length) + ';margin-right:6px;vertical-align:-1px"></span>' + esc(s.country) + '</td>' +
+      '<td class="num">' + fmt$(s.fob) + '</td><td class="num">' + pct.toFixed(1) + '%</td></tr>';
+  }).join('') : '<tr><td colspan="3" style="color:var(--muted)">Không có dữ liệu.</td></tr>';
 }
 
 /** Vẽ combo chart SVG thuần (không phụ thuộc thư viện ngoài, khớp bản build tĩnh GitHub Pages):
