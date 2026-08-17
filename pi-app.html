@@ -398,9 +398,9 @@ td.note-cell.expanded { white-space: normal; max-width: none; }
 
         <div class="tp-label" style="margin:10px 0 6px;font-weight:600">Thanh toán (theo cả đơn, không theo từng Shipment)</div>
         <div class="editor-header" style="display:block">
-          <div class="picker-grid" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:10px">
-            <label>Ngày TT <input type="date" id="svPayDate"></label>
-            <label>Payment ($) <input type="number" step="0.01" id="svPayment"></label>
+          <div class="picker-grid" style="display:flex;flex-wrap:wrap;gap:10px">
+            <label style="max-width:160px">Ngày TT <input type="date" id="svPayDate"></label>
+            <label style="max-width:160px">Payment ($) <input type="number" step="0.01" id="svPayment"></label>
           </div>
           <div class="modal-actions" style="justify-content:flex-start;margin-top:10px">
             <button class="btn ghost" id="svSavePaymentBtn">💾 Lưu thanh toán</button>
@@ -431,7 +431,9 @@ td.note-cell.expanded { white-space: normal; max-width: none; }
               <label>Trucking (VND) <input type="number" id="svTrucking"></label>
               <label>LCC (VND) <input type="number" id="svLcc"></label>
               <label>Cước ($) <input type="number" step="0.01" id="svFreight"></label>
-              <label>INVOICE# <input type="text" id="svInvoiceNo"></label>
+              <label>INVOICE# <input type="text" id="svInvoiceNo">
+                <div id="svRecentInv" style="font-size:11.5px;color:var(--muted);font-weight:400;margin-top:4px"></div>
+              </label>
               <label>INV Date <input type="date" id="svInvDate"></label>
               <label>Số TK <input type="text" id="svCustomsNo"></label>
               <label>Ngày TK <input type="date" id="svCustomsDate"></label>
@@ -798,7 +800,7 @@ td.note-cell.expanded { white-space: normal; max-width: none; }
         <div class="table-wrap" id="orderPickerWrap">
           <table class="data-table card-list" id="orderPickerTable">
             <thead><tr>
-              <th>PI / SO</th><th>Load Date</th><th>INVOICE#</th><th class="num">FOB</th><th>Status</th>
+              <th>PI / SO</th><th>Load Date</th><th>Machine (Số máy)</th><th class="num">FOB</th><th>Status</th>
             </tr></thead>
             <tbody></tbody>
           </table>
@@ -1914,7 +1916,7 @@ function renderOrderPicker() {
     return '<tr data-i="' + i + '" style="cursor:pointer"' + (active ? ' class="row-active"' : '') + '>' +
       '<td class="card-title">' + esc(o.so || o.piNumber) + '</td>' +
       '<td data-label="Load Date">' + esc(o.realLoad || '—') + '</td>' +
-      '<td data-label="INVOICE#">' + esc(o.invoiceNo || '—') + '</td>' +
+      '<td data-label="Machine (Số máy)">' + esc(o.machine || '—') + '</td>' +
       '<td class="num" data-label="FOB">' + fmt$(o.fob) + '</td>' +
       '<td data-label="Status">' + statusBadge(o.status) + '</td></tr>';
   }).join('');
@@ -2377,8 +2379,18 @@ function openLotEditor(shipmentId) {
   Object.keys(SV_LOT_FIELDS).forEach(function (k) { $(SV_LOT_FIELDS[k]).value = lot ? (lot[k] || '') : ''; });
   $('svDeleteLotBtn').style.display = lot ? '' : 'none';
   renderLotLines(lot);
+  renderRecentInvHint_();
   $('svLotEditor').style.display = 'block';
   $('svLotEditor').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+}
+
+/** Gợi ý 3 số INVOICE# gần nhất của khách này (mọi SO) — giúp admin đặt số INVOICE# mới không
+ *  bị trùng/lệch mạch với các đơn gần đây, hiện ngay dưới ô INVOICE# đang sửa. */
+function renderRecentInvHint_() {
+  var list = (S.shipInfo && S.shipInfo.recentInvoices) || [];
+  $('svRecentInv').textContent = list.length
+    ? 'Gần nhất: ' + list.map(function (r) { return r.invoiceNo + (r.invDate ? ' (' + r.invDate + ')' : ''); }).join(', ')
+    : '';
 }
 
 function renderLotLines(lot) {
