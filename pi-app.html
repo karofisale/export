@@ -2175,6 +2175,7 @@ function openShipView(so, autoOpenLotId) {
   S._shipAutoOpenLotId = autoOpenLotId || '';
   $('svSo').textContent = so;
   $('svMeta').textContent = 'Đang tải…';
+  $('svOrderRef').value = ''; // đơn khác -> reset, tránh giữ PI/SO của đơn xem trước đó
   loadShipment();
 }
 
