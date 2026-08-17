@@ -390,7 +390,10 @@ td.note-cell.expanded { white-space: normal; max-width: none; }
             <h2>Quản lý Shipment — SO <span id="svSo"></span></h2>
             <div class="client-meta" id="svMeta"></div>
           </div>
-          <button class="btn ghost" id="svHomeBtn">⟵ Trang đầu</button>
+          <div style="display:flex;gap:8px">
+            <button class="btn ghost" id="svBackBtn">◀ Back</button>
+            <button class="btn ghost" id="svHomeBtn">⟵ Trang đầu</button>
+          </div>
         </div>
 
         <div class="tp-label" style="margin:10px 0 6px;font-weight:600">Thanh toán (theo cả đơn, không theo từng Shipment)</div>
@@ -736,7 +739,14 @@ td.note-cell.expanded { white-space: normal; max-width: none; }
             <button class="btn small" id="shipTrackPrev">◀</button>
             <b id="shipTrackMonthLabel" style="min-width:90px;text-align:center"></b>
             <button class="btn small" id="shipTrackNext">▶</button>
+            <button class="btn small ghost" id="shipTrackHomeBtn">⟵ Trang đầu</button>
           </div>
+        </div>
+        <div id="shipTrackFilterWrap" style="display:none;gap:6px;align-items:center;margin:0 0 10px">
+          <span class="tp-label" style="margin:0">Lọc:</span>
+          <button class="btn small primary" id="shipTrackFilterAll" data-filter="all">Tất cả</button>
+          <button class="btn small" id="shipTrackFilterBrand" data-filter="brand">Brand</button>
+          <button class="btn small" id="shipTrackFilterOem" data-filter="oem">OEM</button>
         </div>
         <div class="table-wrap">
           <table class="data-table card-list" id="shipTrackTable">
@@ -1749,6 +1759,30 @@ function goHome() {
   $('emptyState').style.display = '';
 }
 
+/* Điều hướng "Back" đơn giản cho các trang thao tác với đơn hàng có NHIỀU điểm vào (ví dụ Quản lý
+ * Shipment: mở từ chi tiết đơn, từ Shipment Tracking, hoặc từ Agent) — khác với "Trang đầu" luôn về
+ * home cố định theo vai trò. Vì mọi view đều luôn nằm sẵn trong DOM (chỉ ẩn/hiện qua display:none),
+ * "quay lại" chỉ cần nhớ ĐÚNG view + trạng thái sidebar trước đó rồi hiện lại, không cần tải lại gì. */
+var VIEW_IDS_ = ['clientView', 'editorView', 'queueView', 'revenueView', 'ptspView', 'prodView', 'shipView', 'planView', 'shipTrackView'];
+function currentViewId_() {
+  for (var i = 0; i < VIEW_IDS_.length; i++) { if ($(VIEW_IDS_[i]).style.display === 'block') return VIEW_IDS_[i]; }
+  return null;
+}
+function pushBackScreen_() {
+  var view = currentViewId_();
+  if (!view) return;
+  S._backStack = S._backStack || [];
+  S._backStack.push({ view: view, sidebar: document.querySelector('.sidebar').style.display !== 'none' });
+}
+function goBackScreen() {
+  var prev = (S._backStack || []).pop();
+  if (!prev) { goHome(); return; }
+  VIEW_IDS_.forEach(function (id) { $(id).style.display = 'none'; });
+  $('emptyState').style.display = 'none';
+  $(prev.view).style.display = 'block';
+  setSidebar(prev.sidebar);
+}
+
 /* Ẩn/hiện panel trái. Dưới 620px panel trở thành drawer trượt — setSidebar chỉ quyết định có "sẵn sàng"
  * hay không (ẩn hẳn khi false); việc TRƯỢT RA chỉ xảy ra khi người dùng bấm ☰ hoặc "Chọn khách khác",
  * để các màn hình tự nạp sidebar (dashboard doanh thu, hàng đợi…) không tự che kín nội dung khi vừa vào. */
@@ -2125,6 +2159,7 @@ var SV_LOT_FIELDS = { status: 'svStatus', booking: 'svBooking', line: 'svLine', 
   customsDate: 'svCustomsDate', note: 'svNote' };
 
 function openShipView(so, autoOpenLotId) {
+  pushBackScreen_(); // nhớ đúng chỗ vừa đứng (chi tiết đơn / Shipment Tracking / …) để nút Back quay lại đúng nơi
   ['clientView', 'editorView', 'queueView', 'revenueView', 'ptspView', 'prodView', 'planView', 'shipTrackView'].forEach(function (id) {
     $(id).style.display = 'none';
   });
@@ -2253,6 +2288,9 @@ function loadShipTrack() {
   $('revenueView').style.display = 'none';
   $('shipTrackView').style.display = 'block';
   if (!S.shipTrackMonth) S.shipTrackMonth = new Date().toISOString().slice(0, 7);
+  var showFilter = REV_BRAND_FILTER_ROLES.indexOf(S.user.role) >= 0;
+  $('shipTrackFilterWrap').style.display = showFilter ? 'flex' : 'none';
+  if (!showFilter) S.shipTrackFilter = 'all';
   if (S.revOrders) { renderShipTrack(); return; }
   loading(true);
   gs('api_revenueOrders', S.token).then(function (res) {
@@ -2271,11 +2309,25 @@ function shiftShipTrackMonth(delta) {
 $('shipTrackPrev').addEventListener('click', function () { shiftShipTrackMonth(-1); });
 $('shipTrackNext').addEventListener('click', function () { shiftShipTrackMonth(1); });
 $('shipTrackBtn').addEventListener('click', loadShipTrack);
+$('shipTrackHomeBtn').addEventListener('click', goHome);
+['shipTrackFilterAll', 'shipTrackFilterBrand', 'shipTrackFilterOem'].forEach(function (id) {
+  $(id).addEventListener('click', function () {
+    S.shipTrackFilter = this.getAttribute('data-filter');
+    ['shipTrackFilterAll', 'shipTrackFilterBrand', 'shipTrackFilterOem'].forEach(function (bid) {
+      $(bid).classList.toggle('primary', bid === id);
+    });
+    renderShipTrack();
+  });
+});
 
 function renderShipTrack() {
   $('shipTrackMonthLabel').textContent = S.shipTrackMonth;
+  var filter = S.shipTrackFilter || 'all';
   var rows = (S.revOrders || []).filter(function (o) {
-    return o.so && o.monthKey === S.shipTrackMonth;
+    if (!o.so || o.monthKey !== S.shipTrackMonth) return false;
+    if (filter === 'brand' && !isBrandOrder(o)) return false;
+    if (filter === 'oem' && isBrandOrder(o)) return false;
+    return true;
   }).sort(function (a, b) { return String(a.realLoad || '').localeCompare(String(b.realLoad || '')); });
   $('shipTrackMeta').textContent = rows.length
     ? rows.length + ' Shipment trong tháng ' + S.shipTrackMonth + '.'
@@ -2348,6 +2400,7 @@ $('svNewLotBtn').addEventListener('click', function () { openLotEditor(''); });
 $('svCancelLotBtn').addEventListener('click', function () { $('svLotEditor').style.display = 'none'; });
 $('svReloadBtn').addEventListener('click', loadShipment);
 $('svHomeBtn').addEventListener('click', goHome);
+$('svBackBtn').addEventListener('click', goBackScreen);
 $('shipInfoBtn').addEventListener('click', function () {
   var o = S.currentOrder;
   if (!o) return;

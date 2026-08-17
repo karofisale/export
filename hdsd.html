@@ -547,8 +547,9 @@
 
   <section id="lohang">
     <h2><span class="num">11</span> Quản lý Shipment &amp; Custom Docs <span class="rolebadge b-admin">Admin</span> <span class="rolebadge b-master">Master</span></h2>
-    <p class="section-sub">Mở đơn đã Confirm → <span class="btn-ex">🚢 Quản lý Shipment</span>. Một SO có thể giao thành <b>nhiều Shipment</b> (lô/container) — mỗi Shipment có lịch trình/chứng từ riêng và phân bổ số lượng hàng riêng. Dữ liệu ghi vào 2 tab mới trên Operations2025: <b>Shipment</b> (thông tin từng lô) và <b>Shpt_Detail</b> (mã hàng nào vào lô nào, container nào).</p>
+    <p class="section-sub">Mở đơn đã Confirm → <span class="btn-ex">🚢 Quản lý Shipment</span>, hoặc từ mục <a href="#shiptrack">🚢 Shipment Tracking</a> bấm <span class="btn-ex">✎ Quản lý</span>. Một SO có thể giao thành <b>nhiều Shipment</b> (lô/container) — mỗi Shipment có lịch trình/chứng từ riêng và phân bổ số lượng hàng riêng. Dữ liệu ghi vào 2 tab mới trên Operations2025: <b>Shipment</b> (thông tin từng lô) và <b>Shpt_Detail</b> (mã hàng nào vào lô nào, container nào).</p>
     <div class="note"><b>Technician cũng chia được Shipment/container</b> — nhưng gọn hơn nhiều và ngay tại màn xem đơn, không cần mở màn riêng này. Xem mục 07.</div>
+    <div class="tip">Màn này mở được từ nhiều nơi (chi tiết đơn, Shipment Tracking, Agent…) — cạnh nút <span class="btn-ex">⟵ Trang đầu</span> có thêm nút <span class="btn-ex">◀ Back</span> để quay đúng lại nơi vừa đứng, không bị nhảy hẳn về trang chủ.</div>
 
     <h3>Thanh toán (theo cả đơn)</h3>
     <p>Deposit/Ngày cọc sửa khi Confirm hoặc Sửa đơn (mục 10). Riêng <b>Ngày TT</b> và <b>Payment ($)</b> có ô nhập ngay đầu màn Quản lý Shipment — áp dụng cho <b>cả đơn</b>, không chia theo từng Shipment (khách trả tiền theo SO/PI, không theo từng container).</p>
@@ -593,9 +594,11 @@
     <ul>
       <li><b>Cột hiển thị:</b> SO · Khách · Thị trường · FOB · Ngày load · Status · Booking · Line · Tracking.</li>
       <li><b>Phạm vi xem theo vai trò</b> — giống hệt bảng "Doanh thu theo tháng": Sale chỉ thấy Shipment của đơn mình, Lead không thấy đơn của Brand, Admin/Master/Leader xem đầy đủ.</li>
+      <li><span class="rolebadge b-admin">Admin</span> <span class="rolebadge b-tech">Tech</span> <span class="rolebadge b-leader">Leader</span> <span class="rolebadge b-master">Master</span> lọc thêm được theo <b>Tất cả/Brand/OEM</b> (nút Lọc dưới thanh tháng) — Sale/Lead không có bộ lọc này vì dữ liệu đã giới hạn sẵn đúng phạm vi của mình.</li>
       <li>Bấm <span class="btn-ex">🔎 Tracking</span> để mở trang hãng tàu tương ứng kèm sẵn số Booking (xem chi tiết ở mục 11 — cùng cơ chế với nút Tracking trong Quản lý Shipment).</li>
       <li><span class="rolebadge b-admin">Admin</span> <span class="rolebadge b-master">Master</span> có thêm nút <span class="btn-ex">✎ Quản lý</span> ở cuối mỗi dòng — bấm để nhảy thẳng vào màn <b>Quản lý Shipment</b> của đúng SO đó, mở sẵn đúng Shipment để sửa ngay, không cần tự tìm khách/đơn.</li>
       <li>Chỉ liệt kê Shipment <b>đã có SO thật</b> (đơn đã Confirm) — đơn nháp/kế hoạch chưa tách Shipment thì chưa có gì để tra cứu vận đơn.</li>
+      <li>Bấm <span class="btn-ex">⟵ Trang đầu</span> để quay lại.</li>
     </ul>
   </section>
 
