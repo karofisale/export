@@ -683,6 +683,7 @@ td.note-cell.expanded { white-space: normal; max-width: none; }
         <div id="planSegChips" style="display:flex;gap:8px;flex-wrap:wrap;margin:0 0 12px"></div>
         <div class="totals-panel" style="grid-template-columns:repeat(auto-fit,minmax(150px,1fr))">
           <div class="tp-cell"><div class="tp-label">Kế hoạch lũy kế</div><div class="tp-value big" id="planKpiPlan">$0.00</div></div>
+          <div class="tp-cell" id="planKpiBudgetWrap" style="display:none"><div class="tp-label">Kế hoạch B lũy kế</div><div class="tp-value big" id="planKpiBudget" style="color:#8b5cf6">$0.00</div></div>
           <div class="tp-cell"><div class="tp-label">Thực hiện lũy kế</div><div class="tp-value big" id="planKpiDone">$0.00</div></div>
           <div class="tp-cell"><div class="tp-label">% hoàn thành</div><div class="tp-value big" id="planKpiPct">0%</div></div>
         </div>
@@ -690,6 +691,7 @@ td.note-cell.expanded { white-space: normal; max-width: none; }
           <span><span style="display:inline-block;width:10px;height:10px;background:#b9c4bb;border-radius:2px;vertical-align:-1px"></span> Kế hoạch</span>
           <span><span style="display:inline-block;width:10px;height:10px;background:var(--accent);border-radius:2px;vertical-align:-1px"></span> Thực hiện</span>
           <span><span style="display:inline-block;width:10px;height:2px;background:var(--accent-strong);vertical-align:2px"></span> % hoàn thành</span>
+          <span><span style="display:inline-block;width:10px;height:2px;background:#8b5cf6;vertical-align:2px"></span> Kế hoạch B (mục tiêu Budget, chỉ DEV/Hunt/OEM)</span>
           <span>┊ Nét đứt = mốc tháng hiện tại — bên phải là số dự kiến (đơn nháp/kế hoạch đang có)</span>
         </div>
         <div id="planChartWrap" style="margin:6px 0 16px"></div>
@@ -3332,6 +3334,16 @@ function renderPlanReport() {
   $('planKpiPct').textContent = fmtN(pct, 0) + '%';
   $('planKpiPct').style.color = pct >= 90 ? 'var(--accent)' : (pct >= 70 ? 'var(--warn)' : 'var(--danger)');
 
+  // Kế hoạch B (mục tiêu Budget riêng của DEV/Hunt/OEM) — Branding/Total Export không có, ẩn KPI này.
+  if (seg.budgetPlan) {
+    var ytdBudget = seg.budgetPlan.slice(0, CUR + 1).reduce(function (a, b) { return a + b; }, 0);
+    $('planKpiBudget').textContent = fmt$(ytdBudget);
+    $('planKpiBudgetWrap').style.display = '';
+  } else {
+    $('planKpiBudget').textContent = '$0.00';
+    $('planKpiBudgetWrap').style.display = 'none';
+  }
+
   $('planChartWrap').innerHTML = buildPlanChartSvg_(seg, CUR);
 
   // Bảng bổ trợ để ngang (chỉ tiêu = dòng, tháng = cột) — hợp desktop hơn 12 dòng dọc; Thực hiện các
@@ -3347,6 +3359,7 @@ function renderPlanReport() {
     '<thead><tr><th>Chỉ tiêu</th>' + monthsHead + '</tr></thead>' +
     '<tbody>' +
     '<tr><td>Kế hoạch</td>' + seg.plan.map(function (v) { return '<td class="num">' + fmt$0(v) + '</td>'; }).join('') + '</tr>' +
+    (seg.budgetPlan ? '<tr><td>Kế hoạch B</td>' + seg.budgetPlan.map(function (v) { return '<td class="num">' + fmt$0(v) + '</td>'; }).join('') + '</tr>' : '') +
     '<tr><td>Thực hiện</td>' + seg.done.map(function (v) { return '<td class="num">' + fmt$0(v) + '</td>'; }).join('') + '</tr>' +
     '<tr><td>% hoàn thành</td>' + pctRow.map(pctCellHtml).join('') + '</tr>' +
     '</tbody>';
@@ -3438,7 +3451,8 @@ function buildPlanChartSvg_(seg, curMonthIdx) {
   var plotW = W - padL - padR, plotH = H - padT - padB;
   var maxVal = Math.max(1,
     seg.plan.reduce(function (a, b) { return Math.max(a, b); }, 0),
-    seg.done.reduce(function (a, b) { return Math.max(a, b); }, 0)) * 1.3; // chừa chỗ phía trên cho nhãn %/giá trị trên đầu cột
+    seg.done.reduce(function (a, b) { return Math.max(a, b); }, 0),
+    (seg.budgetPlan || []).reduce(function (a, b) { return Math.max(a, b); }, 0)) * 1.3; // chừa chỗ phía trên cho nhãn %/giá trị trên đầu cột
   var slot = plotW / 12;
   var barW = Math.min(16, slot * 0.28);
   function x(i, off) { return padL + i * slot + slot / 2 + (off || 0); }
@@ -3496,9 +3510,21 @@ function buildPlanChartSvg_(seg, curMonthIdx) {
   var futureLine = futurePts.length > 1
     ? '<polyline points="' + futurePts.join(' ') + '" fill="none" stroke="var(--accent-strong)" stroke-width="2" stroke-dasharray="5 4"/>' : '';
 
+  // Kế hoạch B (mục tiêu Budget riêng của team, chỉ DEV/Hunt/OEM) — đường tham chiếu đứt nét màu tím,
+  // vẽ đè lên cột theo đúng thang $ trục trái, phân biệt với đường % (đường đặc/đứt màu accent).
+  var budgetLine = '';
+  if (seg.budgetPlan) {
+    var bpts = [];
+    for (var k = 0; k < 12; k++) bpts.push(x(k, 0) + ',' + yVal(seg.budgetPlan[k] || 0));
+    budgetLine = '<polyline points="' + bpts.join(' ') + '" fill="none" stroke="#8b5cf6" stroke-width="2" stroke-dasharray="6 3"/>';
+    for (var k2 = 0; k2 < 12; k2++) {
+      budgetLine += '<circle cx="' + x(k2, 0) + '" cy="' + yVal(seg.budgetPlan[k2] || 0) + '" r="2.5" fill="#8b5cf6"/>';
+    }
+  }
+
   return '<svg viewBox="0 0 ' + W + ' ' + H + '" style="width:100%;height:auto;max-height:320px" role="img" ' +
     'aria-label="Kế hoạch và thực hiện theo tháng, kèm phần trăm hoàn thành; các tháng sau tháng hiện tại là số dự kiến">' +
-    grid + target100 + todayMark + bars + pastLine + futureLine + dots + barLabels + months + '</svg>';
+    grid + target100 + todayMark + bars + pastLine + futureLine + budgetLine + dots + barLabels + months + '</svg>';
 }
 
 $('planBtn').addEventListener('click', function () { loadPlanReport(); });
