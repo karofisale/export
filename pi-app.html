@@ -435,6 +435,7 @@ td.note-cell.expanded { white-space: normal; max-width: none; }
             </div>
             <div class="modal-actions" style="justify-content:flex-start;margin-top:12px">
               <button class="btn primary" id="svSaveLotBtn">💾 Lưu Shipment</button>
+              <button class="btn" id="svTrackBtn">🔎 Tracking</button>
               <button class="btn danger" id="svDeleteLotBtn" style="display:none">🗑 Xóa Shipment</button>
               <button class="btn ghost" id="svCancelLotBtn">Hủy</button>
             </div>
@@ -2132,12 +2133,68 @@ function renderLotList() {
       '<div style="font-weight:600">' + esc(s.shipmentId) + (s.status ? ' <span class="pill">' + esc(s.status) + '</span>' : '') + '</div>' +
       '<div style="font-size:12.5px;color:var(--muted);margin-top:4px">' +
       [s.realLoad ? 'Load ' + esc(s.realLoad) : '', s.booking ? 'Booking ' + esc(s.booking) : '',
-        qty ? fmtN(qty, 0) + ' sp' : ''].filter(Boolean).join(' · ') + '</div></div>';
+        qty ? fmtN(qty, 0) + ' sp' : ''].filter(Boolean).join(' · ') + '</div>' +
+      (s.booking ? '<button type="button" class="btn small ghost sv-track-btn" data-line="' + esc(s.line || '') +
+        '" data-booking="' + esc(s.booking) + '" style="margin-top:6px">🔎 Tracking</button>' : '') + '</div>';
   }).join('') : '<div style="color:var(--muted);grid-column:1/-1">Đơn chưa có Shipment nào — bấm "+ Thêm Shipment mới" để tạo.</div>';
   wrap.querySelectorAll('[data-lot]').forEach(function (card) {
     card.addEventListener('click', function () { openLotEditor(card.getAttribute('data-lot')); });
   });
+  wrap.querySelectorAll('.sv-track-btn').forEach(function (btn) {
+    btn.addEventListener('click', function (e) {
+      e.stopPropagation();
+      openCarrierTracking(btn.getAttribute('data-line'), btn.getAttribute('data-booking'));
+    });
+  });
 }
+
+/** Tra cứu vận đơn theo hãng tàu — chuyển từ tool ngoài "Shipment Tracking" (shipment-tracking.html,
+ *  đã gỡ khỏi doPost router khi có tab Shipment trong chính app) vào thẳng đây vì vẫn cần dùng.
+ *  Line trên Shipment ghi ký hiệu/tên hãng tàu (VD "MSK", "ONE", "Maersk") -> khớp alias rồi mở link
+ *  tra cứu kèm sẵn số Booking. */
+var CARRIERS_ = [
+  { name: 'Maersk', aliases: ['MAERSK', 'MSK', 'MAEU'], url: function (b) { return 'https://www.maersk.com/tracking/' + encodeURIComponent(b); } },
+  { name: 'MSC', aliases: ['MSC', 'MEDU'], url: function (b) { return 'https://www.msc.com/en/track-a-shipment?trackingNumber=' + encodeURIComponent(b); } },
+  { name: 'CMA CGM', aliases: ['CMA', 'CMACGM', 'CGM'], url: function (b) { return 'https://www.cma-cgm.com/ebusiness/tracking/search?SearchBy=Booking&Reference=' + encodeURIComponent(b); } },
+  { name: 'COSCO', aliases: ['COSCO', 'COSCON', 'CSCL'], url: function (b) { return 'https://elines.coscoshipping.com/ebusiness/cargoTracking?number=' + encodeURIComponent(b); } },
+  { name: 'Evergreen', aliases: ['EMC', 'EVERGREEN', 'EGLV'], url: function (b) { return 'https://www.shipmentlink.com/servlet/TDB1_CargoTracking.do?bl_no=' + encodeURIComponent(b); } },
+  { name: 'OOCL', aliases: ['OOCL', 'OOLU'], url: function (b) { return 'https://www.oocl.com/eng/ourservices/eservices/cargotracking/Pages/cargotracking.aspx?ContainerOrBookingOrBL=' + encodeURIComponent(b); } },
+  { name: 'ONE (Ocean Network Express)', aliases: ['ONE', 'ONEY'], url: function (b) { return 'https://ecomm.one-line.com/one-ecom/manage-shipment/cargo-tracking?bookingNumber=' + encodeURIComponent(b); } },
+  { name: 'Hapag-Lloyd', aliases: ['HPL', 'HLCU', 'HAPAG'], url: function (b) { return 'https://www.hapag-lloyd.com/en/online-business/track/track-by-booking-solution.html?blno=' + encodeURIComponent(b); } },
+  { name: 'ZIM', aliases: ['ZIM', 'ZIMU'], url: function (b) { return 'https://www.zim.com/tools/track-a-shipment?consnumber=' + encodeURIComponent(b); } },
+  { name: 'Yang Ming', aliases: ['YML', 'YMLU'], url: function (b) { return 'https://www.yangming.com/e-service/Track_Trace/track_trace_cargo_tracking.aspx?bookno=' + encodeURIComponent(b); } },
+  { name: 'Wan Hai', aliases: ['WHL', 'WANHAI'], url: function (b) { return 'https://www.wanhai.com/views/quick/CargoTrackSearch.xhtml?bookingNo=' + encodeURIComponent(b); } },
+  { name: 'HMM', aliases: ['HMM', 'HDMU'], url: function (b) { return 'https://www.hmm21.com/e-service/general/trackNTrace/TrackNTrace.do?bookingNo=' + encodeURIComponent(b); } },
+  { name: 'PIL (Pacific Int. Lines)', aliases: ['PIL', 'PCIU'], url: function (b) { return 'https://www.pilship.com/en-in/quick-access/track-and-trace_2717.html?bookingNo=' + encodeURIComponent(b); } },
+  { name: 'KMTC', aliases: ['KMTC'], url: function (b) { return 'https://ebiz.kmtc.co.kr/trans/TrackingKmtc.jsp?bkgNo=' + encodeURIComponent(b); } },
+  { name: 'SITC', aliases: ['SITC'], url: function (b) { return 'https://www.sitcline.com/newTrack/index?blNo=' + encodeURIComponent(b); } },
+  { name: 'Interasia Lines', aliases: ['IAL', 'INTERASIA'], url: function (b) { return 'https://www.interasialines.com/track?bookingNo=' + encodeURIComponent(b); } },
+  { name: 'CU Lines', aliases: ['CULINE', 'CULINES'], url: function (b) { return 'https://www.culines.com/track?bookingNo=' + encodeURIComponent(b); } }
+];
+
+function findCarrier_(lineRaw) {
+  var norm = String(lineRaw || '').trim().toUpperCase().replace(/[^A-Z0-9]/g, '');
+  if (!norm) return null;
+  for (var i = 0; i < CARRIERS_.length; i++) {
+    var c = CARRIERS_[i];
+    for (var j = 0; j < c.aliases.length; j++) {
+      if (c.aliases[j].replace(/[^A-Z0-9]/g, '') === norm) return c;
+    }
+  }
+  return null;
+}
+
+function openCarrierTracking(lineRaw, bookingRaw) {
+  var booking = String(bookingRaw || '').trim();
+  if (!booking) { toast('Chưa có số Booking để tra cứu.'); return; }
+  var carrier = findCarrier_(lineRaw);
+  if (!carrier) { toast('Không nhận ra hãng tàu "' + (lineRaw || '(trống)') + '" — điền đúng ký hiệu hãng tàu vào Line rồi thử lại.'); return; }
+  var win = window.open(carrier.url(booking), '_blank', 'noopener');
+  if (!win) toast('Trình duyệt chặn pop-up — cho phép rồi bấm lại Tracking.');
+}
+$('svTrackBtn').addEventListener('click', function () {
+  openCarrierTracking($('svLine').value, $('svBooking').value);
+});
 
 function openLotEditor(shipmentId) {
   var lots = (S.shipInfo && S.shipInfo.shipments) || [];
