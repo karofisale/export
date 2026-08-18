@@ -1695,6 +1695,7 @@ $('refreshBtn').addEventListener('click', function () {
   loading(true);
   S.revOrders = null; // "Làm mới" phải đọc lại doanh thu từ server, không dùng cache cũ trong bộ nhớ
   S.planData = null; // và cả báo cáo Kế hoạch (trang Kế hoạch không còn nút Làm mới riêng)
+  S.pendingCodes = null; // và cả mã tạm chờ cấp (Quản lý sản phẩm)
   gs('api_refreshCache', S.token)
     .then(function () { return bootstrap(); })
     .then(function () { toast('Đã tải lại dữ liệu mới nhất.'); })
@@ -2703,6 +2704,7 @@ $('npkOkBtn').addEventListener('click', function () {
 
 /* ---- Mã tạm chờ cấp mã ---- */
 function loadPendingCodes() {
+  if (S.pendingCodes) { renderPendingCodes(); return; } // S.pendingCodes = null ở mọi nơi vừa cấp mã/đổi dữ liệu liên quan
   gs('api_pendingCodes', S.token).then(function (res) {
     S.pendingCodes = res.pending || [];
     renderPendingCodes();
@@ -3050,6 +3052,7 @@ $('pmSaveProductBtn').addEventListener('click', function () {
     });
   }).then(function () {
     pmClearProduct();
+    S.pendingCodes = null; // vừa cấp mã -> đọc lại chứ không dùng cache cũ
     loadPendingCodes();
     if (S.currentClient && S.currentOrder) S.currentLines = S.currentLines || [];
   }).catch(function (e) { toast('Lỗi: ' + e.message); })
