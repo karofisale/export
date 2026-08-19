@@ -2177,13 +2177,21 @@ function openShipView(so, autoOpenLotId) {
   $('svSo').textContent = so;
   $('svMeta').textContent = 'Đang tải…';
   $('svOrderRef').value = ''; // đơn khác -> reset, tránh giữ PI/SO của đơn xem trước đó
+  $('svPayDate').value = '';
+  $('svPayment').value = '';
+  // Xoá danh sách Shipment của đơn cũ NGAY (không chờ response) — tránh admin nhìn nhầm dữ liệu đơn
+  // trước là của đơn đang xem trong lúc chờ tải.
+  S.shipInfo = null;
+  $('svLotList').innerHTML = '<div style="color:var(--muted);grid-column:1/-1">Đang tải…</div>';
   loadShipment();
 }
 
 function loadShipment() {
   loading(true);
   $('svLotEditor').style.display = 'none';
-  gs('api_listShipments', S.token, S._shipSo).then(function (res) {
+  var targetSo = S._shipSo;
+  gs('api_listShipments', S.token, targetSo).then(function (res) {
+    if (S._shipSo !== targetSo) return; // đã chuyển sang xem đơn khác trong lúc chờ -> bỏ kết quả về trễ
     S.shipInfo = res;
     $('svMeta').textContent = [res.client, res.country, res.content, res.fob ? 'FOB ' + fmt$(res.fob) : '',
       res.piNumber ? 'PI ' + res.piNumber : ''].filter(Boolean).join(' · ');
@@ -2197,6 +2205,7 @@ function loadShipment() {
       S._shipAutoOpenLotId = '';
     }
   }).catch(function (e) {
+    if (S._shipSo !== targetSo) return;
     $('svMeta').textContent = 'Lỗi: ' + e.message;
     toast('Lỗi tải thông tin Shipment: ' + e.message);
   }).finally(function () { loading(false); });
@@ -3807,11 +3816,20 @@ $('ihCloseBtn').addEventListener('click', function () { $('ihOverlay').style.dis
    không có form field logistics/thanh toán/Custom Docs, chỉ list + phân bổ mã hàng. ================= */
 function loadOdShipments(so) {
   S._odShipSo = so;
+  // Xoá thông tin Shipment của đơn cũ NGAY (không chờ response) — tránh admin nhìn nhầm dữ liệu đơn
+  // trước là của đơn đang xem trong lúc chờ tải.
+  S._odShipInfo = null;
+  $('odShipmentEditor').style.display = 'none';
+  $('odShipmentList').innerHTML = '<div style="color:var(--muted);grid-column:1/-1;font-size:13px">Đang tải…</div>';
   gs('api_listShipments', S.token, so).then(function (res) {
+    if (S._odShipSo !== so) return; // đã chuyển sang xem đơn khác trong lúc chờ -> bỏ kết quả về trễ
     S._odShipInfo = res;
     renderOdShipmentList();
     $('odShipmentEditor').style.display = 'none';
-  }).catch(function (e) { toast('Lỗi tải Shipment: ' + e.message); });
+  }).catch(function (e) {
+    if (S._odShipSo !== so) return;
+    toast('Lỗi tải Shipment: ' + e.message);
+  });
 }
 
 function renderOdShipmentList() {
