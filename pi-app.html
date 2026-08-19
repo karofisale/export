@@ -306,6 +306,7 @@ td.note-cell.expanded { white-space: normal; max-width: none; }
       <button class="btn ghost" id="tbMenuToggle" aria-label="Mở menu" aria-expanded="false">⋯</button>
       <div class="tb-menu" id="tbMenu">
         <button class="btn ghost" id="prodMgrBtn" style="display:none" title="Thêm/sửa sản phẩm, model, BOM trên hub"><span class="tb-ic">🧩</span><span class="tb-label">Danh mục SP</span></button>
+        <button class="btn ghost" id="clientAdminBtn" style="display:none" title="Quản lý danh mục khách hàng: sửa thông tin, chỉ định sale phụ trách"><span class="tb-ic">👥</span><span class="tb-label">Client admin</span></button>
         <button class="btn ghost" id="ptspBtn" style="display:none" title="Dashboard tiến độ phát triển sản phẩm (đọc live từ Jira)"><span class="tb-ic">📊</span><span class="tb-label">Tiến độ PTSP</span></button>
         <button class="btn ghost" id="planBtn" style="display:none" title="Kế hoạch và thực hiện doanh thu xuất khẩu theo tháng"><span class="tb-ic">📈</span><span class="tb-label">Revenue Report</span></button>
         <button class="btn ghost" id="shipTrackBtn" style="display:none" title="Lịch trình các Shipment trong tháng, tra cứu vận đơn"><span class="tb-ic">🚢</span><span class="tb-label">Shipment Tracking</span></button>
@@ -511,10 +512,35 @@ td.note-cell.expanded { white-space: normal; max-width: none; }
         <!-- Tabs -->
         <div class="action-row" style="margin:14px 0 10px">
           <button class="btn primary" id="pmTabProduct">📦 Sản phẩm</button>
+          <button class="btn" id="pmTabCatalog">📑 Danh mục</button>
           <button class="btn" id="pmTabBatch">📋 Nhập batch</button>
           <button class="btn" id="pmTabModel">🏷 Model</button>
           <button class="btn" id="pmTabBom">🔧 BOM máy</button>
           <button class="btn" id="pmTabFeedback" style="display:none">💬 Duyệt Agent</button>
+        </div>
+
+        <!-- Danh mục: bảng toàn bộ sản phẩm, lọc free-type theo Category > Option > Model > Pack_Type,
+             bấm 1 dòng để nạp sang tab Sản phẩm sửa (dùng lại đúng form/luồng pmLoadProduct đã có). -->
+        <div id="pmCatalogPane" style="display:none">
+          <div class="picker-grid" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;margin-bottom:10px">
+            <label>Category <input type="text" id="pmCatFCategory" placeholder="Gõ để lọc…" value="RO Standard"></label>
+            <label>Option <input type="text" id="pmCatFOption" placeholder="Gõ để lọc…"></label>
+            <label>Model <input type="text" id="pmCatFModel" placeholder="Gõ để lọc…"></label>
+            <label>Pack_Type <input type="text" id="pmCatFPackType" placeholder="Gõ để lọc…"></label>
+          </div>
+          <div class="action-row" style="margin-bottom:8px">
+            <button class="btn small ghost" id="pmCatFClearBtn">✕ Xoá lọc</button>
+            <span class="client-meta" id="pmCatalogMeta" style="align-self:center"></span>
+          </div>
+          <div class="table-wrap" style="max-height:65vh">
+            <table class="data-table card-list" id="pmCatalogTable">
+              <thead><tr>
+                <th>Code</th><th>Tên</th><th>Category</th><th>Option</th><th>Model</th><th>Pack_Type</th>
+                <th class="num">Qty/ct</th><th class="num">Price</th><th></th>
+              </tr></thead>
+              <tbody></tbody>
+            </table>
+          </div>
         </div>
 
         <!-- Form sản phẩm đơn lẻ -->
@@ -640,6 +666,33 @@ td.note-cell.expanded { white-space: normal; max-width: none; }
         </div>
       </section>
 
+      <!-- Quản lý danh mục khách hàng (chỉ admin/master) — bảng toàn bộ khách, tìm/lọc free-type,
+           sửa thông tin & chỉ định sale ngay trong bảng (dùng lại modal ecOverlay đã có). -->
+      <section id="clientAdminView" style="display:none">
+        <div class="client-header">
+          <div>
+            <h2>Quản lý danh mục khách hàng</h2>
+            <div class="client-meta" id="caMeta"></div>
+          </div>
+          <button class="btn ghost" id="caHomeBtn">⟵ Trang đầu</button>
+        </div>
+        <div style="display:flex;gap:8px;align-items:center;margin:12px 0 10px;flex-wrap:wrap">
+          <input type="search" id="caSearch" placeholder="🔍 Tìm theo tên hoặc mã KH…" style="min-width:260px;padding:8px 10px;border:1px solid var(--line);border-radius:6px">
+          <input type="text" id="caCountryFilter" placeholder="🔍 Lọc theo quốc gia…" style="max-width:200px;padding:8px 10px;border:1px solid var(--line);border-radius:6px">
+          <button class="btn small primary" id="caShowAllBtn" data-mode="all">Tất cả</button>
+          <button class="btn small" id="caShowNoCodeBtn" data-mode="nocode">Chưa có mã KH</button>
+        </div>
+        <div class="table-wrap" style="max-height:70vh">
+          <table class="data-table card-list" id="caTable">
+            <thead><tr>
+              <th>Mã KH</th><th>Tên khách</th><th>Quốc gia</th><th>Cảng đến</th><th>Sale phụ trách</th>
+              <th>Incoterm</th><th class="num">Margin</th><th></th>
+            </tr></thead>
+            <tbody></tbody>
+          </table>
+        </div>
+      </section>
+
       <!-- #10 Dashboard tiến độ PTSP (đọc live từ Jira) — technician/admin/master/lead -->
       <section id="ptspView" style="display:none">
         <div class="client-header">
@@ -750,11 +803,15 @@ td.note-cell.expanded { white-space: normal; max-width: none; }
           <button class="btn small" id="shipTrackFilterBrand" data-filter="brand">Brand</button>
           <button class="btn small" id="shipTrackFilterOem" data-filter="oem">OEM</button>
         </div>
+        <div style="display:flex;gap:8px;align-items:center;margin:0 0 10px;flex-wrap:wrap">
+          <input type="text" id="shipTrackClientFilter" placeholder="🔍 Lọc theo khách…" style="max-width:220px">
+          <input type="text" id="shipTrackLineFilter" placeholder="🔍 Lọc theo Line…" style="max-width:160px">
+        </div>
         <div class="table-wrap">
           <table class="data-table card-list" id="shipTrackTable">
             <thead><tr>
               <th>SO</th><th>Khách</th><th>Thị trường</th><th class="num">FOB</th><th>Ngày load</th>
-              <th>Status</th><th>Booking</th><th>Line</th><th>Tracking</th><th></th>
+              <th>Status</th><th>INV#</th><th>Booking</th><th>Line</th><th>Tracking</th><th></th>
             </tr></thead>
             <tbody></tbody>
           </table>
@@ -1670,6 +1727,7 @@ function bootstrap() {
     $('rateInfo').textContent = 'Tỷ giá: ' + fmtN(S.dashboard.exchangeRate, 0) + ' VND/USD';
     $('ptspBtn').style.display = PTSP_ROLES.indexOf(S.user.role) >= 0 ? '' : 'none';   // #10
     $('prodMgrBtn').style.display = PM_ROLES.indexOf(S.user.role) >= 0 ? '' : 'none';  // #11
+    $('clientAdminBtn').style.display = isAdminLevel() ? '' : 'none'; // Client admin: chỉ admin/master (khớp updateClient_)
     $('planBtn').style.display = planPersonaOfUser_() !== 'none' ? '' : 'none';
     $('shipTrackBtn').style.display = MONTH_VIEW_ROLES.indexOf(S.user.role) >= 0 ? '' : 'none';
     renderClientList();
@@ -1753,7 +1811,7 @@ $('clientSort').addEventListener('change', renderClientList);
 
 /** #1 Về trang đầu theo vai trò (giống lúc mới đăng nhập). */
 function goHome() {
-  ['clientView', 'editorView', 'queueView', 'revenueView', 'ptspView', 'prodView', 'shipView', 'planView', 'shipTrackView'].forEach(function (id) {
+  ['clientView', 'editorView', 'queueView', 'revenueView', 'ptspView', 'prodView', 'shipView', 'planView', 'shipTrackView', 'clientAdminView'].forEach(function (id) {
     $(id).style.display = 'none';
   });
   if (S.user.role === 'technician') { loadReviewQueue(); return; }
@@ -1766,7 +1824,7 @@ function goHome() {
  * Shipment: mở từ chi tiết đơn, từ Shipment Tracking, hoặc từ Agent) — khác với "Trang đầu" luôn về
  * home cố định theo vai trò. Vì mọi view đều luôn nằm sẵn trong DOM (chỉ ẩn/hiện qua display:none),
  * "quay lại" chỉ cần nhớ ĐÚNG view + trạng thái sidebar trước đó rồi hiện lại, không cần tải lại gì. */
-var VIEW_IDS_ = ['clientView', 'editorView', 'queueView', 'revenueView', 'ptspView', 'prodView', 'shipView', 'planView', 'shipTrackView'];
+var VIEW_IDS_ = ['clientView', 'editorView', 'queueView', 'revenueView', 'ptspView', 'prodView', 'shipView', 'planView', 'shipTrackView', 'clientAdminView'];
 function currentViewId_() {
   for (var i = 0; i < VIEW_IDS_.length; i++) { if ($(VIEW_IDS_[i]).style.display === 'block') return VIEW_IDS_[i]; }
   return null;
@@ -1852,6 +1910,7 @@ function selectClient(c, targetSo) {
   $('revenueView').style.display = 'none';
   $('ptspView').style.display = 'none';
   $('prodView').style.display = 'none';
+  $('clientAdminView').style.display = 'none';
   $('shipView').style.display = 'none';
   $('planView').style.display = 'none';
   $('shipTrackView').style.display = 'none';
@@ -1944,6 +2003,7 @@ function loadRevenue() {
   $('queueView').style.display = 'none';
   $('ptspView').style.display = 'none';
   $('prodView').style.display = 'none';
+  $('clientAdminView').style.display = 'none';
   $('shipView').style.display = 'none';
   $('planView').style.display = 'none';
   $('shipTrackView').style.display = 'none';
@@ -2165,7 +2225,7 @@ var SV_LOT_FIELDS = { status: 'svStatus', booking: 'svBooking', line: 'svLine', 
 
 function openShipView(so, autoOpenLotId) {
   pushBackScreen_(); // nhớ đúng chỗ vừa đứng (chi tiết đơn / Shipment Tracking / …) để nút Back quay lại đúng nơi
-  ['clientView', 'editorView', 'queueView', 'revenueView', 'ptspView', 'prodView', 'planView', 'shipTrackView'].forEach(function (id) {
+  ['clientView', 'editorView', 'queueView', 'revenueView', 'ptspView', 'prodView', 'planView', 'shipTrackView', 'clientAdminView'].forEach(function (id) {
     $(id).style.display = 'none';
   });
   setSidebar(false);
@@ -2298,6 +2358,7 @@ function loadShipTrack() {
   $('queueView').style.display = 'none';
   $('ptspView').style.display = 'none';
   $('prodView').style.display = 'none';
+  $('clientAdminView').style.display = 'none';
   $('shipView').style.display = 'none';
   $('planView').style.display = 'none';
   $('revenueView').style.display = 'none';
@@ -2334,14 +2395,20 @@ $('shipTrackHomeBtn').addEventListener('click', goHome);
     renderShipTrack();
   });
 });
+$('shipTrackClientFilter').addEventListener('input', renderShipTrack);
+$('shipTrackLineFilter').addEventListener('input', renderShipTrack);
 
 function renderShipTrack() {
   $('shipTrackMonthLabel').textContent = S.shipTrackMonth;
   var filter = S.shipTrackFilter || 'all';
+  var clientQ = $('shipTrackClientFilter').value.trim().toLowerCase();
+  var lineQ = $('shipTrackLineFilter').value.trim().toLowerCase();
   var rows = (S.revOrders || []).filter(function (o) {
     if (!o.so || o.monthKey !== S.shipTrackMonth) return false;
     if (filter === 'brand' && !isBrandOrder(o)) return false;
     if (filter === 'oem' && isBrandOrder(o)) return false;
+    if (clientQ && String(o.client || '').toLowerCase().indexOf(clientQ) < 0) return false;
+    if (lineQ && String(o.line || '').toLowerCase().indexOf(lineQ) < 0) return false;
     return true;
   }).sort(function (a, b) { return String(a.realLoad || '').localeCompare(String(b.realLoad || '')); });
   $('shipTrackMeta').textContent = rows.length
@@ -2364,12 +2431,16 @@ function renderShipTrack() {
       '<td data-label="Thị trường">' + esc(clientCountry(o.client)) + '</td>' +
       '<td class="num" data-label="FOB">' + fmt$(o.fob) + '</td>' +
       '<td data-label="Ngày load">' + esc(o.realLoad || '—') + '</td>' +
-      '<td data-label="Status">' + statusBadge(o.shipmentStatus || o.status) + '</td>' +
+      // Status ở đây LÀ CỦA SHIPMENT (tab Shipment.Status), không phải Status của Đơn hàng (Order.Status)
+      // — đơn chưa tách lô (shipmentId rỗng) thì chưa có Status Shipment nào để hiện, để '—', không
+      // fallback về Order.Status (dễ hiểu lầm 2 khái niệm khác nhau).
+      '<td data-label="Status">' + (o.shipmentStatus ? statusBadge(o.shipmentStatus) : '<span style="color:var(--muted)">—</span>') + '</td>' +
+      '<td data-label="INV#">' + esc(o.invoiceNo || '—') + '</td>' +
       '<td data-label="Booking">' + esc(o.booking || '—') + '</td>' +
       '<td data-label="Line">' + esc(o.line || '—') + '</td>' +
       '<td data-label="Tracking">' + trackCell + '</td>' +
       '<td>' + manageCell + '</td></tr>';
-  }).join('') : '<tr><td colspan="10" style="color:var(--muted)">Không có Shipment nào trong tháng này.</td></tr>';
+  }).join('') : '<tr><td colspan="11" style="color:var(--muted)">Không có Shipment nào trong tháng này.</td></tr>';
   tb.querySelectorAll('.st-track-btn').forEach(function (btn) {
     btn.addEventListener('click', function () {
       openCarrierTracking(btn.getAttribute('data-line'), btn.getAttribute('data-booking'));
@@ -2529,6 +2600,7 @@ function openProdMgr() {
   $('shipView').style.display = 'none';
   $('planView').style.display = 'none';
   $('shipTrackView').style.display = 'none';
+  $('clientAdminView').style.display = 'none';
   $('prodView').style.display = 'block';
   $('pmTabFeedback').style.display = isAdminLevel() ? '' : 'none'; // Duyệt Agent: chỉ admin/master
   // nạp CompTotal (cho tab BOM) + đổ gợi ý
@@ -2787,19 +2859,65 @@ function pmStartAssign(p) {
 
 /* ---- Tabs ---- */
 function pmShowPane(which) {
-  var panes = { product: 'pmProductPane', batch: 'pmBatchPane', model: 'pmModelPane', bom: 'pmBomPane', feedback: 'pmFeedbackPane' };
-  var tabs = { product: 'pmTabProduct', batch: 'pmTabBatch', model: 'pmTabModel', bom: 'pmTabBom', feedback: 'pmTabFeedback' };
+  var panes = { product: 'pmProductPane', catalog: 'pmCatalogPane', batch: 'pmBatchPane', model: 'pmModelPane', bom: 'pmBomPane', feedback: 'pmFeedbackPane' };
+  var tabs = { product: 'pmTabProduct', catalog: 'pmTabCatalog', batch: 'pmTabBatch', model: 'pmTabModel', bom: 'pmTabBom', feedback: 'pmTabFeedback' };
   Object.keys(panes).forEach(function (k) {
     $(panes[k]).style.display = (k === which) ? '' : 'none';
     $(tabs[k]).className = 'btn' + (k === which ? ' primary' : '');
   });
 }
 $('pmTabProduct').addEventListener('click', function () { pmShowPane('product'); });
+$('pmTabCatalog').addEventListener('click', function () { pmShowPane('catalog'); renderPmCatalog(); });
 $('pmTabBatch').addEventListener('click', function () { pmShowPane('batch'); });
 $('pmTabModel').addEventListener('click', function () { pmShowPane('model'); });
 $('pmTabBom').addEventListener('click', function () { pmShowPane('bom'); });
 $('pmTabFeedback').addEventListener('click', function () { pmShowPane('feedback'); loadAgentFeedback(); });
 $('prodMgrBtn').addEventListener('click', openProdMgr);
+
+/** #Danh mục: bảng toàn bộ sản phẩm, lọc free-type Category/Option/Model/Pack_Type — bấm 1 dòng để
+ *  nạp sang tab Sản phẩm (dùng lại đúng pmLoadProduct, S.products đã có sẵn client-side, không gọi API). */
+function renderPmCatalog() {
+  var fCategory = $('pmCatFCategory').value.trim().toLowerCase();
+  var fOption = $('pmCatFOption').value.trim().toLowerCase();
+  var fModel = $('pmCatFModel').value.trim().toLowerCase();
+  var fPackType = $('pmCatFPackType').value.trim().toLowerCase();
+  var all = S.products || [];
+  var rows = all.filter(function (p) {
+    if (fCategory && String(p.category || '').toLowerCase().indexOf(fCategory) < 0) return false;
+    if (fOption && String(p.option || '').toLowerCase().indexOf(fOption) < 0) return false;
+    if (fModel && String(p.model || '').toLowerCase().indexOf(fModel) < 0) return false;
+    if (fPackType && String(p.packType || '').toLowerCase().indexOf(fPackType) < 0) return false;
+    return true;
+  }).sort(function (a, b) { return String(a.code).localeCompare(String(b.code)); });
+  $('pmCatalogMeta').textContent = rows.length + ' / ' + all.length + ' sản phẩm.';
+  var tb = $('pmCatalogTable').querySelector('tbody');
+  tb.innerHTML = rows.length ? rows.map(function (p) {
+    return '<tr><td><span class="code-chip">' + esc(p.code) + '</span></td>' +
+      '<td>' + esc(p.name || '') + '</td>' +
+      '<td>' + esc(p.category || '') + '</td>' +
+      '<td>' + esc(p.option || '') + '</td>' +
+      '<td>' + esc(p.model || '') + '</td>' +
+      '<td>' + esc(p.packType || '') + '</td>' +
+      '<td class="num">' + fmtN(p.qtyCt || 0, 0) + '</td>' +
+      '<td class="num">' + fmt$(p.price || 0) + '</td>' +
+      '<td><button type="button" class="btn small ghost pm-cat-edit-btn" data-code="' + esc(p.code) + '">✎ Sửa</button></td></tr>';
+  }).join('') : '<tr><td colspan="9" style="color:var(--muted)">Không có sản phẩm khớp bộ lọc.</td></tr>';
+  tb.querySelectorAll('.pm-cat-edit-btn').forEach(function (btn) {
+    btn.addEventListener('click', function () {
+      var p = findProduct(btn.getAttribute('data-code'));
+      if (!p) { toast('Không tìm thấy sản phẩm.'); return; }
+      pmShowPane('product');
+      pmLoadProduct(p);
+    });
+  });
+}
+['pmCatFCategory', 'pmCatFOption', 'pmCatFModel', 'pmCatFPackType'].forEach(function (id) {
+  $(id).addEventListener('input', renderPmCatalog);
+});
+$('pmCatFClearBtn').addEventListener('click', function () {
+  ['pmCatFCategory', 'pmCatFOption', 'pmCatFModel', 'pmCatFPackType'].forEach(function (id) { $(id).value = ''; });
+  renderPmCatalog();
+});
 
 /* ---- Duyệt góp ý Karofi Agent V1 (chỉ admin/master, xem pmTabFeedback ở trên) ---- */
 function loadAgentFeedback() {
@@ -3210,6 +3328,77 @@ $('pmSaveBomBtn').addEventListener('click', function () {
   });
 });
 
+/* ================= Quản lý danh mục khách hàng (chỉ admin/master) =================
+   Bảng toàn bộ khách trong phạm vi quyền (admin/master vốn đã thấy hết qua getClientsForUser_ nên
+   KHÔNG cần endpoint mới) — tìm free-type theo tên/mã, lọc free-type theo quốc gia, chuyển nhanh
+   giữa "Tất cả" và "Chưa có mã KH". Sửa/chỉ định sale dùng lại đúng modal ecOverlay + api_updateClient
+   đã có (không viết luồng ghi mới). */
+function openClientAdmin() {
+  setSidebar(false);
+  $('emptyState').style.display = 'none';
+  $('clientView').style.display = 'none';
+  $('editorView').style.display = 'none';
+  $('queueView').style.display = 'none';
+  $('revenueView').style.display = 'none';
+  $('ptspView').style.display = 'none';
+  $('prodView').style.display = 'none';
+  $('clientAdminView').style.display = 'none';
+  $('shipView').style.display = 'none';
+  $('planView').style.display = 'none';
+  $('shipTrackView').style.display = 'none';
+  $('clientAdminView').style.display = 'block';
+  renderClientAdmin();
+}
+$('clientAdminBtn').addEventListener('click', openClientAdmin);
+$('caHomeBtn').addEventListener('click', goHome);
+
+function renderClientAdmin() {
+  var q = $('caSearch').value.trim().toLowerCase();
+  var countryQ = $('caCountryFilter').value.trim().toLowerCase();
+  var mode = S._caMode || 'all';
+  var all = S.clients || [];
+  var rows = all.filter(function (c) {
+    if (mode === 'nocode' && String(c.id || '').trim()) return false;
+    if (countryQ && String(c.country || '').toLowerCase().indexOf(countryQ) < 0) return false;
+    if (q && String(c.name || '').toLowerCase().indexOf(q) < 0 &&
+        String(c.id || '').toLowerCase().indexOf(q) < 0) return false;
+    return true;
+  }).sort(function (a, b) { return String(a.name).localeCompare(String(b.name)); });
+  var noCode = all.filter(function (c) { return !String(c.id || '').trim(); }).length;
+  $('caMeta').textContent = rows.length + ' / ' + all.length + ' khách' +
+    (noCode ? ' · ' + noCode + ' khách chưa có mã KH' : '');
+  var tb = $('caTable').querySelector('tbody');
+  tb.innerHTML = rows.length ? rows.map(function (c) {
+    return '<tr><td>' + (c.id ? '<span class="code-chip">' + esc(c.id) + '</span>'
+        : '<span style="color:var(--warn)">chưa có</span>') + '</td>' +
+      '<td class="card-title">' + esc(c.name) + '</td>' +
+      '<td>' + esc(c.country || '') + '</td>' +
+      '<td>' + esc(c.port || '') + '</td>' +
+      '<td>' + esc(c.saleId || '') + '</td>' +
+      '<td>' + esc(c.incoterm || '') + '</td>' +
+      '<td class="num">' + (c.targetMargin != null && c.targetMargin !== '' ? fmtN(c.targetMargin * 100, 1) + '%' : '—') + '</td>' +
+      '<td><button type="button" class="btn small ghost ca-edit-btn" data-name="' + esc(c.name) + '">✎ Sửa</button></td></tr>';
+  }).join('') : '<tr><td colspan="8" style="color:var(--muted)">Không có khách khớp bộ lọc.</td></tr>';
+  tb.querySelectorAll('.ca-edit-btn').forEach(function (btn) {
+    btn.addEventListener('click', function () {
+      var name = btn.getAttribute('data-name');
+      var c = (S.clients || []).filter(function (x) { return x.name === name; })[0];
+      if (!c) { toast('Không tìm thấy khách.'); return; }
+      openEditClientModal(c, 'clientAdmin'); // sửa xong quay lại đúng bảng này, không nhảy sang chi tiết khách
+    });
+  });
+}
+$('caSearch').addEventListener('input', renderClientAdmin);
+$('caCountryFilter').addEventListener('input', renderClientAdmin);
+[['caShowAllBtn', 'all'], ['caShowNoCodeBtn', 'nocode']].forEach(function (pair) {
+  $(pair[0]).addEventListener('click', function () {
+    S._caMode = pair[1];
+    $('caShowAllBtn').classList.toggle('primary', pair[1] === 'all');
+    $('caShowNoCodeBtn').classList.toggle('primary', pair[1] === 'nocode');
+    renderClientAdmin();
+  });
+});
+
 /* ================= #10 Dashboard tiến độ PTSP (live từ Jira) ================= */
 var PTSP_ROLES = ['technician', 'admin', 'master', 'lead', 'leader'];
 
@@ -3221,6 +3410,7 @@ function loadPtsp(force) {
   $('queueView').style.display = 'none';
   $('revenueView').style.display = 'none';
   $('prodView').style.display = 'none';
+  $('clientAdminView').style.display = 'none';
   $('shipView').style.display = 'none';
   $('planView').style.display = 'none';
   $('shipTrackView').style.display = 'none';
@@ -3366,6 +3556,7 @@ function loadPlanReport() {
   $('revenueView').style.display = 'none';
   $('ptspView').style.display = 'none';
   $('prodView').style.display = 'none';
+  $('clientAdminView').style.display = 'none';
   $('shipView').style.display = 'none';
   $('shipTrackView').style.display = 'none';
   $('planView').style.display = 'block';
@@ -3615,6 +3806,7 @@ function loadReviewQueue() {
   $('editorView').style.display = 'none';
   $('ptspView').style.display = 'none';
   $('prodView').style.display = 'none';
+  $('clientAdminView').style.display = 'none';
   $('shipView').style.display = 'none';
   $('planView').style.display = 'none';
   $('shipTrackView').style.display = 'none';
@@ -5976,10 +6168,12 @@ $('ncOkBtn').addEventListener('click', function () {
 });
 
 /* ================= Sửa khách hàng (admin/master) ================= */
-$('editClientBtn').addEventListener('click', function () {
-  var c = S.currentClient;
+/** Mở modal Sửa khách. returnTo = 'clientAdmin' -> lưu xong quay lại bảng Quản lý danh mục khách hàng
+ *  (không nhảy sang chi tiết khách như luồng từ sidebar). */
+function openEditClientModal(c, returnTo) {
   if (!c) return;
   S._editClientOrigName = c.name;
+  S._editClientReturnTo = returnTo || '';
   $('ecName').value = c.name || '';
   $('ecCode').value = c.id || '';
   $('ecFullName').value = c.fullName || '';
@@ -5988,11 +6182,20 @@ $('editClientBtn').addEventListener('click', function () {
   $('ecTel').value = c.tel || '';
   $('ecPort').value = c.port || '';
   $('ecIncoterm').value = c.incoterm || 'FOB';
-  $('ecMargin').value = c.margin != null ? c.margin : '';
+  $('ecMargin').value = c.targetMargin != null ? c.targetMargin : '';
   $('ecSaleId').value = c.saleId || '';
-  $('ecSaleIdList').innerHTML = (S.userNames || []).map(function (n) { return '<option value="' + esc(n) + '">'; }).join('');
+  // Gợi ý Sale_ID: lấy các Sale_ID THẬT đang dùng trên tab Clients — KHÔNG dùng S.userNames (đó là
+  // tên hiển thị trong tab Users, khác cột Sale_ID mà getClientsForUser_ dùng để soi quyền xem khách;
+  // gợi ý sai tên vào đây sẽ khiến khách "biến mất" khỏi sale được gán).
+  var saleIds = {};
+  (S.clients || []).forEach(function (x) { if (x.saleId) saleIds[x.saleId] = 1; });
+  $('ecSaleIdList').innerHTML = Object.keys(saleIds).sort()
+    .map(function (n) { return '<option value="' + esc(n) + '">'; }).join('');
   $('ecReqCodeBtn').style.display = c.id ? 'none' : '';
   $('ecOverlay').style.display = 'flex';
+}
+$('editClientBtn').addEventListener('click', function () {
+  openEditClientModal(S.currentClient, '');
 });
 $('ecCancelBtn').addEventListener('click', function () { $('ecOverlay').style.display = 'none'; });
 /* YC tạo mã KH ngay trong màn Sửa khách — đóng ecOverlay rồi mở ckOverlay theo giá trị đang sửa. */
@@ -6024,12 +6227,14 @@ $('ecOkBtn').addEventListener('click', function () {
     saleId: $('ecSaleId').value.trim()
   };
   loading(true);
+  var returnTo = S._editClientReturnTo;
   gs('api_updateClient', S.token, payload).then(function (res) {
     $('ecOverlay').style.display = 'none';
     toast('Đã lưu thông tin khách "' + res.name + '".');
     return gs('api_bootstrap', S.token).then(function (b) {
       S.clients = b.clients;
       renderClientList();
+      if (returnTo === 'clientAdmin') { renderClientAdmin(); return; } // giữ nguyên bảng đang xem
       var updated = S.clients.filter(function (x) { return x.name.toLowerCase() === res.name.toLowerCase(); })[0];
       if (updated) selectClient(updated);
     });
