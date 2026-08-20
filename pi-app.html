@@ -1809,11 +1809,26 @@ function renderClientList() {
 $('clientSearch').addEventListener('input', renderClientList);
 $('clientSort').addEventListener('change', renderClientList);
 
+/* Mọi màn hình cấp cao nhất là 1 <section id="...View"> nằm sẵn trong Index.html (đóng/mở chỉ bằng
+ * display:none/'block', không tải lại DOM). VIEW_IDS_ lấy TRỰC TIẾP từ DOM — trước đây đây là 1
+ * mảng hardcode bị LẶP LẠI Ở 8 NƠI KHÁC NHAU (goHome, mảng riêng này, openShipView, selectClient,
+ * loadRevenue, loadPtsp, loadPlanReport, loadReviewQueue, openProdMgr, openClientAdmin) — mỗi lần
+ * thêm 1 màn hình mới phải nhớ sửa đủ cả 8 chỗ, quên 1 chỗ là 2 màn hiển thị đè lên nhau (đúng lỗi
+ * đã gặp khi thêm clientAdminView). Giờ thêm màn hình mới chỉ cần thêm 1 thẻ <section id="xxxView">
+ * trong Index.html — không phải sửa dòng code nào ở đây nữa. */
+var VIEW_IDS_ = Array.prototype.slice.call(document.querySelectorAll('section[id$="View"]')).map(function (el) { return el.id; });
+
+/** Ẩn toàn bộ view (không hiện view nào) — dùng khi sắp hiện 1 màn KHÔNG phải section-view (vd
+ *  emptyState) hoặc khi hàm gọi tự chọn hiện view nào sau đó (goHome giao lại cho loadRevenue/…). */
+function hideAllViews_() { VIEW_IDS_.forEach(function (id) { $(id).style.display = 'none'; }); }
+
+/** Hiện ĐÚNG 1 view, ẩn mọi view khác — thay cho việc mỗi hàm mở màn hình tự liệt kê + ẩn từng view
+ *  khác bằng tay. */
+function showView(id) { hideAllViews_(); $(id).style.display = 'block'; }
+
 /** #1 Về trang đầu theo vai trò (giống lúc mới đăng nhập). */
 function goHome() {
-  ['clientView', 'editorView', 'queueView', 'revenueView', 'ptspView', 'prodView', 'shipView', 'planView', 'shipTrackView', 'clientAdminView'].forEach(function (id) {
-    $(id).style.display = 'none';
-  });
+  hideAllViews_();
   if (S.user.role === 'technician') { loadReviewQueue(); return; }
   if (MONTH_VIEW_ROLES.indexOf(S.user.role) >= 0) { loadRevenue(); return; }
   setSidebar(true); // vai trò khác: quay về chọn khách
@@ -1824,7 +1839,6 @@ function goHome() {
  * Shipment: mở từ chi tiết đơn, từ Shipment Tracking, hoặc từ Agent) — khác với "Trang đầu" luôn về
  * home cố định theo vai trò. Vì mọi view đều luôn nằm sẵn trong DOM (chỉ ẩn/hiện qua display:none),
  * "quay lại" chỉ cần nhớ ĐÚNG view + trạng thái sidebar trước đó rồi hiện lại, không cần tải lại gì. */
-var VIEW_IDS_ = ['clientView', 'editorView', 'queueView', 'revenueView', 'ptspView', 'prodView', 'shipView', 'planView', 'shipTrackView', 'clientAdminView'];
 function currentViewId_() {
   for (var i = 0; i < VIEW_IDS_.length; i++) { if ($(VIEW_IDS_[i]).style.display === 'block') return VIEW_IDS_[i]; }
   return null;
@@ -1838,9 +1852,8 @@ function pushBackScreen_() {
 function goBackScreen() {
   var prev = (S._backStack || []).pop();
   if (!prev) { goHome(); return; }
-  VIEW_IDS_.forEach(function (id) { $(id).style.display = 'none'; });
   $('emptyState').style.display = 'none';
-  $(prev.view).style.display = 'block';
+  showView(prev.view);
   setSidebar(prev.sidebar);
 }
 
@@ -1906,19 +1919,10 @@ function selectClient(c, targetSo) {
   renderClientList();
   setSidebar(false); // ẩn panel trái, bấm "Chọn khách khác" để hiện lại
   $('emptyState').style.display = 'none';
-  $('queueView').style.display = 'none';
-  $('revenueView').style.display = 'none';
-  $('ptspView').style.display = 'none';
-  $('prodView').style.display = 'none';
-  $('clientAdminView').style.display = 'none';
-  $('shipView').style.display = 'none';
-  $('planView').style.display = 'none';
-  $('shipTrackView').style.display = 'none';
+  showView('clientView');
   $('backToQueueBtn').style.display = S.user.role === 'technician' ? '' : 'none';
   $('backToRevenueBtn').style.display = MONTH_VIEW_ROLES.indexOf(S.user.role) >= 0 ? '' : 'none';
   $('backToRevenueBtn').textContent = S.user.role === 'sale' ? '⟵ Đơn theo tháng' : '⟵ Doanh thu theo tháng';
-  $('editorView').style.display = 'none';
-  $('clientView').style.display = 'block';
   $('cvName').textContent = c.name;
   $('cvMeta').textContent = ['Mã KH: ' + (c.id || '(chưa có)'), c.country, c.port && ('Cảng: ' + c.port), c.incoterm, c.saleId && ('Sale: ' + c.saleId)].filter(Boolean).join(' · ');
   // admin/master: khách chưa có mã -> hiện nút xuất form YC cấp mã KH
@@ -1998,16 +2002,7 @@ function renderOrderPicker() {
 function loadRevenue() {
   setSidebar(true); // luôn hiện panel khách để chọn khách khi đang xem theo tháng
   $('emptyState').style.display = 'none';
-  $('clientView').style.display = 'none';
-  $('editorView').style.display = 'none';
-  $('queueView').style.display = 'none';
-  $('ptspView').style.display = 'none';
-  $('prodView').style.display = 'none';
-  $('clientAdminView').style.display = 'none';
-  $('shipView').style.display = 'none';
-  $('planView').style.display = 'none';
-  $('shipTrackView').style.display = 'none';
-  $('revenueView').style.display = 'block';
+  showView('revenueView');
   var isLead = S.user.role === 'lead' || S.user.role === 'leader' || S.user.role === 'admin' || S.user.role === 'master' || S.user.role === 'technician';
   $('revTitle').textContent = isLead ? 'Doanh thu theo tháng' : 'Đơn hàng của tôi theo tháng';
   var showBrandFilter = REV_BRAND_FILTER_ROLES.indexOf(S.user.role) >= 0;
@@ -2225,12 +2220,9 @@ var SV_LOT_FIELDS = { status: 'svStatus', booking: 'svBooking', line: 'svLine', 
 
 function openShipView(so, autoOpenLotId) {
   pushBackScreen_(); // nhớ đúng chỗ vừa đứng (chi tiết đơn / Shipment Tracking / …) để nút Back quay lại đúng nơi
-  ['clientView', 'editorView', 'queueView', 'revenueView', 'ptspView', 'prodView', 'planView', 'shipTrackView', 'clientAdminView'].forEach(function (id) {
-    $(id).style.display = 'none';
-  });
   setSidebar(false);
   $('emptyState').style.display = 'none';
-  $('shipView').style.display = 'block';
+  showView('shipView');
   S._shipSo = so;
   S._shipEditingLotId = '';
   S._shipAutoOpenLotId = autoOpenLotId || '';
@@ -2353,16 +2345,7 @@ $('svTrackBtn').addEventListener('click', function () {
 function loadShipTrack() {
   setSidebar(true);
   $('emptyState').style.display = 'none';
-  $('clientView').style.display = 'none';
-  $('editorView').style.display = 'none';
-  $('queueView').style.display = 'none';
-  $('ptspView').style.display = 'none';
-  $('prodView').style.display = 'none';
-  $('clientAdminView').style.display = 'none';
-  $('shipView').style.display = 'none';
-  $('planView').style.display = 'none';
-  $('revenueView').style.display = 'none';
-  $('shipTrackView').style.display = 'block';
+  showView('shipTrackView');
   if (!S.shipTrackMonth) S.shipTrackMonth = new Date().toISOString().slice(0, 7);
   var showFilter = REV_BRAND_FILTER_ROLES.indexOf(S.user.role) >= 0;
   $('shipTrackFilterWrap').style.display = showFilter ? 'flex' : 'none';
@@ -2592,16 +2575,7 @@ function canManageProducts() { return S.user && PM_ROLES.indexOf(S.user.role) >=
 function openProdMgr() {
   setSidebar(false);
   $('emptyState').style.display = 'none';
-  $('clientView').style.display = 'none';
-  $('editorView').style.display = 'none';
-  $('queueView').style.display = 'none';
-  $('revenueView').style.display = 'none';
-  $('ptspView').style.display = 'none';
-  $('shipView').style.display = 'none';
-  $('planView').style.display = 'none';
-  $('shipTrackView').style.display = 'none';
-  $('clientAdminView').style.display = 'none';
-  $('prodView').style.display = 'block';
+  showView('prodView');
   $('pmTabFeedback').style.display = isAdminLevel() ? '' : 'none'; // Duyệt Agent: chỉ admin/master
   // nạp CompTotal (cho tab BOM) + đổ gợi ý
   if (!S.components) {
@@ -3336,17 +3310,7 @@ $('pmSaveBomBtn').addEventListener('click', function () {
 function openClientAdmin() {
   setSidebar(false);
   $('emptyState').style.display = 'none';
-  $('clientView').style.display = 'none';
-  $('editorView').style.display = 'none';
-  $('queueView').style.display = 'none';
-  $('revenueView').style.display = 'none';
-  $('ptspView').style.display = 'none';
-  $('prodView').style.display = 'none';
-  $('clientAdminView').style.display = 'none';
-  $('shipView').style.display = 'none';
-  $('planView').style.display = 'none';
-  $('shipTrackView').style.display = 'none';
-  $('clientAdminView').style.display = 'block';
+  showView('clientAdminView');
   renderClientAdmin();
 }
 $('clientAdminBtn').addEventListener('click', openClientAdmin);
@@ -3405,16 +3369,7 @@ var PTSP_ROLES = ['technician', 'admin', 'master', 'lead', 'leader'];
 function loadPtsp(force) {
   setSidebar(false);
   $('emptyState').style.display = 'none';
-  $('clientView').style.display = 'none';
-  $('editorView').style.display = 'none';
-  $('queueView').style.display = 'none';
-  $('revenueView').style.display = 'none';
-  $('prodView').style.display = 'none';
-  $('clientAdminView').style.display = 'none';
-  $('shipView').style.display = 'none';
-  $('planView').style.display = 'none';
-  $('shipTrackView').style.display = 'none';
-  $('ptspView').style.display = 'block';
+  showView('ptspView');
   if (S.ptsp && !force) { renderPtsp(); return; }
   $('ptspMeta').textContent = 'Đang tải từ Jira…';
   $('ptspTable').querySelector('tbody').innerHTML = '<tr><td colspan="9" style="color:var(--muted)">Đang tải…</td></tr>';
@@ -3550,16 +3505,7 @@ function planSegsForPersona_(persona) {
 function loadPlanReport() {
   setSidebar(false);
   $('emptyState').style.display = 'none';
-  $('clientView').style.display = 'none';
-  $('editorView').style.display = 'none';
-  $('queueView').style.display = 'none';
-  $('revenueView').style.display = 'none';
-  $('ptspView').style.display = 'none';
-  $('prodView').style.display = 'none';
-  $('clientAdminView').style.display = 'none';
-  $('shipView').style.display = 'none';
-  $('shipTrackView').style.display = 'none';
-  $('planView').style.display = 'block';
+  showView('planView');
   var persona = planPersonaOfUser_();
   if (persona === 'none') {
     $('planMeta').textContent = 'Bạn không có quyền xem báo cáo này.';
@@ -3802,15 +3748,7 @@ $('planHomeBtn').addEventListener('click', goHome);
 function loadReviewQueue() {
   setSidebar(true); // giữ panel khách bên trái
   $('emptyState').style.display = 'none';
-  $('clientView').style.display = 'none';
-  $('editorView').style.display = 'none';
-  $('ptspView').style.display = 'none';
-  $('prodView').style.display = 'none';
-  $('clientAdminView').style.display = 'none';
-  $('shipView').style.display = 'none';
-  $('planView').style.display = 'none';
-  $('shipTrackView').style.display = 'none';
-  $('queueView').style.display = 'block';
+  showView('queueView');
   var tb = $('queueTable').querySelector('tbody');
   tb.innerHTML = '<tr><td colspan="7" style="color:var(--muted)">Đang tải…</td></tr>';
   loading(true);
@@ -4382,7 +4320,6 @@ function restoreDraft(client, ed) {
   renderClientList();
   setSidebar(false);
   $('emptyState').style.display = 'none';
-  $('clientView').style.display = 'none';
   S.editor = {
     mode: ed.mode, piNumber: ed.piNumber, piDate: ed.piDate, status: ed.status,
     expectedLoad: ed.expectedLoad || '',
@@ -4393,7 +4330,7 @@ function restoreDraft(client, ed) {
     note: ed.note || '',
     discountPct: ed.discountPct || 0, discountVal: ed.discountVal || 0, other: ed.other || 0
   };
-  $('editorView').style.display = 'block';
+  showView('editorView');
   $('edClient').style.display = ''; $('edClientSelect').style.display = 'none';
   $('edClient').value = client.name;
   $('edClientCodeWrap').style.display = isAdminLevel() ? '' : 'none';
@@ -4468,8 +4405,7 @@ function openEditor(mode, piNumber, lines, existingOrder) {
     other: 0
   };
   if (S.editor.discountVal) syncDiscountFromVal();
-  $('clientView').style.display = 'none';
-  $('editorView').style.display = 'block';
+  showView('editorView');
   // Clone: cho phép chọn khách khác cho đơn mới; các mode khác: khóa theo khách hiện tại
   var allowPickClient = (mode === 'clone');
   $('edClient').style.display = allowPickClient ? 'none' : '';
@@ -4529,8 +4465,7 @@ $('confirmNoBtn').addEventListener('click', function () {
 $('edCancelBtn').addEventListener('click', function () {
   appConfirm('Hủy và quay lại? Các thay đổi chưa lưu sẽ mất.', function () {
     clearDraft(); // hủy có chủ đích -> bỏ luôn bản nháp tự lưu
-    $('editorView').style.display = 'none';
-    $('clientView').style.display = 'block';
+    showView('clientView');
   });
 });
 
