@@ -142,6 +142,20 @@ td.note-cell.expanded { white-space: normal; max-width: none; }
 
 .action-row { margin-top: 14px; display: flex; gap: 10px; }
 
+/* ---------- Thanh lọc dùng chung: 1 ô tìm chính + các ô lọc phụ + (tuỳ) nút chuyển chế độ, đặt
+   trên 1 hàng. Trước đây mỗi bảng (Client admin, Danh mục SP, Shipment Tracking) viết 1 khối
+   style="display:flex;gap:8px;..." riêng gần giống hệt nhau — giờ dùng chung 1 class, chỉ còn
+   min-width/max-width của từng ô là khác nhau thật (giữ inline). Dòng "Xoá lọc" + số đếm n/N đặt
+   ngay dưới bằng .filter-actions. */
+.filter-bar { display: flex; gap: 8px; align-items: center; margin: 0 0 10px; flex-wrap: wrap; }
+.filter-bar input[type=text], .filter-bar input[type=search] { padding: 8px 10px; border: 1px solid var(--line); border-radius: 6px; font-size: 14px; }
+.filter-actions { display: flex; gap: 10px; align-items: center; margin: 8px 0; }
+.filter-grid { grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 10px; margin-bottom: 10px; }
+
+/* <select> đứng riêng lẻ ngoài .picker-grid/.order-picker/.sidebar-head (đã tự có style select riêng)
+   — trước đây 7 chỗ lặp lại y hệt style="padding:8px 10px;border:1px solid var(--line);..." */
+.field-select { padding: 8px 10px; border: 1px solid var(--line); border-radius: 6px; font-size: 14px; }
+
 /* ---------- Editor ---------- */
 .editor-header { display: flex; justify-content: space-between; align-items: flex-end; flex-wrap: wrap; gap: 14px; margin-bottom: 14px; }
 .editor-fields { display: flex; gap: 14px; align-items: flex-end; flex-wrap: wrap; }
@@ -167,6 +181,7 @@ td.note-cell.expanded { white-space: normal; max-width: none; }
 .picker-grid label { font-size: 12.5px; color: var(--muted); display: block; }
 .picker-grid input, .picker-grid select { width: 100%; margin-top: 4px; padding: 8px 10px; border: 1px solid var(--line); border-radius: 6px; font-size: 14px; }
 .modal-actions { display: flex; justify-content: flex-end; gap: 10px; margin-top: 20px; }
+.modal-actions.left { justify-content: flex-start; margin-top: 10px; }
 .divider { border-top: 1px dashed var(--line); margin: 16px 0; }
 .radio-row { display: flex; gap: 18px; align-items: center; font-size: 14px; margin-bottom: 12px; }
 .bom-postfilters { margin-top: 14px; }
@@ -403,7 +418,7 @@ td.note-cell.expanded { white-space: normal; max-width: none; }
             <label style="max-width:160px">Ngày TT <input type="date" id="svPayDate"></label>
             <label style="max-width:160px">Payment ($) <input type="number" step="0.01" id="svPayment"></label>
           </div>
-          <div class="modal-actions" style="justify-content:flex-start;margin-top:10px">
+          <div class="modal-actions left">
             <button class="btn ghost" id="svSavePaymentBtn">💾 Lưu thanh toán</button>
           </div>
         </div>
@@ -440,7 +455,7 @@ td.note-cell.expanded { white-space: normal; max-width: none; }
               <label>Ngày TK <input type="date" id="svCustomsDate"></label>
               <label>Ghi chú Shipment <input type="text" id="svNote"></label>
             </div>
-            <div class="modal-actions" style="justify-content:flex-start;margin-top:12px">
+            <div class="modal-actions left">
               <button class="btn primary" id="svSaveLotBtn">💾 Lưu Shipment</button>
               <button class="btn" id="svTrackBtn">🔎 Tracking</button>
               <button class="btn danger" id="svDeleteLotBtn" style="display:none">🗑 Xóa Shipment</button>
@@ -462,12 +477,12 @@ td.note-cell.expanded { white-space: normal; max-width: none; }
         <div class="editor-header" style="display:block">
           <div class="picker-grid" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:10px">
             <label>Lấy Invoice/Loading point/Cước từ Shipment
-              <select id="svDocsLot" style="padding:8px 10px;border:1px solid var(--line);border-radius:6px;font-size:14px">
+              <select id="svDocsLot" class="field-select">
                 <option value="">— Nhập tay bên dưới —</option>
               </select>
             </label>
             <label>Loại container
-              <select id="svContType" style="padding:8px 10px;border:1px solid var(--line);border-radius:6px;font-size:14px">
+              <select id="svContType" class="field-select">
                 <option value="20GP">20GP</option><option value="40GP">40GP</option><option value="40HC">40HC</option>
               </select>
             </label>
@@ -479,7 +494,7 @@ td.note-cell.expanded { white-space: normal; max-width: none; }
             Gồm 6 form trong 1 file Excel: PO · Invoice tạo SO · Packing List · VGM · Shipping Instruction · INV cho khách.
             Gross = Net × 1.05 · VGM = Gross + tare · HS Code tự sinh (máy 84212111 / linh kiện 84219994).
           </div>
-          <div class="modal-actions" style="justify-content:flex-start;margin-top:12px">
+          <div class="modal-actions left">
             <button class="btn" id="svCustomDocsBtn">⬇ Xuất Custom Docs</button>
             <span id="svDocsInfo" style="color:var(--muted);font-size:13px;align-self:center"></span>
           </div>
@@ -522,15 +537,15 @@ td.note-cell.expanded { white-space: normal; max-width: none; }
         <!-- Danh mục: bảng toàn bộ sản phẩm, lọc free-type theo Category > Option > Model > Pack_Type,
              bấm 1 dòng để nạp sang tab Sản phẩm sửa (dùng lại đúng form/luồng pmLoadProduct đã có). -->
         <div id="pmCatalogPane" style="display:none">
-          <div class="picker-grid" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;margin-bottom:10px">
+          <div class="picker-grid filter-grid">
             <label>Category <input type="text" id="pmCatFCategory" placeholder="Gõ để lọc…" value="RO Standard"></label>
             <label>Option <input type="text" id="pmCatFOption" placeholder="Gõ để lọc…"></label>
             <label>Model <input type="text" id="pmCatFModel" placeholder="Gõ để lọc…"></label>
             <label>Pack_Type <input type="text" id="pmCatFPackType" placeholder="Gõ để lọc…"></label>
           </div>
-          <div class="action-row" style="margin-bottom:8px">
+          <div class="filter-actions">
             <button class="btn small ghost" id="pmCatFClearBtn">✕ Xoá lọc</button>
-            <span class="client-meta" id="pmCatalogMeta" style="align-self:center"></span>
+            <span class="client-meta" id="pmCatalogMeta"></span>
           </div>
           <div class="table-wrap" style="max-height:65vh">
             <table class="data-table card-list" id="pmCatalogTable">
@@ -564,11 +579,11 @@ td.note-cell.expanded { white-space: normal; max-width: none; }
               </label>
               <label>Option <input type="text" id="pmOption"></label>
               <label>Model
-                <select id="pmModel" style="padding:8px 10px;border:1px solid var(--line);border-radius:6px;font-size:14px" title="Chỉ hiện Model thuộc Category đã chọn"></select>
+                <select id="pmModel" class="field-select" title="Chỉ hiện Model thuộc Category đã chọn"></select>
               </label>
               <label>Brand <input type="text" id="pmBrand"></label>
               <label>Pack_Type
-                <select id="pmPackType" style="padding:8px 10px;border:1px solid var(--line);border-radius:6px;font-size:14px" title="Chỉ hiện Pack_Type thuộc Category đã chọn — tự điền Qty/ct + L/W/H từ bảng Packing"></select>
+                <select id="pmPackType" class="field-select" title="Chỉ hiện Pack_Type thuộc Category đã chọn — tự điền Qty/ct + L/W/H từ bảng Packing"></select>
               </label>
               <label>Qty/ct <input type="number" min="0" id="pmQtyCt"></label>
               <label>Length (mm) <input type="number" min="0" id="pmL"></label>
@@ -585,7 +600,7 @@ td.note-cell.expanded { white-space: normal; max-width: none; }
               <input type="file" id="pmImageFiles" accept="image/*" multiple style="font-size:13px">
               <button type="button" class="btn small ghost" id="pmUploadImagesBtn">⬆ Upload ảnh đã chọn</button>
             </div>
-            <div class="modal-actions" style="justify-content:flex-start;margin-top:12px">
+            <div class="modal-actions left">
               <button class="btn primary" id="pmSaveProductBtn">💾 Lưu sản phẩm</button>
               <button class="btn ghost" id="pmLoadProductBtn" title="Nạp dữ liệu hiện có của mã này để sửa">↧ Nạp mã có sẵn</button>
               <button class="btn ghost" id="pmClearProductBtn">✕ Xóa form</button>
@@ -602,7 +617,7 @@ td.note-cell.expanded { white-space: normal; max-width: none; }
               Mã đã có sẽ được cập nhật, mã mới sẽ thêm. Cột <b>Price</b> là công thức trên sheet nên app không ghi. Tối đa 300 dòng/lần.
             </p>
             <textarea id="pmBatchText" rows="10" style="width:100%;padding:10px;border:1px solid var(--line);border-radius:6px;font-family:ui-monospace,Consolas,monospace;font-size:12.5px" placeholder="1001110432&#9;Máy lọc nước RO-100&#9;RO-100 Water Purifier&#9;RO Standard&#9;…"></textarea>
-            <div class="modal-actions" style="justify-content:flex-start;margin-top:10px">
+            <div class="modal-actions left">
               <button class="btn primary" id="pmSaveBatchBtn">💾 Lưu batch</button>
               <button class="btn ghost" id="pmPreviewBatchBtn">👁 Kiểm tra trước</button>
             </div>
@@ -619,7 +634,7 @@ td.note-cell.expanded { white-space: normal; max-width: none; }
               <label>Model descriptions <input type="text" id="pmMdDesc"></label>
               <label>Model_Cost (VND) <input type="number" min="0" id="pmMdCost"></label>
             </div>
-            <div class="modal-actions" style="justify-content:flex-start;margin-top:12px">
+            <div class="modal-actions left">
               <button class="btn primary" id="pmSaveModelBtn">💾 Lưu Model</button>
             </div>
           </div>
@@ -645,7 +660,7 @@ td.note-cell.expanded { white-space: normal; max-width: none; }
                 <tbody></tbody>
               </table>
             </div>
-            <div class="modal-actions" style="justify-content:flex-start;margin-top:10px">
+            <div class="modal-actions left">
               <button class="btn primary" id="pmSaveBomBtn">💾 Lưu BOM (thay toàn bộ)</button>
               <span id="pmBomInfo" style="color:var(--muted);font-size:13px;align-self:center"></span>
             </div>
@@ -676,11 +691,12 @@ td.note-cell.expanded { white-space: normal; max-width: none; }
           </div>
           <button class="btn ghost" id="caHomeBtn">⟵ Trang đầu</button>
         </div>
-        <div style="display:flex;gap:8px;align-items:center;margin:12px 0 10px;flex-wrap:wrap">
-          <input type="search" id="caSearch" placeholder="🔍 Tìm theo tên hoặc mã KH…" style="min-width:260px;padding:8px 10px;border:1px solid var(--line);border-radius:6px">
-          <input type="text" id="caCountryFilter" placeholder="🔍 Lọc theo quốc gia…" style="max-width:200px;padding:8px 10px;border:1px solid var(--line);border-radius:6px">
+        <div class="filter-bar">
+          <input type="search" id="caSearch" placeholder="🔍 Tìm theo tên hoặc mã KH…" style="min-width:260px">
+          <input type="text" id="caCountryFilter" placeholder="🔍 Lọc theo quốc gia…" style="max-width:200px">
           <button class="btn small primary" id="caShowAllBtn" data-mode="all">Tất cả</button>
           <button class="btn small" id="caShowNoCodeBtn" data-mode="nocode">Chưa có mã KH</button>
+          <button class="btn small ghost" id="caClearFilterBtn">✕ Xoá lọc</button>
         </div>
         <div class="table-wrap" style="max-height:70vh">
           <table class="data-table card-list" id="caTable">
@@ -803,9 +819,10 @@ td.note-cell.expanded { white-space: normal; max-width: none; }
           <button class="btn small" id="shipTrackFilterBrand" data-filter="brand">Brand</button>
           <button class="btn small" id="shipTrackFilterOem" data-filter="oem">OEM</button>
         </div>
-        <div style="display:flex;gap:8px;align-items:center;margin:0 0 10px;flex-wrap:wrap">
+        <div class="filter-bar">
           <input type="text" id="shipTrackClientFilter" placeholder="🔍 Lọc theo khách…" style="max-width:220px">
           <input type="text" id="shipTrackLineFilter" placeholder="🔍 Lọc theo Line…" style="max-width:160px">
+          <button class="btn small ghost" id="shipTrackClearFilterBtn">✕ Xoá lọc</button>
         </div>
         <div class="table-wrap">
           <table class="data-table card-list" id="shipTrackTable">
@@ -908,7 +925,7 @@ td.note-cell.expanded { white-space: normal; max-width: none; }
                   <tbody></tbody>
                 </table>
               </div>
-              <div class="modal-actions" style="justify-content:flex-start;margin-top:10px">
+              <div class="modal-actions left">
                 <button class="btn small primary" id="odSaveShipmentBtn">💾 Lưu phân bổ</button>
                 <button class="btn small ghost" id="odCancelShipmentBtn">Hủy</button>
               </div>
@@ -923,7 +940,7 @@ td.note-cell.expanded { white-space: normal; max-width: none; }
           <div class="editor-fields">
             <label>Khách
               <input type="text" id="edClient" readonly>
-              <select id="edClientSelect" style="display:none;padding:8px 10px;border:1px solid var(--line);border-radius:6px;font-size:14px"></select>
+              <select id="edClientSelect" class="field-select" style="display:none"></select>
             </label>
             <label id="edClientCodeWrap" style="display:none">Mã KH <input type="text" id="edClientCode" placeholder="Client_ID"></label>
             <button type="button" class="btn small" id="edReqCodeBtn" style="display:none;align-self:flex-end" title="Khách chưa có mã — xuất form yêu cầu cấp mã KH">⬇ YC tạo mã KH</button>
@@ -937,7 +954,7 @@ td.note-cell.expanded { white-space: normal; max-width: none; }
               <input type="checkbox" id="edDepositPassed"> Miễn Deposit (L/C, trả sau…)
             </label>
             <label>Trạng thái
-              <select id="edStatusSel" style="padding:8px 10px;border:1px solid var(--line);border-radius:6px;font-size:14px">
+              <select id="edStatusSel" class="field-select">
                 <option value="targeted">targeted</option>
                 <option value="drafted">drafted</option>
               </select>
@@ -1237,7 +1254,7 @@ td.note-cell.expanded { white-space: normal; max-width: none; }
 
     <div style="display:flex;gap:12px;align-items:flex-end;flex-wrap:wrap;margin:14px 0 10px">
       <label style="font-size:12.5px;color:var(--muted)">Số đơn cần tách
-        <select id="spCount" style="display:block;margin-top:4px;padding:8px 10px;border:1px solid var(--line);border-radius:6px;font-size:14px"></select>
+        <select id="spCount" class="field-select" style="display:block;margin-top:4px"></select>
       </label>
       <button class="btn ghost" id="spEvenBtn" title="Chia số lượng mỗi dòng đều cho các đơn">⇄ Chia đều</button>
       <button class="btn ghost" id="spResetBtn" title="Dồn toàn bộ số lượng về Đơn 1">↺ Dồn về Đơn 1</button>
@@ -2380,22 +2397,29 @@ $('shipTrackHomeBtn').addEventListener('click', goHome);
 });
 $('shipTrackClientFilter').addEventListener('input', renderShipTrack);
 $('shipTrackLineFilter').addEventListener('input', renderShipTrack);
+$('shipTrackClearFilterBtn').addEventListener('click', function () {
+  $('shipTrackClientFilter').value = ''; $('shipTrackLineFilter').value = '';
+  renderShipTrack();
+});
 
 function renderShipTrack() {
   $('shipTrackMonthLabel').textContent = S.shipTrackMonth;
   var filter = S.shipTrackFilter || 'all';
   var clientQ = $('shipTrackClientFilter').value.trim().toLowerCase();
   var lineQ = $('shipTrackLineFilter').value.trim().toLowerCase();
-  var rows = (S.revOrders || []).filter(function (o) {
+  var inMonth = (S.revOrders || []).filter(function (o) {
     if (!o.so || o.monthKey !== S.shipTrackMonth) return false;
     if (filter === 'brand' && !isBrandOrder(o)) return false;
     if (filter === 'oem' && isBrandOrder(o)) return false;
+    return true;
+  });
+  var rows = inMonth.filter(function (o) {
     if (clientQ && String(o.client || '').toLowerCase().indexOf(clientQ) < 0) return false;
     if (lineQ && String(o.line || '').toLowerCase().indexOf(lineQ) < 0) return false;
     return true;
   }).sort(function (a, b) { return String(a.realLoad || '').localeCompare(String(b.realLoad || '')); });
-  $('shipTrackMeta').textContent = rows.length
-    ? rows.length + ' Shipment trong tháng ' + S.shipTrackMonth + '.'
+  $('shipTrackMeta').textContent = inMonth.length
+    ? rows.length + ' / ' + inMonth.length + ' Shipment trong tháng ' + S.shipTrackMonth + '.'
     : 'Không có Shipment nào trong tháng ' + S.shipTrackMonth + '.';
   var canManage = isAdminLevel();
   var tb = $('shipTrackTable').querySelector('tbody');
@@ -3361,6 +3385,10 @@ $('caCountryFilter').addEventListener('input', renderClientAdmin);
     $('caShowNoCodeBtn').classList.toggle('primary', pair[1] === 'nocode');
     renderClientAdmin();
   });
+});
+$('caClearFilterBtn').addEventListener('click', function () {
+  $('caSearch').value = ''; $('caCountryFilter').value = '';
+  renderClientAdmin();
 });
 
 /* ================= #10 Dashboard tiến độ PTSP (live từ Jira) ================= */
