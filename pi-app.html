@@ -22,6 +22,10 @@
   --danger: #c0392b;
   --warn: #b8860b;
   --warn-soft: #fbf1da;
+  --th-bg: #f0f3f7;
+  --row-hover: #fafbfd;
+  --disabled-bg: #9db8ae;
+  --line-soft: #eef1f5;
   --radius: 10px;
   /* thang cỡ chữ chuẩn — dùng cho các thành phần mới/đang chỉnh, bảng dữ liệu cũ giữ cỡ đã tinh chỉnh riêng */
   --fs-xs: 12px;
@@ -50,7 +54,7 @@ h1, h2, h3 { margin: 0 0 12px; font-weight: 600; }
 .btn:hover { border-color: var(--accent); color: var(--accent); }
 .btn.primary { background: var(--accent); border-color: var(--accent); color: #fff; }
 .btn.primary:hover { filter: brightness(1.08); color: #fff; }
-.btn.primary:disabled { background: #9db8ae; border-color: #9db8ae; cursor: not-allowed; }
+.btn.primary:disabled { background: var(--disabled-bg); border-color: var(--disabled-bg); cursor: not-allowed; }
 .btn.ghost { background: transparent; }
 .btn.small { padding: 5px 10px; font-size: 13px; }
 .btn.wide { width: 100%; margin-top: 18px; }
@@ -107,10 +111,10 @@ h1, h2, h3 { margin: 0 0 12px; font-weight: 600; }
 /* ---------- Tables ---------- */
 .table-wrap { overflow: auto; max-height: 62vh; background: var(--card); border: 1px solid var(--line); border-radius: var(--radius); }
 .data-table { width: 100%; border-collapse: collapse; font-size: 13.5px; }
-.data-table th { text-align: left; padding: 9px 10px; background: #f0f3f7; color: var(--muted); font-weight: 600; white-space: nowrap; position: sticky; top: 0; z-index: 2; box-shadow: 0 1px 0 var(--line); }
+.data-table th { text-align: left; padding: 9px 10px; background: var(--th-bg); color: var(--muted); font-weight: 600; white-space: nowrap; position: sticky; top: 0; z-index: 2; box-shadow: 0 1px 0 var(--line); }
 .data-table td { padding: 7px 10px; border-top: 1px solid var(--line); vertical-align: middle; }
 .data-table .num, .data-table td.num { text-align: right; font-variant-numeric: tabular-nums; }
-.data-table tbody tr:hover { background: #fafbfd; }
+.data-table tbody tr:hover { background: var(--row-hover); }
 .plan-compact th, .plan-compact td { padding: 5px 6px; font-size: 12px; }
 .data-table tbody tr.row-active,
 .data-table tbody tr.row-active:hover { background: var(--accent-soft); }
@@ -125,7 +129,7 @@ h1, h2, h3 { margin: 0 0 12px; font-weight: 600; }
 .data-table .neg { color: var(--danger); font-weight: 600; }
 .data-table .low { color: var(--warn); font-weight: 600; }
 .code-chip { font-family: Consolas, monospace; font-size: 12.5px; background: var(--accent-soft); color: var(--accent); border-radius: 4px; padding: 2px 6px; }
-.code-chip.new { background: #fdf3d7; color: var(--warn); }
+.code-chip.new { background: var(--warn-soft); color: var(--warn); }
 
 /* ---------- Bảng doanh thu: cột Order note (ẩn mặc định, bật bằng checkbox #revShowNote) ---------- */
 .note-col, td.note-cell { display: none; }
@@ -194,7 +198,7 @@ td.note-cell.expanded { white-space: normal; max-width: none; }
 .ac-wrap input { width: 100%; padding: 10px 12px; border: 1px solid var(--line); border-radius: 8px; font-size: 14.5px; }
 .ac-wrap input:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-soft); }
 .ac-list { position: absolute; top: calc(100% + 4px); left: 0; right: 0; background: var(--card); border: 1px solid var(--line); border-radius: 8px; box-shadow: 0 10px 30px rgba(26,35,50,.18); max-height: 320px; overflow-y: auto; z-index: 20; }
-.ac-item { display: flex; justify-content: space-between; align-items: center; gap: 10px; padding: 9px 12px; cursor: pointer; border-top: 1px solid var(--line-soft, #eef1f5); }
+.ac-item { display: flex; justify-content: space-between; align-items: center; gap: 10px; padding: 9px 12px; cursor: pointer; border-top: 1px solid var(--line-soft); }
 .ac-item:first-child { border-top: none; }
 .ac-item:hover, .ac-item.active { background: var(--accent-soft); }
 .ac-item .ac-main { min-width: 0; }
@@ -283,6 +287,35 @@ td.note-cell.expanded { white-space: normal; max-width: none; }
   /* Modal chiếm toàn màn hình, nút Lưu/Hủy dính đáy — đỡ bị bàn phím ảo che */
   .modal { width: 100%; max-width: 100%; height: 100%; max-height: 100%; border-radius: 0; display: flex; flex-direction: column; }
   .modal-actions { margin-top: auto; padding-top: 16px; position: sticky; bottom: 0; background: var(--card); }
+}
+
+/* Chế độ tối: máy đặt dark mode thì trang tự đổi theo, không cần bật tay.
+   Chỉ định nghĩa lại biến màu — toàn bộ CSS ở trên đều dùng qua var(--...) nên tự ăn theo. */
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #12180f;
+    --card: #1b2318;
+    --surface-2: #232b1f;
+    --ink: #e7efe4;
+    --muted: #93a48c;
+    --line: #33402f;
+    --accent: #34c98c;
+    --accent-strong: #4fd1a5;
+    --accent-soft: #163527;
+    --danger: #e5695a;
+    --warn: #d9a53a;
+    --warn-soft: #3a2f14;
+    --th-bg: #202822;
+    --row-hover: #212a1c;
+    --disabled-bg: #3a453e;
+    --line-soft: #2a332d;
+  }
+}
+
+/* Máy bật "giảm chuyển động" -> tắt các animation trang trí (thanh tải, mic ghi âm, nhấp nháy cảnh báo giá) */
+@media (prefers-reduced-motion: reduce) {
+  .loading-bar, #agentMicBtn.recording, .price-warn { animation: none; }
+  .toast { transition: none; }
 }
 </style>
 
