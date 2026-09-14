@@ -109,7 +109,7 @@
   .fstep .fw{font-size:11px; letter-spacing:.08em; text-transform:uppercase; font-weight:700; color:var(--fc,var(--accent))}
   .fstep .ft{font-weight:650; font-size:14.5px; margin:3px 0 2px}
   .fstep .fd{font-size:12.5px; color:var(--ink-soft)}
-  .f-sale{--fc:var(--sale)} .f-tech{--fc:var(--tech)} .f-admin{--fc:var(--admin)} .f-ship{--fc:var(--master)}
+  .f-sale{--fc:var(--sale)} .f-lead{--fc:var(--lead)} .f-tech{--fc:var(--tech)} .f-admin{--fc:var(--admin)} .f-ship{--fc:var(--master)}
 
   .roles{display:grid; grid-template-columns:repeat(auto-fit,minmax(250px,1fr)); gap:14px}
   .role{background:var(--panel); border:1px solid var(--line); border-radius:var(--radius); padding:16px 18px; border-top:3px solid var(--rc,var(--accent))}
@@ -268,13 +268,18 @@
 
   <section id="luong">
     <h2><span class="num">03</span> Luồng nghiệp vụ &amp; trạng thái đơn</h2>
-    <p class="section-sub">Một đơn đi qua bốn khâu. Ở mỗi khâu đơn nằm ở một nơi khác nhau, nên bạn luôn biết đơn đang thuộc ai.</p>
+    <p class="section-sub">Một đơn đi qua các khâu dưới đây. Ở mỗi khâu đơn nằm ở một nơi khác nhau, nên bạn luôn biết đơn đang thuộc ai.</p>
 
     <div class="flow">
       <div class="fstep f-sale">
         <div class="fw">Bước 1 · Sale</div>
         <div class="ft">Lập báo giá</div>
         <div class="fd">Tạo/sửa/nhân bản PI, xuất PI gửi khách. Đơn lưu ở <b>PITotal/PIDetails</b> của hub.</div>
+      </div>
+      <div class="fstep f-lead">
+        <div class="fw">Bước 1b · Lead</div>
+        <div class="ft">Chốt đơn</div>
+        <div class="fd">Đơn <code>targeted</code> đã chắc chắn → bấm <b>✔ Confirm (→ drafted)</b>. Đơn vào hàng đợi kiểm tra của Kỹ thuật.</div>
       </div>
       <div class="fstep f-tech">
         <div class="fw">Bước 2 · Kỹ thuật</div>
@@ -293,16 +298,21 @@
       </div>
     </div>
 
-    <h3>Trạng thái đơn</h3>
+    <h3>Trạng thái đơn — định nghĩa đầy đủ</h3>
+    <p>Trạng thái quyết định <b>ai còn sửa được đơn</b>, <b>đơn có nằm trong hàng đợi kiểm tra không</b>, và <b>đơn có được chia Shipment không</b>. Đọc bảng này trước khi thắc mắc “sao tôi không sửa được đơn”.</p>
     <div class="tbl-wrap"><table class="feat">
-      <thead><tr><th>Trạng thái</th><th>Nghĩa</th><th>Ai đặt được</th></tr></thead>
+      <thead><tr><th>Trạng thái</th><th>Nghĩa — khi nào đơn ở đây</th><th>Hệ quả</th><th>Ai đặt được</th></tr></thead>
       <tbody>
-        <tr><td><code>targeted</code></td><td>Báo giá mục tiêu, chưa chắc chắn. Mặc định khi tạo mới/nhân bản. Chỉ đơn ở trạng thái này mới xoá được.</td><td>Sale, Kỹ thuật, Admin</td></tr>
-        <tr><td><code>drafted</code></td><td>Đã chốt sơ bộ với khách, chờ kiểm tra kỹ thuật.</td><td>Sale, Kỹ thuật, Admin</td></tr>
-        <tr><td><code>reviewed</code></td><td>Kỹ thuật đã soát mã/đóng gói. Sẵn sàng để Admin confirm.</td><td>Kỹ thuật, Admin</td></tr>
-        <tr><td><code>booked</code> / <code>shipped</code> / <code>closed</code></td><td>Đơn đã vào Operations2025 và đang chạy theo tiến độ sản xuất/xuất hàng.</td><td>Admin, Master</td></tr>
+        <tr><td><code>targeted</code></td><td><b>Sale mới nhắm</b>, chưa chắc chắn. Mặc định khi tạo mới/nhân bản.</td><td>Chưa vào hàng đợi kiểm tra. Chỉ trạng thái này (và <code>drafted</code>) mới xoá đơn được.</td><td>Sale, Lead, Kỹ thuật, Admin</td></tr>
+        <tr><td><code>drafted</code></td><td><b>Đã chốt sơ bộ với khách</b>. Lead bấm <span class="btn-ex">✔ Confirm (→ drafted)</span> trên đơn targeted để đưa đơn tới đây.</td><td><b>Đây là hàng đợi “Đơn hàng cần kiểm tra”</b> của Kỹ thuật. Kỹ thuật chia được Shipment/Container.</td><td>Sale, Lead, Kỹ thuật, Admin</td></tr>
+        <tr><td><code>reviewed</code></td><td><b>Kỹ thuật đã soát</b> mã/đóng gói/kích thước và bấm <span class="btn-ex">✔ Xác nhận (reviewed)</span>.</td><td>Đơn <b>rời khỏi</b> hàng đợi kiểm tra. Sale/Lead <b>không sửa trực tiếp được nữa</b> — cần sửa thì nhờ Kỹ thuật/Admin đưa về drafted. Sẵn sàng để Admin Confirm vào Operations2025.</td><td>Kỹ thuật, Admin</td></tr>
+        <tr><td><code>opened</code></td><td>Admin đã mở đơn sản xuất. <b>Bắt buộc có Deposit + Ngày cọc</b> (hoặc tick “Miễn Deposit” khi dùng L/C, trả sau…).</td><td>Kỹ thuật vẫn chia được Shipment/Container. Sale/Lead không sửa trực tiếp.</td><td>Admin, Master</td></tr>
+        <tr><td><code>booked</code> / <code>shipped</code> / <code>closed</code></td><td>Đơn đang chạy theo tiến độ: đã book tàu / đã xuất / đã đóng.</td><td>Chỉ Admin/Master đụng được. Không đổi nhanh trạng thái được nữa, phải qua màn Sửa đơn.</td><td>Admin, Master</td></tr>
+        <tr><td><code>new created</code></td><td>Trạng thái <b>cũ</b> còn sót trên vài bản nháp từ trước. Không sinh ra mới nữa.</td><td>Xử lý như <code>targeted</code>; lưu lại một lần là đơn về đúng trạng thái chuẩn.</td><td>—</td></tr>
       </tbody>
     </table></div>
+    <div class="note"><b>Trạng thái của LÔ hàng (Shipment) là thứ khác</b>, đừng nhầm với trạng thái đơn: <code>booked</code> → <code>shipped</code> → <code>customs cleared</code> → <code>delivered</code>. Nhập <b>Số TK (tờ khai)</b> cho một lô thì app tự đặt lô đó sang <code>shipped</code> (chỉ nâng từ trạng thái sớm hơn, và bạn đổi lại được trước khi Lưu).</div>
+    <div class="tip"><b>Đổi nhanh trạng thái ở đâu:</b> nút <span class="btn-ex">✔ Confirm (→ drafted)</span> và <span class="btn-ex">✔ Xác nhận (reviewed)</span> trên màn chi tiết đơn; hoặc ô chọn trạng thái ngay trên <b>bảng đơn theo tháng</b>. Cả hai chỉ đổi qua lại giữa targeted / drafted / reviewed — các trạng thái sau đó phải qua màn Sửa đơn.</div>
     <div class="note"><b>Nguyên tắc “một bản duy nhất”:</b> trước khi Confirm, đơn chỉ nằm trên hub (bản nháp của sale). Sau khi Confirm, đơn chỉ nằm trên Operations2025. Không bao giờ có hai bản song song để phải đối chiếu — kể cả khi <b>Sale/Lead sửa lại một đơn đã Confirm</b>: app ghi thẳng vào đúng SO đó trên Operations2025, không tạo bản nháp trung gian, không cần Confirm lại lần hai.
     <br><b>Ai sửa được trạng thái nào:</b> Sale/Lead sửa được đơn đang <code>targeted</code>/<code>drafted</code> (dù đơn còn ở hub hay đã Confirm sang Operations2025) và chỉ chuyển được targeted ↔ drafted; Sale chỉ sửa đơn của chính mình, Lead sửa được đơn của mọi sale. <b>Kỹ thuật sửa được mọi đơn ở mọi trạng thái</b> (kể cả đã reviewed/booked…) nhưng khi lưu cũng chỉ đặt lại được targeted/drafted. <b>Admin và Master sửa được mọi đơn ở mọi trạng thái và đặt được trạng thái bất kỳ</b>, kể cả đổi số SO và Deposit/Ngày cọc.</div>
   </section>
@@ -312,7 +322,7 @@
     <p class="section-sub">Mỗi tài khoản có một vai trò quyết định những gì nhìn thấy và làm được. Vai trò do quản trị đặt trong hệ thống, không tự đổi được.</p>
     <div class="roles">
       <div class="role r-sale"><div class="rname">● Sale</div><p>Lập báo giá cho khách của mình. Xem đơn của mình theo tháng, tạo/sửa/nhân bản/xuất PI, tạo khách mới.</p></div>
-      <div class="role r-lead"><div class="rname">● Trưởng nhóm (Lead)</div><p>Xem toàn bộ khách &amp; đơn. Trang chủ là dashboard doanh thu FOB theo tháng. Xem được tiến độ PTSP.</p></div>
+      <div class="role r-lead"><div class="rname">● Trưởng nhóm (Lead)</div><p>Xem toàn bộ khách &amp; đơn. Trang chủ là dashboard doanh thu FOB theo tháng. Xem được tiến độ PTSP. <b>Chốt đơn:</b> sửa được Ngày load và trạng thái <code>targeted</code>/<code>drafted</code> của đơn mọi sale — đơn <code>targeted</code> có nút <b>✔ Confirm</b> để đẩy sang <code>drafted</code>.</p></div>
       <div class="role r-tech"><div class="rname">● Kỹ thuật (Technician)</div><p>Duyệt kỹ thuật, sửa được <b>mọi đơn ở mọi trạng thái</b>, xuất form R&amp;D, và <b>quản lý danh mục sản phẩm / model / BOM / cấp mã</b>.</p></div>
       <div class="role r-admin"><div class="rname">● Admin</div><p>Toàn quyền vận hành: sửa <b>mọi đơn ở mọi trạng thái</b>, <b>tách đơn</b>, mã khách, <b>Confirm</b>, chứng từ nhà máy, thông tin lô hàng, Custom Docs, danh mục SP. Trang chủ là dashboard doanh thu theo tháng.</p></div>
       <div class="role r-master"><div class="rname">● Master</div><p>Như Admin và nhìn thấy <b>tất cả</b> khách/đơn không giới hạn.</p></div>
@@ -334,7 +344,8 @@
         <tr><td>Bảng đơn hàng theo tháng</td><td>đơn của mình</td><td class="y">✔</td><td class="y">✔</td><td class="n">—</td><td class="y">✔</td><td class="y">✔</td></tr>
         <tr><td>Tạo / nhân bản đơn</td><td class="y">✔</td><td class="n">—</td><td class="n">—</td><td class="n">—</td><td class="y">✔</td><td class="y">✔</td></tr>
         <tr><td>Sửa dòng hàng</td><td>đơn của mình,<br>đang targeted/drafted<br>(dù ở hub hay đã Confirm)</td><td>đơn của mọi sale,<br>đang targeted/drafted</td><td class="n">—</td><td class="y">mọi đơn,<br>mọi trạng thái</td><td class="y">mọi đơn,<br>mọi trạng thái</td><td class="y">mọi đơn,<br>mọi trạng thái</td></tr>
-        <tr><td>Đổi trạng thái đơn</td><td>targeted ↔ drafted</td><td>targeted ↔ drafted</td><td class="n">—</td><td>targeted ↔ drafted</td><td class="y">mọi trạng thái</td><td class="y">mọi trạng thái</td></tr>
+        <tr><td>Đổi trạng thái đơn</td><td>targeted ↔ drafted</td><td>targeted ↔ drafted<br>(nút <b>✔ Confirm</b>)</td><td class="n">—</td><td>targeted ↔ drafted<br>↔ reviewed</td><td class="y">mọi trạng thái</td><td class="y">mọi trạng thái</td></tr>
+        <tr><td>Sửa Ngày load (loading date)</td><td>đơn của mình,<br>đang targeted/drafted</td><td>đơn của mọi sale,<br>đang targeted/drafted</td><td class="n">—</td><td class="y">mọi đơn</td><td class="y">mọi đơn</td><td class="y">mọi đơn</td></tr>
         <tr><td>Chia Shipment / Container</td><td class="n">—</td><td class="n">—</td><td class="n">—</td><td>đơn drafted/opened,<br>chỉ phân bổ mã hàng</td><td class="y">✔ đầy đủ</td><td class="y">✔ đầy đủ</td></tr>
         <tr><td>Tách 1 PI thành nhiều đơn</td><td class="n">—</td><td class="n">—</td><td class="n">—</td><td class="n">—</td><td class="y">✔</td><td class="y">✔</td></tr>
         <tr><td>Xuất PI (Excel/PDF)</td><td class="y">✔</td><td class="y">✔</td><td class="y">✔</td><td class="y">✔</td><td class="y">✔</td><td class="y">✔</td></tr>
@@ -381,6 +392,7 @@
 
     <h3>Xem &amp; chọn đơn của một khách</h3>
     <p>Chọn khách ở cột trái (có ô tìm kiếm, sắp xếp theo Tên/Quốc gia, danh sách cuộn được). Màn hình hiện đơn mới nhất; đổi đơn khác ở ô <b>Đơn hàng</b>. Dòng tổng hiện PI, SO, Load Date, FOB, %LN tổng, trạng thái.</p>
+    <div class="note">Bảng danh sách đơn của khách có cột <b>Số máy</b> — đếm <b>tổng số lượng của các mã bắt đầu bằng 1</b> (máy lọc), không tính linh kiện/phụ kiện (mã đầu 2, 3). Đây là con số dùng để so sản lượng giữa các đơn, khác với tổng Qty của cả đơn.</div>
     <p>Bảng chi tiết đơn gồm: <b>Code · Sản phẩm · Qty · Đơn giá · Thành tiền · %LN · Item CBM · Marking · Ghi chú</b>. Hai nút nhỏ phía trên bảng:</p>
     <ul>
       <li><span class="btn-ex">🌐 Tên: VI</span> — đổi cả cột tên sản phẩm sang <b>tiếng Anh</b> (và ngược lại), tiện khi trao đổi với khách.</li>
@@ -435,12 +447,13 @@
 
   <section id="technician">
     <h2><span class="num">07</span> Dành cho Kỹ thuật <span class="rolebadge b-tech">Technician</span></h2>
-    <p class="section-sub">Đăng nhập xong bạn thấy ngay <b>Đơn hàng cần kiểm tra</b> — mọi đơn của các sale đang chờ xử lý, kèm ô lọc theo khách/PI/SO. Bấm một dòng để mở đơn.</p>
+    <p class="section-sub">Đăng nhập xong bạn thấy ngay <b>Đơn hàng cần kiểm tra</b>. Bảng <b>mặc định chỉ hiện đơn <code>drafted</code></b> — đúng những đơn Lead đã chốt và đang chờ bạn kiểm; đơn <code>targeted</code> chưa tới lượt, đơn <code>reviewed</code> đã xong. Có ô lọc <b>Trạng thái / Khách / Tháng load</b> (đổi ô Trạng thái để tra lại đơn ở trạng thái khác) và ô tìm theo khách/PI/SO. Bảng xếp theo <b>hạn giao</b>: đơn sắp phải giao lên đầu, đơn <b>đã quá ngày load</b> có nhãn “quá hạn” và nằm cuối bảng. Bấm một dòng để mở đơn; từ màn Doanh thu theo tháng có nút <span class="btn-ex">⟵ Đơn hàng cần kiểm tra</span> để quay lại.</p>
     <ol class="steps">
       <li><b>Kiểm tra &amp; sửa:</b> mở đơn → <span class="btn-ex">✎ Edit Details</span> → đối chiếu và sửa <b>mã sản phẩm mới, quy cách đóng gói, Qty/CT, kích thước carton L/W/H, net weight</b>. Sửa được <b>mọi đơn ở mọi trạng thái</b>, kể cả đơn đã Confirm — ghi thẳng vào Operations2025, khi lưu chỉ đặt lại được targeted/drafted. Đơn vẫn giữ tên sale gốc.</li>
-      <li><b>Xác nhận:</b> bấm <span class="btn-ex">✔ Xác nhận (reviewed)</span> — chuyển đơn sang trạng thái <b>reviewed</b> để Admin duyệt tiếp. Bạn vẫn mở lại sửa được sau đó.</li>
+      <li><b>Xác nhận:</b> bấm <span class="btn-ex">✔ Xác nhận (reviewed)</span> — chuyển đơn sang <b>reviewed</b> và đơn <b>rời khỏi hàng đợi</b>. Bạn vẫn mở lại sửa được sau đó; nhưng Sale/Lead thì không, nên chỉ bấm khi đã soát xong.</li>
       <li><b>Chia Shipment/Container:</b> với đơn đã ở Operations2025 và đang <code>drafted</code>/<code>opened</code>, khu vực <b>"Chia Shipment / Container"</b> hiện ngay dưới bảng chi tiết đơn — bấm từng mã hàng để phân bổ số lượng vào 1 Shipment (lô/container) cụ thể, ghi Container No. nếu lô đó tách nhiều container. Chỉ phân bổ được số lượng; các trường lịch trình/thanh toán (ETD, Booking, Invoice…) vẫn chỉ Admin/Master sửa qua màn <b>🚢 Quản lý Shipment</b> — xem mục 11.</li>
       <li><b>Yêu cầu R&amp;D:</b> với đơn có mã mới hoặc máy đã đổi BOM, bấm <span class="btn-ex">⬇ Form RD</span> để xuất <b>Yêu cầu phát triển sản phẩm mới</b> (mỗi mã một trang, đã điền sẵn cấu hình/lõi/màng/giá) gửi bộ phận R&amp;D.</li>
+      <li><b>Bổ sung mã thiếu chi tiết:</b> mã do sale tạo nhanh lúc nhập đơn (chỉ có Code + tên tiếng Việt) nằm ở tab <span class="btn-ex">⚠ Thiếu chi tiết</span> trong Danh mục SP — số việc còn lại hiện ngay trên nhãn tab. Xem mục 08.</li>
       <li><b>Cấp mã &amp; cập nhật danh mục:</b> bấm <span class="btn-ex">🧩 Danh mục SP</span> — xem mục 08 bên dưới.</li>
     </ol>
     <div class="tip">Kỹ thuật kiểm tra/duyệt, chia Shipment/container và quản lý danh mục, <b>không</b> tạo hay nhân bản đơn mới.</div>
@@ -453,7 +466,7 @@
     <h3>⏳ Mã tạm chờ cấp mã chính thức</h3>
     <p>Bảng ở đầu màn hình liệt kê mọi mã tạm (<code>Spare*</code>, <code>NewRO*</code>) đang nằm trên các đơn: mã tạm, mô tả/cấu hình, đơn PI, số lượng. Bấm một dòng → app mở tab <b>Sản phẩm</b> và <b>điền sẵn</b> cấu hình đã biết; bạn gõ mã chính thức và lưu. Sau khi lưu, <b>mã trên đơn hàng tự đổi theo</b> — sale không phải sửa lại.</p>
 
-    <h3>Bốn tab</h3>
+    <h3>Các tab</h3>
     <h4>📦 Sản phẩm — thêm/sửa từng mã</h4>
     <ul>
       <li>Ô <b>🔍 Tìm sản phẩm có sẵn để sửa</b> (từ 2 ký tự, theo mã hoặc tên) → chọn để nạp toàn bộ dữ liệu vào form.</li>
@@ -464,6 +477,14 @@
       <li>Mã đã tồn tại → cập nhật; mã mới → thêm dòng mới, giữ nguyên công thức của bảng.</li>
     </ul>
     <div class="note"><b>Không có ô Price:</b> giá trên bảng Products là công thức tính từ BOM/Model_Cost, app không ghi đè. Muốn đổi giá thì sửa BOM hoặc Model_Cost.</div>
+
+    <h4>⚠ Thiếu chi tiết — hàng đợi bổ sung thông tin</h4>
+    <p>Khi sale nhập đơn gặp mã chưa có trong danh mục, họ ghi nhanh <b>Code + tên tiếng Việt</b> để đi tiếp; mã đó được gắn cờ <b>“Chưa có chi tiết”</b> và rơi vào tab này. Sửa <b>trực tiếp trên bảng</b> 6 cột: International name, Category, Option, Model, Brand, Pack_Type — copy 1 cột trong Excel, bấm vào 1 ô rồi <b>Ctrl+V</b> để dán cả cột từ dòng đó xuống. Model và Pack_Type chỉ gợi ý loại thuộc <b>Category của chính dòng đó</b>; bấm <b>+</b> cạnh ô Pack_Type để tạo loại mới. Chọn Pack_Type có sẵn thì Qty/ct và L×W×H tự theo bảng Packing.</p>
+    <div class="note"><b>Mã chỉ rời khỏi danh sách khi đủ HẾT các cột bắt buộc</b> (ô còn thiếu được tô vàng): tên tiếng Việt, International name, Category, Model, Brand, Pack_Type và quy cách Qty/ct · L · W · H. <b>Riêng Option được phép để trống.</b> Điền nửa vời thì vẫn lưu được nhưng mã ở lại đây. Kích thước lẻ / NetWeight / ảnh / BOM làm ở tab Sản phẩm.</div>
+
+    <h4>📦 Packing — quản lý quy cách thùng</h4>
+    <p>Mỗi Pack_Type là một quy cách thùng: <b>Qty/ct và L×W×H</b> mà mọi sản phẩm chọn loại đó dùng để tính CBM. Xem toàn bộ danh sách, lọc theo tên/Category, sửa trực tiếp trên bảng rồi <span class="btn-ex">💾 Lưu thay đổi</span>, thêm bằng <span class="btn-ex">＋ Thêm Pack_Type</span>, xoá bằng nút ✕ trên từng dòng. Cột <b>SP dùng</b> cho biết loại đó đang được bao nhiêu sản phẩm sử dụng.</p>
+    <div class="note"><b>Đổi tên một loại</b> sẽ cập nhật luôn cột Pack_Type của mọi sản phẩm đang dùng tên cũ — app báo trước sẽ đổi trên bao nhiêu sản phẩm. <b>Xoá chỉ được khi không còn sản phẩm nào dùng</b>; còn thì app từ chối và liệt kê mã, bạn phải gán loại khác cho chúng trước.</div>
 
     <h4>📋 Nhập batch — dán nhiều dòng từ Excel</h4>
     <p>Dán trực tiếp từ Excel (mỗi dòng một sản phẩm, cột cách nhau bằng Tab). Thứ tự cột: <code>Code · Factory_name · International_name · Category · Option · Model · Brand · Pack_Type · Qty/ct · Length · Width · Height · (Price — bỏ qua) · Type · Technology · NetWeight</code>. Bấm <span class="btn-ex">👁 Kiểm tra trước</span> để soát rồi <span class="btn-ex">💾 Lưu batch</span>. Tối đa <b>300 dòng/lần</b>; mã đã có sẽ được cập nhật.</p>
@@ -484,6 +505,8 @@
       <li><b>Danh sách đơn trong tháng</b>: Khách · Thị trường · SO · Ngày load · FOB · Status · Order note — bấm một dòng để xem chi tiết ngay, không cần chọn khách trước. Trong chi tiết có nút <span class="btn-ex">⟵ Doanh thu theo tháng</span> để quay lại.</li>
       <li><b>Đơn đã tách nhiều Shipment</b> (xem mục 11) hiện thành <b>nhiều dòng</b> trong bảng, mỗi dòng 1 Shipment (nhãn "Shipment 01/02…" cạnh số SO) — FOB được <b>chia theo tỷ trọng giá trị hàng</b> đã phân bổ vào lô đó, xếp đúng tháng theo ngày load thật của từng lô. Đơn chưa tách lô nào vẫn hiện 1 dòng như trước.</li>
       <li><span class="rolebadge b-admin">Admin</span> <span class="rolebadge b-master">Master</span> sửa nhanh được ngay trên bảng: bấm vào ô <b>Ngày load</b> hoặc <b>Order note</b> để sửa tại chỗ, không cần mở đơn.</li>
+      <li><b>Đổi trạng thái ngay trên bảng:</b> cột <b>Status</b> là ô chọn cho các đơn còn ở <code>targeted</code> / <code>drafted</code> / <code>reviewed</code> — chọn xong app ghi luôn. <span class="rolebadge b-lead">Lead</span> đổi được targeted ⇄ drafted; <span class="rolebadge b-tech">Tech</span> <span class="rolebadge b-admin">Admin</span> <span class="rolebadge b-master">Master</span> đổi được cả reviewed. Đơn đã Confirm (<code>booked</code> trở đi) hiện chữ thường, phải mở đơn ra sửa.</li>
+      <li><b>Sửa Ngày load của đơn đã có Shipment:</b> nếu các lô của đơn cũng đã có ngày load, app hiện bảng liệt kê từng lô để bạn <b>chọn/chỉnh ngày cho từng Shipment</b> trước khi lưu — mặc định lấy theo ngày mới của đơn. Bỏ tick lô nào thì lô đó giữ nguyên ngày cũ.</li>
       <li>Trong chi tiết đơn, mỗi dòng hàng có nút <b>🕘</b> để xem <b>lịch sử đặt hàng của mã đó</b> (khách, số lượng, đơn giá, ngày load, brand — lấy trên Operations2025) và nút <span class="btn-ex dg">🗑 Xóa đơn</span> theo đúng quyền vai trò (xem ma trận quyền mục 04).</li>
       <li>Vẫn có cột khách bên trái để mở chi tiết một khách như thường.</li>
       <li>Xem được <span class="btn-ex">📊 Tiến độ PTSP</span>.</li>
@@ -552,7 +575,7 @@
     <div class="tip">Màn này mở được từ nhiều nơi (chi tiết đơn, Shipment Tracking, Agent…) — cạnh nút <span class="btn-ex">⟵ Trang đầu</span> có thêm nút <span class="btn-ex">◀ Back</span> để quay đúng lại nơi vừa đứng, không bị nhảy hẳn về trang chủ.</div>
 
     <h3>Thanh toán (theo cả đơn)</h3>
-    <p>Deposit/Ngày cọc sửa khi Confirm hoặc Sửa đơn (mục 10). Riêng <b>Ngày TT</b> và <b>Payment ($)</b> có ô nhập ngay đầu màn Quản lý Shipment — áp dụng cho <b>cả đơn</b>, không chia theo từng Shipment (khách trả tiền theo SO/PI, không theo từng container).</p>
+    <p>Deposit/Ngày cọc sửa khi Confirm hoặc Sửa đơn (mục 10). Riêng <b>Ngày TT</b> và <b>Payment ($)</b> có ô nhập ngay đầu màn Quản lý Shipment — áp dụng cho <b>cả đơn</b>, không chia theo từng Shipment (khách trả tiền theo SO/PI, không theo từng container). Hai ô này luôn nạp lại theo đúng đơn đang mở — mở đơn chưa thanh toán thì ô trống, không còn giữ số/ngày của đơn vừa xem trước đó.</p>
 
     <h3>Các Shipment đã tạo</h3>
     <p>Danh sách hiện dưới dạng thẻ, mỗi thẻ là 1 Shipment (mã dạng <code>&lt;SO&gt;-01</code>, <code>-02</code>…) kèm Status và tổng số lượng đã phân bổ. Bấm <span class="btn-ex">+ Thêm Shipment mới</span> để tạo thêm lô, hoặc bấm vào 1 thẻ để sửa.</p>
@@ -561,7 +584,7 @@
       <tbody>
         <tr><td>Trạng thái lô</td><td>Shipment Status (booked → shipped → customs cleared → delivered)</td></tr>
         <tr><td>Lịch trình</td><td>RealLoad · ETD · ETA</td></tr>
-        <tr><td>Chứng từ</td><td>INVOICE# · INV Date · Số TK · Ngày TK</td></tr>
+        <tr><td>Chứng từ</td><td>INVOICE# · INV Date · <b>Số TK</b> · Ngày TK — điền <b>Số TK</b> (tờ khai hải quan) thì Shipment Status <b>tự chuyển sang <code>shipped</code></b>, không cần đổi tay</td></tr>
         <tr><td>Vận chuyển</td><td>Booking · Line · Loading point · Shipment No.</td></tr>
         <tr><td>Chi phí</td><td>Trucking (VND) · LCC (VND) · Cước ($)</td></tr>
         <tr><td>Khác</td><td>Ghi chú Shipment</td></tr>
@@ -569,6 +592,15 @@
     </table></div>
     <p>Dưới form là bảng <b>phân bổ số lượng</b>: mỗi mã hàng của đơn có ô <b>Qty vào Shipment này</b> và <b>Container No.</b> (điền khi 1 Shipment tách nhiều hơn 1 container). Bấm <span class="btn-ex">💾 Lưu Shipment</span> để ghi, <span class="btn-ex">🗑 Xóa Shipment</span> để xoá hẳn lô đó.</p>
     <div class="tip"><b>Ship Qty tự cộng:</b> cột Ship Qty trên bảng Details của đơn giờ là công thức tự cộng tổng số lượng đã phân bổ vào tất cả Shipment của mã đó — mã chưa phân bổ lô nào thì Ship Qty mặc định bằng Order Qty.</div>
+
+    <h3>📥 Nhập lại phân bổ từ Commercial Invoice</h3>
+    <p>Khi nhà máy chốt invoice thật, số lượng thường lệch so với phân bổ đang có. Bấm <span class="btn-ex">📥 Nhập từ Excel (Invoice)</span> ở màn Quản lý Shipment → chọn file, chọn sheet, chọn <b>Shipment đích</b>. App đọc cột Code/Qty, đối chiếu với đơn và hiện <b>bảng kế hoạch trước khi ghi</b> — không có gì được ghi cho tới khi bạn bấm xác nhận.</p>
+    <ul>
+      <li><b>Mã vượt số lượng đơn còn lại, hoặc mã mới chưa có trong đơn</b> → app cảnh báo và hỏi <b>xác nhận tăng Order Qty</b> của đơn cho khớp invoice (mã mới được thêm dòng vào đơn).</li>
+      <li><b>Mã có số lượng giảm so với phân bổ cũ</b> → chọn cách xử lý phần dôi ra: <b>giảm luôn Order Qty</b> của đơn, <b>chuyển sang một Shipment khác</b> đang có, hoặc <b>tạo Shipment mới</b> để chứa.</li>
+      <li>Sau khi ghi, tổng phân bổ của mọi lô luôn khớp lại đúng Order Qty của đơn; cột Ship Qty tự cập nhật theo.</li>
+    </ul>
+    <div class="note">File invoice chỉ cần có cột mã hàng và cột số lượng — app tự dò dòng tiêu đề và dừng ở dòng tổng, giống chức năng nhập đơn từ Excel ở mục 06.</div>
 
     <h3>🔎 Tracking vận đơn</h3>
     <p>Mỗi thẻ Shipment có sẵn <span class="btn-ex">🔎 Tracking</span> (cũng có trong form sửa lô, cạnh nút Lưu) — bấm để mở thẳng trang tra cứu vận đơn của hãng tàu tương ứng ở tab mới, kèm sẵn số <b>Booking</b>. App nhận diện hãng tàu qua trường <b>Line</b> (ký hiệu hoặc tên: MSK/Maersk, ONE, MSC, CMA CGM, COSCO, Evergreen, OOCL, Hapag-Lloyd, ZIM, Yang Ming, Wan Hai, HMM, PIL, KMTC, SITC, Interasia, CU Lines…). Chưa điền Booking, hoặc Line ghi hãng tàu app chưa nhận ra, app sẽ báo để tự tra cứu thủ công.</p>
@@ -667,7 +699,7 @@
 
   <footer>
     Export Hub · Phòng Vận hành Kinh doanh — Công ty CP Tập đoàn Karofi<br>
-    Tài liệu hướng dẫn nội bộ · cập nhật 15/08/2026
+    Tài liệu hướng dẫn nội bộ · cập nhật 14/09/2026
   </footer>
 
 </div>
