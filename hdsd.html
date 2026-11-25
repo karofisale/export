@@ -1561,12 +1561,12 @@
   <div class="tw"><table>
     <thead><tr><th>Thẻ</th><th>Làm gì</th></tr></thead>
     <tbody>
-      <tr><td><kbd>Bảng 1 · Định mức</kbd></td><td>Định mức NVL cho từng mã SP (gồm hao hụt). <kbd>⬆ Nạp Excel</kbd> (xem trước mới / đổi / bỏ), <kbd>⬇ Mẫu Excel</kbd>, <kbd>⇄ Ánh xạ mã từ Excel</kbd> (tên tab cũ → mã SAP), <kbd>🕘 Nhật ký</kbd> đổi định mức.</td></tr>
-      <tr><td><kbd>Bảng 2 · Nguyên liệu theo chứng từ</kbd></td><td>Từng hóa đơn GTGT / tờ khai nhập của NVL: đơn giá, tiền tệ, SL, xuất xứ, HS, số bản khai báo của nhà cung cấp. <kbd>📄 Nạp tờ khai / hóa đơn</kbd> (tờ khai PDF, hóa đơn PDF / XML; ảnh quét đọc bằng AI — luôn xem trước), <kbd>⬆ Nạp Excel</kbd>, <kbd>＋ Thêm chứng từ</kbd>. Chứng từ mới <b>bắt buộc có SL</b>. Ô <b>Đã dùng trước (ngoài app)</b> ghi phần đã dùng cho C/O làm tay trước đây; <b>Hệ số quy đổi ĐVT</b> khi chứng từ ghi đơn vị khác định mức (vd Cuộn ↔ m; Kg / g, Cái / PCE, Bộ / SET tự đổi).</td></tr>
+      <tr><td><kbd>Bảng 1 · Định mức</kbd></td><td>Định mức NVL cho từng mã SP (gồm hao hụt). <kbd>⬆ Nạp Excel</kbd> (xem trước mới / đổi / bỏ), <kbd>⬇ Mẫu Excel</kbd>, <kbd>⇄ Ánh xạ mã từ Excel</kbd> (tên tab cũ → mã SAP), <kbd>🕘 Nhật ký</kbd> đổi định mức. Khi sửa, xoá hoặc nạp định mức, chọn <b>Hiệu lực từ</b> (trống = hôm nay): định mức cũ được giữ thành <b>phiên bản cũ</b>, lô xuất trước ngày đó vẫn dựng Phụ lục V theo định mức cũ. Nhập sai thì tick <b>Sửa sai</b> — sửa thẳng, áp dụng cả lô cũ.</td></tr>
+      <tr><td><kbd>Bảng 2 · Nguyên liệu theo chứng từ</kbd></td><td>Từng hóa đơn GTGT / tờ khai nhập của NVL: đơn giá, tiền tệ, SL, xuất xứ, HS, số bản khai báo của nhà cung cấp. <kbd>📄 Nạp tờ khai / hóa đơn</kbd> (tờ khai PDF, hóa đơn PDF / XML; ảnh quét đọc bằng AI — luôn xem trước), <kbd>⬆ Nạp Excel</kbd>, <kbd>＋ Thêm chứng từ</kbd>. Chứng từ mới <b>bắt buộc có SL</b>. Ô <b>Đã dùng trước (ngoài app)</b> ghi phần đã dùng cho C/O làm tay trước đây; <b>Hệ số quy đổi ĐVT</b> khi chứng từ ghi đơn vị khác định mức (vd Cuộn ↔ m; Kg / g, Cái / PCE, Bộ / SET tự đổi). Chứng từ đã dùng trong hồ sơ <b>đã khai báo</b> có dấu 🔒: không sửa được số, ngày, giá, xuất xứ… (Admin / Operation Manager sửa được kèm lý do); SL không được nhỏ hơn SL đã dùng. <kbd>📒 Sổ trừ lùi (Excel)</kbd>: sổ theo chứng từ (đầu kỳ, từng lần dùng cho hồ sơ nào, còn lại) và theo hồ sơ C/O — bằng chứng khi bị kiểm tra, xác minh.</td></tr>
       <tr><td><kbd>Danh mục NVL &amp; bí danh</kbd></td><td>Danh sách NVL; bí danh = tên trên chứng từ của nhà cung cấp → NVL (lần sau tự ghép); gộp NVL trùng.</td></tr>
       <tr><td><kbd>Hóa đơn mua hàng Tecomen→Karofi</kbd></td><td><kbd>📥 Nạp hóa đơn mua hàng</kbd> — dùng khi Karofi xuất (Phụ lục X, giá đầu vào).</td></tr>
       <tr><td><kbd>Quy trình sản xuất</kbd></td><td><kbd>＋ Thêm quy trình</kbd>, <kbd>📂 Chọn file từ máy…</kbd>, khoảng trang, ngày ký, gắn theo mã / Model / Category.</td></tr>
-      <tr><td><kbd>Cài đặt C/O</kbd></td><td>Tên / MST doanh nghiệp, nơi ký, số chữ số HS, văn bản dẫn chiếu theo Form… (Admin / Operation Manager) → <kbd>💾 Lưu cài đặt</kbd>.</td></tr>
+      <tr><td><kbd>Cài đặt C/O</kbd></td><td>Tên / MST doanh nghiệp, nơi ký, số chữ số HS, văn bản dẫn chiếu theo Form, <b>thứ tự lấy chứng từ</b> (co.pickOrder: mới nhất trước / cũ nhất trước), <b>số ngày giữ SL tối đa</b> (co.holdDays)… (Admin / Operation Manager) → <kbd>💾 Lưu cài đặt</kbd>.</td></tr>
     </tbody>
   </table></div>
   <h3>2. Hồ sơ C/O của một lô</h3>
@@ -1581,6 +1581,7 @@
     <li>Cập nhật trạng thái ở hộp <b class="ui">Đổi trạng thái</b>: đã khai báo → nộp phí → yêu cầu sửa (bắt buộc chọn lý do) → đã cấp (số + ngày C/O). Khi đã khai báo, SL giữ chuyển thành đã dùng; huỷ hồ sơ thì trả lại SL.</li>
   </ol>
   <div class="callout note"><span class="ct">Nợ tờ khai / vận đơn</span>Được nộp chậm tờ khai hải quan và vận đơn tối đa 15 ngày làm việc kể từ ngày cấp C/O. Khung kiểm chéo nhắc khi lô chưa có hai chứng từ này và tính hạn bổ sung sau khi C/O được cấp.</div>
+  <div class="callout note"><span class="ct">SL đang giữ</span>Chốt Phụ lục V là giữ SL chứng từ đầu vào cho hồ sơ. <kbd>⏳ SL đang giữ</kbd> liệt kê hồ sơ đang giữ và số ngày; quá số ngày ở Cài đặt (mặc định 30) mà chưa khai báo thì báo quá hạn. Hồ sơ không làm tiếp: <b>Bỏ chốt &amp; trả SL</b> (làm lại thì chốt lại). Hồ sơ đã khai báo mà còn dòng "giữ": <b>Chuyển đã dùng</b>.</div>
   <div class="callout tip"><span class="ct">Rà hồ sơ đã chốt</span><kbd>🔎 Rà hồ sơ đã chốt</kbd> liệt kê hồ sơ có NVL đang ở cột "có xuất xứ" mà thiếu bằng chứng theo hiệp định (C/O ưu đãi nhập khẩu hoặc bản khai báo của nhà cung cấp), kèm Total và RVC tính lại. Chỉ xem, không sửa hồ sơ cũ.</div>
 </section>
 
