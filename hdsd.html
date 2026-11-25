@@ -15,7 +15,7 @@
     --warn:#8a4b0f; --warn-soft:#fbeedd; --warn-line:#e0a65f;
     --danger:#a52f1b; --danger-soft:#fbe5e0; --danger-line:#e08a78;
     --ok:#17663a; --ok-soft:#dcf3e5;
-    --sale:#0b6a60; --lead:#6446bd; --tech:#8f5410; --admin:#b02d1a; --master:#1a5cc8; --leader:#475466;
+    --sale:#0b6a60; --lead:#6446bd; --tech:#8f5410; --admin:#b02d1a; --master:#1a5cc8; --leader:#475466; --cvct:#8a2c74;
     --kbd-bg:#eef3f1; --kbd-line:#b9c7c1; --kbd-ink:#10201a;
     --shadow:0 1px 2px rgba(15,35,30,.06), 0 6px 18px rgba(15,35,30,.06);
     --radius:12px; --maxw:1180px; --bar-h:54px;
@@ -30,7 +30,7 @@
       --warn:#f0b36a; --warn-soft:#2e2313; --warn-line:#7d5a24;
       --danger:#f08b76; --danger-soft:#33191a; --danger-line:#8a4a3f;
       --ok:#6fdc9a; --ok-soft:#14301f;
-      --sale:#4fd1a5; --lead:#b8a2f5; --tech:#f0b36a; --admin:#f08b76; --master:#7fb0ff; --leader:#b3bfce;
+      --sale:#4fd1a5; --lead:#b8a2f5; --tech:#f0b36a; --admin:#f08b76; --master:#7fb0ff; --leader:#b3bfce; --cvct:#f2a2dc;
       --kbd-bg:#202a24; --kbd-line:#3c4a42; --kbd-ink:#e9f0eb;
       --shadow:0 1px 2px rgba(0,0,0,.4), 0 6px 18px rgba(0,0,0,.35);
       color-scheme:dark;
@@ -44,7 +44,7 @@
     --warn:#f0b36a; --warn-soft:#2e2313; --warn-line:#7d5a24;
     --danger:#f08b76; --danger-soft:#33191a; --danger-line:#8a4a3f;
     --ok:#6fdc9a; --ok-soft:#14301f;
-    --sale:#4fd1a5; --lead:#b8a2f5; --tech:#f0b36a; --admin:#f08b76; --master:#7fb0ff; --leader:#b3bfce;
+    --sale:#4fd1a5; --lead:#b8a2f5; --tech:#f0b36a; --admin:#f08b76; --master:#7fb0ff; --leader:#b3bfce; --cvct:#f2a2dc;
     --kbd-bg:#202a24; --kbd-line:#3c4a42; --kbd-ink:#e9f0eb;
     --shadow:0 1px 2px rgba(0,0,0,.4), 0 6px 18px rgba(0,0,0,.35);
     color-scheme:dark;
@@ -90,7 +90,7 @@
   .role-card .rn::before{content:""; width:12px; height:12px; border-radius:50%; background:var(--rc)}
   .role-card .rd{font-size:13.5px; color:var(--ink-soft); line-height:1.4}
   .role-card[aria-selected="true"]::after{content:"Đang chọn"; position:absolute; top:10px; right:10px; font-size:11px; font-weight:700; background:var(--rc); color:var(--on-rc,#fff); border-radius:999px; padding:1px 8px}
-  .r-sale{--rc:var(--sale)} .r-lead{--rc:var(--lead)} .r-technician{--rc:var(--tech)} .r-admin{--rc:var(--admin)} .r-master{--rc:var(--master)} .r-leader{--rc:var(--leader)}
+  .r-sale{--rc:var(--sale)} .r-lead{--rc:var(--lead)} .r-technician{--rc:var(--tech)} .r-admin{--rc:var(--admin)} .r-master{--rc:var(--master)} .r-leader{--rc:var(--leader)} .r-cvct{--rc:var(--cvct)}
   :root{--on-rc:#fff}
   @media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--on-rc:#0b1210}}
   :root[data-theme="dark"]{--on-rc:#0b1210}
@@ -123,7 +123,7 @@
   h3{font-size:18px; margin:26px 0 8px; line-height:1.3; scroll-margin-top:calc(var(--bar-h) + 14px)}
   h4{font-size:15px; margin:16px 0 6px}
   section.chap.own-sale{--rc:var(--sale)} section.chap.own-lead{--rc:var(--lead)} section.chap.own-technician{--rc:var(--tech)}
-  section.chap.own-admin{--rc:var(--admin)} section.chap.own-master{--rc:var(--master)} section.chap.own-leader{--rc:var(--leader)}
+  section.chap.own-admin{--rc:var(--admin)} section.chap.own-master{--rc:var(--master)} section.chap.own-leader{--rc:var(--leader)} section.chap.own-cvct{--rc:var(--cvct)}
   section.chap[class*="own-"]:not(.own-common){border-top:4px solid var(--rc)}
 
   /* ===== Thành phần ===== */
@@ -152,7 +152,7 @@
   td.c,th.c{text-align:center}
   .yes{color:var(--ok); font-weight:700} .no-c{color:var(--ink-faint)}
   .pill{display:inline-block; font-size:11.5px; font-weight:700; padding:1px 9px; border-radius:999px; background:var(--rc,var(--ink-soft)); color:var(--on-rc,#fff); vertical-align:middle; white-space:nowrap}
-  .pill.p-sale{--rc:var(--sale)} .pill.p-lead{--rc:var(--lead)} .pill.p-technician{--rc:var(--tech)} .pill.p-admin{--rc:var(--admin)} .pill.p-master{--rc:var(--master)} .pill.p-leader{--rc:var(--leader)}
+  .pill.p-sale{--rc:var(--sale)} .pill.p-lead{--rc:var(--lead)} .pill.p-technician{--rc:var(--tech)} .pill.p-admin{--rc:var(--admin)} .pill.p-master{--rc:var(--master)} .pill.p-leader{--rc:var(--leader)} .pill.p-cvct{--rc:var(--cvct)}
   .grid2{display:grid; grid-template-columns:repeat(auto-fit,minmax(260px,1fr)); gap:14px}
   .box{border:1px solid var(--line); border-radius:10px; padding:12px 14px; background:var(--panel)}
   .box h4{margin:0 0 6px}
@@ -262,7 +262,8 @@
         <option value="lead">Lead</option>
         <option value="technician">Technician</option>
         <option value="admin">Admin</option>
-        <option value="master">Master</option>
+        <option value="cvct">CV chứng từ</option>
+        <option value="master">Operation Manager</option>
         <option value="leader">Leader</option>
         <option value="all">Tất cả (để in)</option>
       </select>
@@ -275,7 +276,7 @@
 <div class="hero">
   <p class="eyebrow">Phòng Vận hành Kinh doanh · Karofi</p>
   <h1>Hướng dẫn sử dụng Export Hub</h1>
-  <p class="lede">Export Hub là app báo giá PI và vận hành đơn xuất khẩu của Karofi: từ lúc sale lập báo giá, kỹ thuật kiểm tra, admin tạo SO và chia Shipment, đến chứng từ, doanh thu và công nợ. Mỗi vai trò có việc riêng, nên tài liệu này chia theo vai trò — chọn vai trò của bạn để chỉ xem phần cần dùng.</p>
+  <p class="lede">Export Hub là app báo giá PI và vận hành đơn xuất khẩu của Karofi: từ lúc sale lập báo giá, kỹ thuật kiểm tra, admin tạo SO và chia Shipment, CV chứng từ lo hạn lô, hải quan, C/O và bộ chứng từ, đến doanh thu, công nợ và chi phí logistics. Mỗi vai trò có việc riêng, nên tài liệu này chia theo vai trò — chọn vai trò của bạn để chỉ xem phần cần dùng.</p>
   <p class="print-role" id="printRole">Hướng dẫn dành cho: —</p>
 
   <h2 class="picker-title" id="pickerTitle" style="font-size:15px">Bạn dùng app với vai trò nào?</h2>
@@ -288,8 +289,10 @@
       <span class="rn">Technician</span><span class="rd">Kiểm tra kỹ thuật đơn, cấp mã, BOM, Customize, chia Shipment/container.</span></button>
     <button type="button" role="tab" class="role-card r-admin" id="tab-admin" data-role="admin" aria-selected="false" tabindex="-1">
       <span class="rn">Admin</span><span class="rd">Tạo SO, mở đơn, quản lý Shipment, chứng từ, thanh toán và công nợ.</span></button>
+    <button type="button" role="tab" class="role-card r-cvct" id="tab-cvct" data-role="cvct" aria-selected="false" tabindex="-1">
+      <span class="rn">CV chứng từ</span><span class="rd">Vận hành lô: hạn &amp; mốc, cổng thanh toán, tờ khai, PXK, C/O, bộ chứng từ, chi phí logistics.</span></button>
     <button type="button" role="tab" class="role-card r-master" id="tab-master" data-role="master" aria-selected="false" tabindex="-1">
-      <span class="rn">Master</span><span class="rd">Như Admin, thêm quyền xoá đơn mọi trạng thái, xoá lô cuối, cào SAP giá vốn.</span></button>
+      <span class="rn">Operation Manager</span><span class="rd">Như Admin, thêm quyền duyệt (phiếu sửa mức 4, ngoại lệ, thanh toán NCC), xoá đơn mọi trạng thái, cào SAP giá vốn.</span></button>
     <button type="button" role="tab" class="role-card r-leader" id="tab-leader" data-role="leader" aria-selected="false" tabindex="-1">
       <span class="rn">Leader</span><span class="rd">Xem toàn bộ dashboard và báo cáo, không sửa gì (chỉ xem).</span></button>
   </div>
@@ -380,7 +383,8 @@
       <tr><td><span class="pill p-lead">Lead</span></td><td><b class="ui">Dashboard Sale</b> (phạm vi team, có xếp hạng)</td><td>Khách và đơn của các sale <b>cùng Team</b> với bạn</td><td>Như Sale + chốt đơn, theo dõi kế hoạch của team</td></tr>
       <tr><td><span class="pill p-technician">Technician</span></td><td><b class="ui">Dashboard Technician</b></td><td>Xem mọi khách, mọi đơn</td><td>Kiểm tra kỹ thuật, cấp mã, BOM, chia Shipment</td></tr>
       <tr><td><span class="pill p-admin">Admin</span></td><td><b class="ui">Dashboard Admin</b> (thêm tab Technician và Sale)</td><td>Xem và sửa mọi khách, mọi đơn</td><td>Tạo SO, Shipment, chứng từ, thanh toán, công nợ</td></tr>
-      <tr><td><span class="pill p-master">Master</span></td><td>Như Admin</td><td>Như Admin</td><td>Như Admin + vài quyền riêng (xoá đơn mọi trạng thái, cào SAP giá vốn)</td></tr>
+      <tr><td><span class="pill p-cvct">CV chứng từ</span></td><td><b class="ui">Dashboard CV chứng từ</b></td><td>Xem mọi khách, mọi đơn</td><td>Vận hành lô: hạn và mốc, cổng thanh toán, tờ khai, PXK, C/O, bộ chứng từ, chi phí logistics (app ghi vai trò là <b>cvct</b>)</td></tr>
+      <tr><td><span class="pill p-master">Operation Manager</span></td><td>Như Admin</td><td>Như Admin</td><td>Như Admin + quyền duyệt cao nhất (phiếu sửa đơn mức 4, ngoại lệ cổng, đề nghị thanh toán NCC) và vài quyền riêng (xoá đơn mọi trạng thái, cào SAP giá vốn). App ghi vai trò là <b>master</b>.</td></tr>
       <tr><td><span class="pill p-leader">Leader</span></td><td><b class="ui">Dashboard Sale</b> (toàn bộ)</td><td>Xem mọi khách, mọi đơn</td><td>Chỉ xem — không tạo, không sửa, không xoá</td></tr>
     </tbody>
   </table></div>
@@ -415,14 +419,14 @@
     <thead><tr><th>Mục trên thanh trên cùng</th><th>Ai thấy</th></tr></thead>
     <tbody>
       <tr><td><kbd>📅 Doanh thu tháng</kbd></td><td>Cả sáu vai trò (Sale chỉ thấy đơn của mình, Lead của team)</td></tr>
-      <tr><td><kbd>🧩 Sản phẩm</kbd> ▸ <kbd>🗂️ Danh mục SP</kbd></td><td>Technician, Admin, Master sửa được; Lead và Sale chỉ xem; Leader không có mục này</td></tr>
+      <tr><td><kbd>🧩 Sản phẩm</kbd> ▸ <kbd>🗂️ Danh mục SP</kbd></td><td>Technician, Admin, Operation Manager sửa được; Lead và Sale chỉ xem; Leader không có mục này</td></tr>
       <tr><td><kbd>🧩 Sản phẩm</kbd> ▸ <kbd>📦 Inventory</kbd>, <kbd>📝 Customize</kbd></td><td>Cả sáu vai trò</td></tr>
-      <tr><td><kbd>🧩 Sản phẩm</kbd> ▸ <kbd>🧪 Tiến độ PTSP</kbd></td><td>Technician, Lead, Leader, Admin, Master</td></tr>
-      <tr><td><kbd>🧩 Sản phẩm</kbd> ▸ <kbd>💰 Giá vốn</kbd></td><td>Admin, Master</td></tr>
-      <tr><td><kbd>👥 Client</kbd> ▸ <kbd>📇 Client admin</kbd>, <kbd>🧾 Công nợ</kbd></td><td>Admin, Master (nhóm này ẩn hẳn với vai trò khác)</td></tr>
-      <tr><td><kbd>📊 Báo cáo</kbd> ▸ <kbd>📈 Revenue Report</kbd></td><td>Admin, Master, Leader (đầy đủ); Lead (phần OEM hoặc Branding theo Team); Sale thuộc team Brand (phần Branding). Vai trò khác không có nút này</td></tr>
+      <tr><td><kbd>🧩 Sản phẩm</kbd> ▸ <kbd>🧪 Tiến độ PTSP</kbd></td><td>Technician, Lead, Leader, Admin, Operation Manager</td></tr>
+      <tr><td><kbd>🧩 Sản phẩm</kbd> ▸ <kbd>💰 Giá vốn</kbd></td><td>Admin, Operation Manager</td></tr>
+      <tr><td><kbd>👥 Client</kbd> ▸ <kbd>📇 Client admin</kbd>, <kbd>🧾 Công nợ</kbd></td><td>Admin, Operation Manager (nhóm này ẩn hẳn với vai trò khác)</td></tr>
+      <tr><td><kbd>📊 Báo cáo</kbd> ▸ <kbd>📈 Revenue Report</kbd></td><td>Admin, Operation Manager, Leader (đầy đủ); Lead (phần OEM hoặc Branding theo Team); Sale thuộc team Brand (phần Branding). Vai trò khác không có nút này</td></tr>
       <tr><td><kbd>📊 Báo cáo</kbd> ▸ <kbd>🖥️ Machine Report</kbd>, <kbd>⏱ SLA Report</kbd>, <kbd>🔎 Hàng đợi review</kbd></td><td>Cả sáu vai trò, dữ liệu theo phạm vi của bạn</td></tr>
-      <tr><td><kbd>🚢 Shipment Tracking</kbd></td><td>Cả sáu vai trò (Admin, Master có thêm nút quản lý)</td></tr>
+      <tr><td><kbd>🚢 Shipment Tracking</kbd></td><td>Cả sáu vai trò (Admin, Operation Manager có thêm nút quản lý)</td></tr>
       <tr><td><kbd>⟳ Làm mới</kbd></td><td>Cả sáu vai trò</td></tr>
     </tbody>
   </table></div>
@@ -433,7 +437,7 @@
     <li><kbd>☰</kbd>: bật / tắt danh sách khách ở bên trái. Có ô <kbd>Tìm khách hàng…</kbd>, ô sắp xếp (<b class="ui">Tên A–Z</b> hoặc <b class="ui">Quốc gia</b>) và nút <kbd>+ Khách mới</kbd>. Trên điện thoại danh sách này trượt ra như ngăn kéo.</li>
     <li><b>Ô tìm / lọc</b> nằm ngay trong từng bảng (khách, mã KH, SO, PI…). Ở Doanh thu tháng, gõ nhiều từ = phải khớp đủ mọi từ.</li>
     <li><kbd>⟳ Làm mới</kbd>: xoá dữ liệu đã nạp ở máy bạn và tải lại <b>đúng màn đang xem</b>. Màn đang chỉnh sửa (Sửa đơn, Danh mục SP, Client admin, Giá vốn, Arrange Shipping) được giữ nguyên để không mất thứ bạn đang gõ. Số liệu mới trên Sheet/SAP mà màn chưa thấy → bấm nút này.</li>
-    <li><b>Lọc Brand / OEM</b> (<kbd>Tất cả</kbd> · <kbd>Brand</kbd> · <kbd>OEM</kbd>): hiện ở Doanh thu tháng, Shipment Tracking và Machine Report cho Admin, Master, Leader và Technician. Sale và Lead không có vì dữ liệu của họ đã được giới hạn sẵn. Xem chương <a href="#c-brandoem">Brand và OEM</a>.</li>
+    <li><b>Lọc Brand / OEM</b> (<kbd>Tất cả</kbd> · <kbd>Brand</kbd> · <kbd>OEM</kbd>): hiện ở Doanh thu tháng, Shipment Tracking và Machine Report cho Admin, Operation Manager, Leader và Technician. Sale và Lead không có vì dữ liệu của họ đã được giới hạn sẵn. Xem chương <a href="#c-brandoem">Brand và OEM</a>.</li>
     <li><b>Tháng đang xem</b> (nút <kbd>◀</kbd> <kbd>▶</kbd>): app nhớ tháng bạn xem ở Doanh thu tháng, Shipment Tracking và SLA Report <b>trong cùng ngày</b> (giờ Việt Nam). Sang ngày mới app quay về tháng hiện tại. Lựa chọn lọc Brand/OEM, tab Dashboard và tab Revenue Report thì được nhớ lâu hơn.</li>
     <li><b>Ngày giờ</b> hiện dạng dd/mm/yyyy, tháng hiện dạng “Tháng 10/2026”; mặc định luôn theo giờ Việt Nam.</li>
     <li><kbd>🌙 Giao diện sáng/tối</kbd> trong menu tài khoản đổi chế độ sáng / tối của app.</li>
@@ -503,9 +507,9 @@
       <tr><td><code>2-targeted</code></td><td>Đặt mục tiêu chốt được. Mặc định của đơn mới (Create New / Clone).</td><td>Sale chọn trong ô <b>Trạng thái</b> của form báo giá.</td><td><kbd>✔ Gửi kiểm tra (→ drafted)</kbd> — Lead, Technician, Admin; Sale tự đổi <b>Trạng thái</b> sang <code>3-drafted</code> trong <kbd>✎ Edit Details</kbd></td></tr>
       <tr><td><code>3-drafted</code></td><td>Đơn nháp đã chốt cơ bản với khách. <b>Nằm trong Hàng đợi review</b> của Technician.</td><td>Hai nút ở trên (có hộp khai <b>Yêu cầu Customization</b> và thư Outlook đề nghị review).</td><td><kbd>✔ Đã kiểm tra KT (→ reviewed)</kbd> — Technician, Admin. Technician chia được Shipment khi đơn ở trạng thái này.</td></tr>
       <tr><td><code>4-reviewed</code></td><td>Technician đã kiểm tra. Sale/Lead còn sửa chi tiết được <b>lần cuối</b>.</td><td>Technician / Admin bấm nút bên trên.</td><td><kbd>✔ Chốt đơn (→ confirmed)</kbd> — Sale (đơn mình), Lead (cùng team), Admin</td></tr>
-      <tr><td><code>5-confirmed</code></td><td>Sale đã kiểm tra, điều chỉnh và xác nhận. Đơn <b>khoá lại</b> với Sale/Lead, chờ Admin nhập cọc.</td><td>Nút <kbd>✔ Chốt đơn (→ confirmed)</kbd>.</td><td><kbd>✔ Tạo SO (→ Export Order)</kbd> — Admin, Master</td></tr>
+      <tr><td><code>5-confirmed</code></td><td>Sale đã kiểm tra, điều chỉnh và xác nhận. Đơn <b>khoá lại</b> với Sale/Lead, chờ Admin nhập cọc.</td><td>Nút <kbd>✔ Chốt đơn (→ confirmed)</kbd>.</td><td><kbd>✔ Tạo SO (→ Export Order)</kbd> — Admin, Operation Manager</td></tr>
       <tr><td><code>6-opened</code></td><td>Đơn đang thực hiện, đã qua bước cọc. <b>Cả đơn tự nằm ở Shipment 01</b> nếu Admin chưa tách.</td><td>Admin chọn <b>Status = 6-opened</b> ở hộp <b class="ui">Tạo SO từ PI</b> (cần Deposit và Ngày cọc, hoặc tick <kbd>Miễn Deposit (L/C, trả sau…)</kbd>) — hoặc đổi <b>Trạng thái</b> trong Edit Details.</td><td>Admin chia Shipment, nhập booking, chứng từ; từng lô đi tiếp 7 → 10.</td></tr>
-      <tr><td><code>7-processing</code></td><td>Lô đang sản xuất.</td><td>Admin, Master: ô <b>Shipment Status</b> của lô (hoặc ô chọn trên Dashboard Admin).</td><td>8-booked</td></tr>
+      <tr><td><code>7-processing</code></td><td>Lô đang sản xuất.</td><td>Admin, Operation Manager: ô <b>Shipment Status</b> của lô (hoặc ô chọn trên Dashboard Admin).</td><td>8-booked</td></tr>
       <tr><td><code>8-booked</code></td><td>Lô đã có booking.</td><td>Như trên.</td><td>9-shipped</td></tr>
       <tr><td><code>9-shipped</code></td><td>Lô đã load hàng. Nhập <b>Số TK</b> (tờ khai) thì app tự gợi ý đặt lô sang <code>shipped</code> (đổi lại được trước khi Lưu).</td><td>Như trên.</td><td>10-delivered (hoặc <code>customs cleared</code> nếu dùng)</td></tr>
       <tr><td><code>10-delivered</code></td><td>Đã nhận đủ thanh toán và giao chứng từ.</td><td>Như trên.</td><td>Khi <b>mọi lô</b> của đơn đều <code>delivered</code> hoặc <code>canceled</code>, đơn <b>tự chuyển <code>closed</code></b>.</td></tr>
@@ -522,7 +526,7 @@
       <tr><td><span class="pill p-lead">Lead</span></td><td>Như Sale, nhưng cho đơn của mọi sale <b>cùng team</b></td><td>Đơn quoted / targeted / drafted của team</td></tr>
       <tr><td><span class="pill p-technician">Technician</span></td><td><b>Mọi đơn, mọi trạng thái</b>; nhưng ô Trạng thái bị khoá (không đổi trạng thái qua màn Sửa đơn)</td><td>Không xoá được</td></tr>
       <tr><td><span class="pill p-admin">Admin</span></td><td>Mọi đơn, mọi trạng thái; chọn được mọi trạng thái; đổi được số SO, Deposit, Ngày cọc, cờ FOC</td><td>Mọi trạng thái <b>trừ 6-opened và closed</b></td></tr>
-      <tr><td><span class="pill p-master">Master</span></td><td>Như Admin</td><td><b>Mọi trạng thái</b>, kể cả opened và closed</td></tr>
+      <tr><td><span class="pill p-master">Operation Manager</span></td><td>Như Admin</td><td><b>Mọi trạng thái</b>, kể cả opened và closed</td></tr>
       <tr><td><span class="pill p-leader">Leader</span></td><td>Không sửa được gì</td><td>Không</td></tr>
     </tbody>
   </table></div>
@@ -535,7 +539,7 @@
   <p class="sub">Mỗi đơn thuộc đúng một trong hai nhóm, và app đã gắn sẵn nhãn — bạn không phải tự phân loại.</p>
   <div class="callout tip"><span class="ct">Quy tắc</span>Đơn là <b>Brand</b> khi <b>khách có “Phân loại khách” là Branding</b> <u>hoặc</u> <b>sale đứng tên đơn thuộc team có tên bắt đầu bằng “KRF-”</b> (ví dụ KRF-Phil, KRF-India, KRF-US). Mọi đơn còn lại là <b>OEM</b>. Tên sale không còn là căn cứ.</div>
   <ul>
-    <li><b>Phân loại khách</b> gồm <b class="ui">OEM</b>, <b class="ui">ODM</b>, <b class="ui">OBM</b>, <b class="ui">Branding</b> hoặc để trống (“Chưa phân loại”). Đặt lúc tạo khách (<kbd>Tạo khách</kbd>) hoặc sửa khách (Admin/Master: <kbd>✎ Sửa khách</kbd>, <kbd>📇 Client admin</kbd>).</li>
+    <li><b>Phân loại khách</b> gồm <b class="ui">OEM</b>, <b class="ui">ODM</b>, <b class="ui">OBM</b>, <b class="ui">Branding</b> hoặc để trống (“Chưa phân loại”). Đặt lúc tạo khách (<kbd>Tạo khách</kbd>) hoặc sửa khách (Admin/Operation Manager: <kbd>✎ Sửa khách</kbd>, <kbd>📇 Client admin</kbd>).</li>
     <li><b>Team</b> của sale do người quản trị gán trên tài khoản.</li>
     <li>Ví dụ: khách Brills, sale hai.tran thuộc team KRF-Phil → đơn là <b>Brand</b> dù tên sale không có chữ “brand”.</li>
     <li>Nút lọc <kbd>Brand</kbd> / <kbd>OEM</kbd> và các cột/biểu đồ chia Brand–OEM đều dùng đúng quy tắc này. Kế hoạch doanh thu (Revenue Report) cũng chia hai phần OEM và Branding theo quy tắc này.</li>
@@ -552,7 +556,7 @@
       <tr><td>SO (Sale Order)</td><td>Số đơn trên SAP, do Admin nhập ở bước <kbd>✔ Tạo SO</kbd>. Từ lúc có SO, đơn nằm ở <b>Export Order</b>.</td></tr>
       <tr><td>PIC</td><td>Sale đứng tên đơn (người phụ trách).</td></tr>
       <tr><td>FOB / CIF</td><td>FOB = tổng giá trị các dòng hàng, <b>không tính hàng tặng (FOC)</b>. CIF = FOB + Cước. “Còn lại” trong công nợ tính trên CIF trừ chiết khấu, Deposit và đã thu.</td></tr>
-      <tr><td>FOC</td><td>Hàng tặng: vẫn ghi đơn giá nhưng Thành tiền = 0 và không vào FOB. Chỉ Admin/Master đặt hoặc bỏ cờ này.</td></tr>
+      <tr><td>FOC</td><td>Hàng tặng: vẫn ghi đơn giá nhưng Thành tiền = 0 và không vào FOB. Chỉ Admin/Operation Manager đặt hoặc bỏ cờ này.</td></tr>
       <tr><td>Shipment (lô)</td><td>Một đợt giao của một SO, mã dạng <code>&lt;SO&gt;-01</code>, <code>-02</code>… Mỗi lô có Load date, booking, trạng thái, chứng từ riêng. Doanh thu và công nợ tính theo lô.</td></tr>
       <tr><td>Chuyến</td><td>Nhiều lô của nhiều SO <b>cùng một khách</b> đi chung một booking / một hoá đơn. Mã dạng <code>CH-yyMM-NN</code>. Doanh thu tính 1 dòng, công nợ 1 hoá đơn.</td></tr>
       <tr><td>Load date / RealLoad</td><td>Ngày load hàng của <b>lô</b> (không còn nằm ở cấp đơn). Doanh thu xếp vào tháng của Load date. Ô <b>Expected Loading</b> trong form PI là ngày dự kiến của PI.</td></tr>
@@ -574,18 +578,63 @@
   </table></div>
 </section>
 
+<section class="chap own-common" id="c-tracuudon" data-own="common" data-roles="all" data-group="Chung">
+  <span class="chap-role">Chung · mọi vai trò</span>
+  <h2><span class="num"></span>Tra cứu đơn, Đơn tổng và Chỉ số chốt đơn</h2>
+  <p class="sub">Ba màn tra cứu trong menu <kbd>🧭 Vận hành</kbd>. Máy chủ tự lọc theo phạm vi của bạn: Sale thấy đơn của mình, Lead thấy đơn của team, các vai trò khác thấy tất cả.</p>
+  <h3>🔍 Tra cứu đơn</h3>
+  <p>Mở <kbd>🧭 Vận hành</kbd> → <kbd>🔍 Tra cứu đơn</kbd>. Mỗi dòng hàng cho biết: SL đặt, SL đã shipped, SL còn lại, SL tồn kho (MB52), ngày ship gần nhất, <b>Ngày gửi NM</b>, <b>Ref_DNXH</b>; hàng đầu bảng cộng tổng SL, FOB và CBM theo bộ lọc.</p>
+  <ul>
+    <li>Lọc theo Khách, SO / PI, Mã SP hoặc tên, Category; tick <b>Chỉ hiện các dòng có SL còn lại</b> (bật sẵn), <b>Chỉ máy</b>, <b>Gồm cả đơn đã closed</b> (app nhớ lựa chọn này).</li>
+    <li>Ba kiểu hiển thị: <b>Theo dòng hàng</b>, <b>Theo Tổng SO</b> (mỗi SO một dòng), <b>Gom theo mã hàng</b> (mỗi mã một dòng, gộp mọi khách / SO đang lọc).</li>
+    <li><b>Sắp xếp</b>: bấm tiêu đề cột để sắp xếp tăng / giảm (mặc định Ngày đặt mới → cũ; dòng chưa có ngày luôn ở cuối). Bấm số SO để mở thẳng đơn đó.</li>
+    <li><kbd>🚫 Loại trừ đơn</kbd>: tick các SO muốn ẩn (vd đơn mới đặt) — bảng, tổng và file Excel đều bỏ các đơn này; app nhớ riêng cho từng người, luôn hiện dải "Đang loại trừ n đơn" để không quên; <kbd>Bỏ loại trừ hết</kbd> để xem lại.</li>
+    <li><kbd>⬇ Xuất Excel</kbd> xuất đúng bộ lọc, kiểu hiển thị và thứ tự đang chọn (đủ mọi dòng, kể cả khi bảng chỉ vẽ 2.000 dòng đầu).</li>
+  </ul>
+  <h3>🧮 Đơn tổng</h3>
+  <p>Dùng cho khách gọi hàng nhiều đợt: theo từng đơn và mã, app cho biết <b>đã xuất / còn lại / tồn kho nhà máy / ngày load của lô kế tiếp</b>; ô tồn tô đỏ khi tồn không đủ cho phần còn lại. Có tìm kiếm, <b>Chỉ mã còn phải giao</b>, <b>Chỉ máy</b>, loại trừ đơn, sắp xếp theo cột và <kbd>⬇ Xuất Excel</kbd> để gửi khách.</p>
+  <h3>📐 Chỉ số chốt đơn</h3>
+  <p>Thời gian trung bình / trung vị của từng chặng (reviewed → lead duyệt → confirmed → mở đơn) theo từng sale, và tỷ lệ PI bị trả lại. Số liệu chỉ có từ ngày app bắt đầu ghi nhật ký trạng thái.</p>
+</section>
+
+<section class="chap own-common" id="c-phoihop" data-own="common" data-roles="all" data-group="Chung">
+  <span class="chap-role">Chung · mọi vai trò</span>
+  <h2><span class="num"></span>Chuông thông báo, Trao đổi trong đơn và Phiếu sửa đơn</h2>
+  <h3>🔔 Chuông thông báo</h3>
+  <p>Nút <kbd>🔔</kbd> trên thanh trên cùng đếm việc mới của bạn. Gồm hai loại: <b>thông báo</b> (PI đã kiểm / đã duyệt / bị trả lại, xin và quyết ngoại lệ cổng thanh toán, phiếu sửa đơn, C/O cần làm / yêu cầu sửa / đã cấp, bộ chứng từ đủ, B/L nháp lệch, góp ý của ngân hàng, chi phí logistics lệch báo giá và các bước đề nghị thanh toán) và <b>cảnh báo hạn</b> tính tươi mỗi lần mở (hạn của lô, nhắc chi phí logistics). Việc đã xử lý được xếp riêng.</p>
+  <h3>💬 Trao đổi trong đơn</h3>
+  <p>Ở <b class="ui">Chi tiết đơn</b> có khung <b class="ui">Trao đổi trong đơn</b>: ghi chú, hỏi đáp gắn theo SO hoặc PI (PI nháp cũng trao đổi được). Ai xem được đơn thì đọc và viết được; Leader chỉ đọc. Người viết xoá được tin của mình trong 30 phút; Admin / Operation Manager xoá được mọi tin.</p>
+  <h3>📨 Phiếu sửa đơn (đơn đã Opened)</h3>
+  <p>Đơn đã mở (<code>6-opened</code>) không sửa thẳng mà qua phiếu. Trong đơn bấm <kbd>📨 Đề nghị sửa đơn</kbd>, sửa các dòng, ghi <b>lý do</b> (bắt buộc) rồi <kbd>📨 Gửi đề nghị</kbd> (hoặc <kbd>Quay lại sửa</kbd>).</p>
+  <div class="tw"><table>
+    <thead><tr><th>Mức</th><th>Ai duyệt</th><th>Thay đổi thuộc mức này</th></tr></thead>
+    <tbody>
+      <tr><td>1</td><td>Áp dụng ngay (báo admin)</td><td>Ghi chú; đổi ngày load nhỏ (mặc định ≤ 7 ngày) khi lô chưa có booking</td></tr>
+      <tr><td>2</td><td>Technician (hoặc Admin / Operation Manager)</td><td>Thêm mã, tăng SL, đổi mã, đổi Marking, có Customization đi theo, đổi ngày load lớn</td></tr>
+      <tr><td>3</td><td>Admin / Operation Manager, kèm báo nhà máy</td><td>Đổi giá / discount / hàng tặng, giảm SL, bỏ dòng, đổi ngày load lô đã booking; hoặc mọi thay đổi hàng hoá khi đơn đã gửi nhà máy / có booking</td></tr>
+      <tr><td>4</td><td>Chỉ Operation Manager</td><td>Đổi hàng hoá khi đã có lô load hàng hoặc đơn đã closed</td></tr>
+    </tbody>
+  </table></div>
+  <ul>
+    <li>Máy chủ tự xếp mức. Người đề nghị không tự duyệt phiếu của mình (trừ Operation Manager).</li>
+    <li>Nếu đơn đã bị sửa sau khi lập phiếu, phiếu bị đánh dấu cũ và phải lập lại. Áp dụng xong, đơn tăng phiên bản (Rev A, B…).</li>
+    <li>Xem và duyệt ở <kbd>📨 Phiếu sửa đơn</kbd> (menu), thẻ trên Dashboard và chuông. Người lập có thể <kbd>Hủy phiếu</kbd> khi chưa duyệt.</li>
+  </ul>
+</section>
+
+
 <!-- ================================================================== SALE ================================================================== -->
 
 <section class="chap own-sale" id="s-dashboard" data-own="sale" data-roles="sale lead leader admin master" data-group="Sale">
-  <span class="chap-role">Sale · dùng chung với Lead, Leader, Admin, Master</span>
+  <span class="chap-role">Sale · dùng chung với Lead, Leader, Admin, Operation Manager</span>
   <h2><span class="num"></span>Việc hằng ngày: Dashboard Sale</h2>
-  <p class="sub">Đăng nhập xong, Sale, Lead và Leader vào thẳng <b class="ui">Dashboard Sale</b>. Admin và Master thấy cùng màn này ở tab <kbd>💼 Sale</kbd> (phạm vi toàn bộ). Đây là nơi bắt đầu mỗi buổi sáng: số liệu của bạn so với kế hoạch, và những đơn đang chờ <i>bạn</i> làm gì tiếp.</p>
+  <p class="sub">Đăng nhập xong, Sale, Lead và Leader vào thẳng <b class="ui">Dashboard Sale</b>. Admin và Operation Manager thấy cùng màn này ở tab <kbd>💼 Sale</kbd> (phạm vi toàn bộ). Đây là nơi bắt đầu mỗi buổi sáng: số liệu của bạn so với kế hoạch, và những đơn đang chờ <i>bạn</i> làm gì tiếp.</p>
 
   <h3>Phạm vi số liệu</h3>
   <ul>
     <li><b>Sale</b>: chỉ của tôi (khách bạn phụ trách, đơn đứng tên bạn). Thẻ ghi “(của tôi)”.</li>
     <li><b>Lead</b>: của team (thẻ ghi “(của team)”), thêm bảng xếp hạng sale.</li>
-    <li><b>Leader, Admin, Master</b>: toàn bộ (thẻ ghi “(toàn bộ)”).</li>
+    <li><b>Leader, Admin, Operation Manager</b>: toàn bộ (thẻ ghi “(toàn bộ)”).</li>
   </ul>
 
   <h3>Bốn thẻ chỉ số ở đầu trang</h3>
@@ -612,7 +661,7 @@
       <tr><td><b class="ui">In Transit</b></td><td>Lô đã shipped, chưa delivered (thẻ chỉ để theo dõi): ETD, ETA, FOB.</td></tr>
       <tr><td><b class="ui">Inactive Client</b></td><td>Khách đã quá chu kỳ đặt hàng thường lệ mà chưa có đơn mới: số ngày đã im, chu kỳ, doanh thu cùng kỳ năm trước. Việc của bạn: liên hệ lại.</td></tr>
       <tr><td><b class="ui">Top khách từ đầu năm</b></td><td>Xếp hạng khách theo doanh thu từ đầu năm, kèm so cùng kỳ (thẻ để tham khảo).</td></tr>
-      <tr><td><b class="ui">Xếp hạng sale</b></td><td><b>Chỉ Lead, Leader, Admin, Master.</b> Từng sale: kế hoạch / thực hiện của tháng và luỹ kế (kèm %), cùng kỳ, số báo giá chờ, số khách Inactive.</td></tr>
+      <tr><td><b class="ui">Xếp hạng sale</b></td><td><b>Chỉ Lead, Leader, Admin, Operation Manager.</b> Từng sale: kế hoạch / thực hiện của tháng và luỹ kế (kèm %), cùng kỳ, số báo giá chờ, số khách Inactive.</td></tr>
     </tbody>
   </table></div>
   <p>Nút <kbd>⟳ Làm mới</kbd> cạnh tiêu đề tải lại số liệu. Khi bạn bấm <kbd>🏠 Dashboard</kbd> từ màn khác, số cũ hiện ngay rồi cập nhật ngầm — không phải đợi màn trắng.</p>
@@ -620,7 +669,7 @@
 </section>
 
 <section class="chap own-sale" id="s-pi" data-own="sale" data-roles="sale lead admin master" data-group="Sale">
-  <span class="chap-role">Sale · Lead dùng giống hệt, Admin/Master cũng lập PI</span>
+  <span class="chap-role">Sale · Lead dùng giống hệt, Admin/Operation Manager cũng lập PI</span>
   <h2><span class="num"></span>Tạo và sửa PI</h2>
   <p class="sub">PI (báo giá) lập ở màn Sửa đơn. Mỗi PI là một đơn nháp đứng tên bạn cho tới khi Admin tạo SO.</p>
 
@@ -667,7 +716,7 @@
         <td><b>Thành tiền</b>, <b>%LN</b> (đỏ nếu âm, vàng nếu dưới mức tối thiểu), <b>Item CBM</b>. <b>Proposed $</b> là giá đề xuất lấy từ danh mục.</td></tr>
     </tbody>
   </table></div>
-  <p>Cột <b>FOC</b> (hàng tặng): vẫn ghi đơn giá nhưng Thành tiền = 0 và không vào FOB. <b>Chỉ Admin/Master tick được</b>; với Sale/Lead ô bị khoá và rê chuột thấy “Chỉ admin/master đặt hoặc bỏ cờ FOC”. Cột <b>Image</b>: tick ô cạnh tiêu đề để hiện / ẩn ảnh sản phẩm.</p>
+  <p>Cột <b>FOC</b> (hàng tặng): vẫn ghi đơn giá nhưng Thành tiền = 0 và không vào FOB. <b>Chỉ Admin/Operation Manager tick được</b>; với Sale/Lead ô bị khoá và rê chuột thấy “Chỉ admin/master đặt hoặc bỏ cờ FOC”. Cột <b>Image</b>: tick ô cạnh tiêu đề để hiện / ẩn ảnh sản phẩm.</p>
   <h4>Khung tổng</h4>
   <p><b>Tổng giá trị</b> → <b>Discount</b> (nhập % <i>hoặc</i> số $, ô kia tự suy ra) → <b>Other charges</b> → <b>Grand total</b>. Kèm <b>%LN tổng</b> (chiết khấu trừ vào lợi nhuận), <b>Tổng CBM</b> và <b>Container</b> ước tính: 40′ ≈ 67 CBM, 20′ ≈ 27–28 CBM, dưới 20 CBM gợi ý hàng lẻ (LCL).</p>
   <h4>Máy có bình áp rời</h4>
@@ -720,7 +769,7 @@
 </section>
 
 <section class="chap own-sale" id="s-nhanh" data-own="sale" data-roles="sale lead admin master" data-group="Sale">
-  <span class="chap-role">Sale · Lead, Admin, Master cũng dùng</span>
+  <span class="chap-role">Sale · Lead, Admin, Operation Manager cũng dùng</span>
   <h2><span class="num"></span>Nhập nhanh nhiều dòng hàng</h2>
   <p class="sub">Có sẵn danh sách trong Excel thì đừng gõ từng dòng. Có ba đường, đều nằm ngay dưới bảng dòng hàng của form.</p>
 
@@ -809,30 +858,30 @@
     <li>Bảng: <b>Khách · Thị trường · SO · Ngày load · FOB · Trạng thái · Ghi chú đơn</b>. Bấm một dòng để mở Chi tiết đơn; <kbd>◀ Back</kbd> trở lại.</li>
     <li>Đơn đã tách lô hiện <b>mỗi lô một dòng</b> (nhãn “Shipment 02”…), FOB chia theo tỷ trọng giá trị hàng của lô; lô thuộc chuyến hiện nhãn <b>🚢 CH-…</b>. PI chưa có SO có nhãn <b>Nháp</b>. Dấu ✓ cạnh ngày = nhà máy đã xác nhận Load date.</li>
     <li><b>Đổi trạng thái ngay trên bảng</b>: với đơn chưa tách lô ở 2-targeted → 5-confirmed, cột Trạng thái là ô chọn (Sale cho đơn của mình; Lead, Technician, Admin theo quyền). Server vẫn kiểm vai trò: ví dụ Sale chọn 4-reviewed sẽ bị từ chối “Chỉ technician/admin mới xác nhận reviewed.” — hãy dùng nút bước tiếp theo trong Chi tiết đơn cho chắc.</li>
-    <li>Sửa tại chỗ <b>Ngày load</b> (ô ngày + tick <b>XN</b>) và <b>Ghi chú đơn</b>: chỉ <b>Admin/Master</b>. Sửa ngày xong bấm Enter hoặc bấm ra ngoài; <b>Esc</b> bỏ sửa. Ô ngày đổi chưa lưu có viền vàng.</li>
+    <li>Sửa tại chỗ <b>Ngày load</b> (ô ngày + tick <b>XN</b>) và <b>Ghi chú đơn</b>: chỉ <b>Admin/Operation Manager</b>. Sửa ngày xong bấm Enter hoặc bấm ra ngoài; <b>Esc</b> bỏ sửa. Ô ngày đổi chưa lưu có viền vàng.</li>
   </ul>
 
   <h3 id="s-dt-chitiet">Chi tiết đơn: nút nào hiện với ai</h3>
   <div class="tw"><table>
     <thead><tr><th>Nút</th><th>Hiện khi</th><th>Ai</th></tr></thead>
     <tbody>
-      <tr><td><kbd>✔ Khách chấp nhận (→ drafted)</kbd></td><td>Đơn <code>1-quoted</code></td><td>Sale (đơn mình), Lead, Admin, Master</td></tr>
-      <tr><td><kbd>✔ Gửi kiểm tra (→ drafted)</kbd></td><td>Đơn <code>2-targeted</code></td><td>Lead, Technician, Admin, Master</td></tr>
-      <tr><td><kbd>✔ Đã kiểm tra KT (→ reviewed)</kbd></td><td>Đơn <code>3-drafted</code></td><td>Technician, Admin, Master</td></tr>
-      <tr><td><kbd>✔ Chốt đơn (→ confirmed)</kbd></td><td>Đơn <code>4-reviewed</code></td><td>Sale (đơn mình), Lead (team), Admin, Master</td></tr>
-      <tr><td><kbd>✔ Tạo SO (→ Export Order)</kbd></td><td>PI còn là bản nháp (chưa có SO)</td><td>Admin, Master</td></tr>
+      <tr><td><kbd>✔ Khách chấp nhận (→ drafted)</kbd></td><td>Đơn <code>1-quoted</code></td><td>Sale (đơn mình), Lead, Admin, Operation Manager</td></tr>
+      <tr><td><kbd>✔ Gửi kiểm tra (→ drafted)</kbd></td><td>Đơn <code>2-targeted</code></td><td>Lead, Technician, Admin, Operation Manager</td></tr>
+      <tr><td><kbd>✔ Đã kiểm tra KT (→ reviewed)</kbd></td><td>Đơn <code>3-drafted</code></td><td>Technician, Admin, Operation Manager</td></tr>
+      <tr><td><kbd>✔ Chốt đơn (→ confirmed)</kbd></td><td>Đơn <code>4-reviewed</code></td><td>Sale (đơn mình), Lead (team), Admin, Operation Manager</td></tr>
+      <tr><td><kbd>✔ Tạo SO (→ Export Order)</kbd></td><td>PI còn là bản nháp (chưa có SO)</td><td>Admin, Operation Manager</td></tr>
       <tr><td><kbd>✎ Edit Details</kbd></td><td>Đơn ở trạng thái bạn sửa được</td><td>Mọi vai trò trừ Leader (xem bảng ở chương Vòng đời đơn)</td></tr>
-      <tr><td><kbd>💳 Cập nhật thanh toán</kbd></td><td>Đơn có SO hoặc PI, chưa closed</td><td>Sale (đơn mình), Lead, Admin, Master</td></tr>
-      <tr><td><kbd>🚢 Quản lý Shipment</kbd></td><td>Đơn đã có SO</td><td>Admin, Master</td></tr>
+      <tr><td><kbd>💳 Cập nhật thanh toán</kbd></td><td>Đơn có SO hoặc PI, chưa closed</td><td>Sale (đơn mình), Lead, Admin, Operation Manager</td></tr>
+      <tr><td><kbd>🚢 Quản lý Shipment</kbd></td><td>Đơn đã có SO</td><td>Admin, Operation Manager</td></tr>
       <tr><td><kbd>⋯ Thêm</kbd> ▸ <kbd>⬇ Export PI</kbd></td><td>Luôn</td><td>Mọi vai trò</td></tr>
       <tr><td><kbd>⋯ Thêm</kbd> ▸ <kbd>⧉ Clone</kbd></td><td>Luôn</td><td>Trừ Technician, Leader</td></tr>
-      <tr><td><kbd>⋯ Thêm</kbd> ▸ <kbd>⬇ Form RD</kbd></td><td>PI nháp</td><td>Technician, Admin, Master</td></tr>
-      <tr><td><kbd>⋯ Thêm</kbd> ▸ <kbd>⬇ Chứng từ NM</kbd></td><td>Đơn đã có SO</td><td>Admin, Master</td></tr>
-      <tr><td><kbd>⋯ Thêm</kbd> ▸ <kbd>📝 Customization</kbd></td><td>Đơn chưa closed</td><td>Sale (đơn mình), Lead, Technician, Admin, Master</td></tr>
+      <tr><td><kbd>⋯ Thêm</kbd> ▸ <kbd>⬇ Form RD</kbd></td><td>PI nháp</td><td>Technician, Admin, Operation Manager</td></tr>
+      <tr><td><kbd>⋯ Thêm</kbd> ▸ <kbd>⬇ Chứng từ NM</kbd></td><td>Đơn đã có SO</td><td>Admin, Operation Manager</td></tr>
+      <tr><td><kbd>⋯ Thêm</kbd> ▸ <kbd>📝 Customization</kbd></td><td>Đơn chưa closed</td><td>Sale (đơn mình), Lead, Technician, Admin, Operation Manager</td></tr>
       <tr><td><kbd>🗑 Xóa đơn</kbd></td><td>Theo bảng quyền xoá</td><td>Xem chương Vòng đời đơn</td></tr>
     </tbody>
   </table></div>
-  <p>Khung <b class="ui">Chia Shipment / Container</b> dưới bảng dòng hàng chỉ có với Admin/Master (mọi lúc) và Technician (khi đơn <code>3-drafted</code> hoặc <code>6-opened</code>).</p>
+  <p>Khung <b class="ui">Chia Shipment / Container</b> dưới bảng dòng hàng chỉ có với Admin/Operation Manager (mọi lúc) và Technician (khi đơn <code>3-drafted</code> hoặc <code>6-opened</code>).</p>
 
   <h3 id="s-dt-ship">🚢 Shipment Tracking</h3>
   <p>Mở bằng <kbd>🚢 Shipment Tracking</kbd>: lịch trình mọi Shipment <b>đã có SO thật</b> trong tháng (<kbd>◀</kbd> <kbd>▶</kbd>). Đơn nháp chưa có SO không hiện.</p>
@@ -841,7 +890,7 @@
     <li>Số <b>INV#</b> và <b>Booking</b> có biểu tượng 🔗 khi file Commercial Invoice / Booking đã được lưu lên Drive — bấm để mở (Sale cũng mở được file của đơn mình).</li>
     <li><kbd>🔎 Tracking</kbd> mở trang tra cứu vận đơn của hãng tàu kèm sẵn số Booking. App nhận hãng qua cột <b>Line</b> (MSK/Maersk, ONE, MSC, CMA CGM, COSCO, Evergreen, OOCL, Hapag-Lloyd, ZIM, Yang Ming, Wan Hai, HMM, PIL, KMTC, SITC, Interasia, CU Lines…). Chưa có Booking hoặc hãng lạ thì app báo để bạn tự tra.</li>
     <li>Ô <b>🔍 Lọc theo khách…</b> và <b>🔍 Lọc theo Line…</b>: khi có lọc, app tìm trên <b>toàn bộ</b> Shipment, không giới hạn tháng. <kbd>✕ Xoá lọc</kbd> quay về tháng đang xem.</li>
-    <li>Lọc <kbd>Brand</kbd> / <kbd>OEM</kbd> chỉ có với Admin, Master, Leader, Technician. Admin, Master có thêm các nút quản lý (xem chương Admin).</li>
+    <li>Lọc <kbd>Brand</kbd> / <kbd>OEM</kbd> chỉ có với Admin, Operation Manager, Leader, Technician. Admin, Operation Manager có thêm các nút quản lý (xem chương Admin).</li>
   </ul>
 </section>
 
@@ -859,10 +908,10 @@
   </ul>
 
   <h3>📝 Customize</h3>
-  <p>Danh sách yêu cầu Customization theo từng dòng hàng. Cột: <b>Mã yêu cầu · Khách · PI · SO · Mã · Tên · Hạng mục · Ngày yêu cầu · Chi tiết yêu cầu · Ghi chú thêm · Ngày hoàn tất</b>. Lọc theo <b>Trạng thái</b> (<b class="ui">Đang mở</b> / <b class="ui">Hoàn tất</b> / tất cả), <b>Hạng mục</b> và ô tìm; <kbd>📋 Copy bảng</kbd>. Sale thấy yêu cầu của đơn mình, Lead của team, các vai trò khác thấy tất cả. Chỉ Technician/Admin/Master bấm <kbd>✔ Hoàn tất</kbd> (hoặc <kbd>↺ Mở lại</kbd>) cho một yêu cầu; yêu cầu đã hoàn tất thì chỉ họ mới sửa được.</p>
+  <p>Danh sách yêu cầu Customization theo từng dòng hàng. Cột: <b>Mã yêu cầu · Khách · PI · SO · Mã · Tên · Hạng mục · Ngày yêu cầu · Chi tiết yêu cầu · Ghi chú thêm · Ngày hoàn tất</b>. Lọc theo <b>Trạng thái</b> (<b class="ui">Đang mở</b> / <b class="ui">Hoàn tất</b> / tất cả), <b>Hạng mục</b> và ô tìm; <kbd>📋 Copy bảng</kbd>. Sale thấy yêu cầu của đơn mình, Lead của team, các vai trò khác thấy tất cả. Chỉ Technician/Admin/Operation Manager bấm <kbd>✔ Hoàn tất</kbd> (hoặc <kbd>↺ Mở lại</kbd>) cho một yêu cầu; yêu cầu đã hoàn tất thì chỉ họ mới sửa được.</p>
 
   <h3>🖥️ Machine Report</h3>
-  <p>Sản lượng và doanh thu <b>máy</b> (mã bắt đầu bằng 1, thuộc nhóm máy, có giá &gt; 0, không tính hàng tặng). Chọn <b>Năm báo cáo</b> và <b>Thị trường</b>; Admin, Master, Leader, Technician có thêm <kbd>Tất cả</kbd> · <kbd>Brand</kbd> · <kbd>OEM</kbd>.</p>
+  <p>Sản lượng và doanh thu <b>máy</b> (mã bắt đầu bằng 1, thuộc nhóm máy, có giá &gt; 0, không tính hàng tặng). Chọn <b>Năm báo cáo</b> và <b>Thị trường</b>; Admin, Operation Manager, Leader, Technician có thêm <kbd>Tất cả</kbd> · <kbd>Brand</kbd> · <kbd>OEM</kbd>.</p>
   <ul>
     <li>Hai thẻ: <b>Doanh thu máy</b> và <b>Tổng số máy</b>; biểu đồ tròn và bảng <b>Nhóm hàng</b> (<b>Sản lượng · Doanh thu · Giá thấp · Giá trung bình · Giá cao</b>). Dòng đầu bảng là “Tổng cộng”.</li>
     <li>Bấm một dòng nhóm hàng để xem chi tiết theo <b>Model</b>; <kbd>✕ Đóng</kbd> để đóng.</li>
@@ -875,7 +924,7 @@
   <ul>
     <li>Ô <b>Xếp tháng theo</b>: <b class="ui">Ngày giao (Load date)</b> hoặc <b class="ui">Ngày cọc</b>. Ô <b>Mục tiêu leadtime</b> mặc định 45 ngày (nhớ trên máy bạn): <span class="yes">≤ mục tiêu = xanh</span>, vượt tới 25% = vàng, vượt hơn = hồng. Chip “dự kiến” = Load date chưa tới.</li>
     <li>Bốn thẻ: <b>Số lô</b>, <b>Leadtime trung bình</b>, <b>Đạt mục tiêu</b>, <b>Chưa có ngày gửi NM</b>. Lọc <kbd>Tất cả</kbd> · <kbd>Brand</kbd> · <kbd>OEM</kbd>, ô tìm, <kbd>📋 Copy bảng</kbd>, <kbd>⬇ Xuất Excel</kbd>.</li>
-    <li>Ngày gửi NM do việc xuất ĐNXH ghi lần đầu; <b>Admin/Master</b> còn điền / sửa / xoá được ngay trên bảng (ô để trống = chưa gửi).</li>
+    <li>Ngày gửi NM do việc xuất ĐNXH ghi lần đầu; <b>Admin/Operation Manager</b> còn điền / sửa / xoá được ngay trên bảng (ô để trống = chưa gửi).</li>
   </ul>
 </section>
 
@@ -893,10 +942,10 @@
       <tr><td>Tick FOC (hàng tặng)</td><td>Ô bị khoá: “Chỉ admin/master đặt hoặc bỏ cờ FOC.” Nhờ Admin.</td></tr>
       <tr><td>Đổi số SO, Deposit, Ngày cọc, Miễn Deposit</td><td>“Chỉ admin/master mới được đổi số SO.” / “…sửa Deposit/Ngày cọc.” Gửi điện bằng <kbd>💳 Cập nhật thanh toán</kbd> để Admin xác nhận.</td></tr>
       <tr><td>Xoá đơn từ 4-reviewed trở đi</td><td>“Bạn không có quyền xóa đơn này (trạng thái …).” Nhờ Admin.</td></tr>
-      <tr><td>Tạo SO, quản lý Shipment, xuất ĐNXH / Marking / Custom Docs, tạo mã khách</td><td>Việc của Admin/Master; các nút không hiện.</td></tr>
-      <tr><td>Xem Công nợ, Client admin, Giá vốn</td><td>Chỉ Admin/Master; nhóm menu <kbd>👥 Client</kbd> không hiện.</td></tr>
-      <tr><td>Sửa Danh mục SP, Packing, Model, BOM</td><td>Chỉ Technician/Admin/Master. Bạn chỉ <i>xem</i> tab Danh mục.</td></tr>
-      <tr><td>Sửa Ngày load hoặc Ghi chú đơn ngay trên bảng Doanh thu tháng</td><td>Chỉ Admin/Master. Sale đổi ngày bằng Expected Loading trong Edit Details (khi đơn còn sửa được).</td></tr>
+      <tr><td>Tạo SO, quản lý Shipment, xuất ĐNXH / Marking / Custom Docs, tạo mã khách</td><td>Việc của Admin/Operation Manager; các nút không hiện.</td></tr>
+      <tr><td>Xem Công nợ, Client admin, Giá vốn</td><td>Chỉ Admin/Operation Manager; nhóm menu <kbd>👥 Client</kbd> không hiện.</td></tr>
+      <tr><td>Sửa Danh mục SP, Packing, Model, BOM</td><td>Chỉ Technician/Admin/Operation Manager. Bạn chỉ <i>xem</i> tab Danh mục.</td></tr>
+      <tr><td>Sửa Ngày load hoặc Ghi chú đơn ngay trên bảng Doanh thu tháng</td><td>Chỉ Admin/Operation Manager. Sale đổi ngày bằng Expected Loading trong Edit Details (khi đơn còn sửa được).</td></tr>
       <tr><td>Xem Revenue Report</td><td>Chỉ Sale thuộc team Brand (KRF-*) thấy, và chỉ phần Branding. Sale OEM không có nút này.</td></tr>
     </tbody>
   </table></div>
@@ -933,15 +982,15 @@
 </section>
 
 <section class="chap own-lead" id="l-baocao" data-own="lead" data-roles="lead leader admin master" data-group="Lead">
-  <span class="chap-role">Lead · Leader, Admin, Master cũng xem</span>
+  <span class="chap-role">Lead · Leader, Admin, Operation Manager cũng xem</span>
   <h2><span class="num"></span>Kế hoạch và doanh thu theo khách (Revenue Report)</h2>
-  <p class="sub">Mở bằng <kbd>📊 Báo cáo</kbd> ▸ <kbd>📈 Revenue Report</kbd>. Có hai tab: <kbd>📈 Kế hoạch &amp; Thực hiện</kbd> và <kbd>👥 Theo khách hàng</kbd> (tab sau chỉ Lead, Admin, Master — Leader không có).</p>
+  <p class="sub">Mở bằng <kbd>📊 Báo cáo</kbd> ▸ <kbd>📈 Revenue Report</kbd>. Có hai tab: <kbd>📈 Kế hoạch &amp; Thực hiện</kbd> và <kbd>👥 Theo khách hàng</kbd> (tab sau chỉ Lead, Admin, Operation Manager — Leader không có).</p>
 
   <h3>Phạm vi theo vai trò</h3>
   <div class="tw"><table>
     <thead><tr><th>Vai trò</th><th>Thấy gì ở Kế hoạch &amp; Thực hiện</th></tr></thead>
     <tbody>
-      <tr><td>Admin, Master, Leader</td><td>Đầy đủ: <kbd>Total Export</kbd>, <kbd>OEM</kbd>, <kbd>Branding</kbd>; và bộ lọc Brand/OEM ở Báo cáo thị trường</td></tr>
+      <tr><td>Admin, Operation Manager, Leader</td><td>Đầy đủ: <kbd>Total Export</kbd>, <kbd>OEM</kbd>, <kbd>Branding</kbd>; và bộ lọc Brand/OEM ở Báo cáo thị trường</td></tr>
       <tr><td>Lead</td><td>Chỉ phần của team: <b>OEM</b> hoặc <b>Branding</b> tuỳ team bạn thuộc nhóm KRF-* hay không</td></tr>
       <tr><td>Sale thuộc team Brand</td><td>Chỉ phần Branding</td></tr>
     </tbody>
@@ -954,12 +1003,27 @@
     <li><b>🌍 Báo cáo thị trường theo năm</b> nằm ngay dưới: biểu đồ tròn Top 10 thị trường theo FOB (phần còn lại gộp “Khác”), chọn năm (mặc định năm hiện tại, chỉ tính đến tháng hiện tại, không có số dự kiến), kèm bảng FOB và tỷ trọng %.</li>
   </ul>
 
-  <h3>Tab Theo khách hàng (Lead, Admin, Master)</h3>
+  <h3>Tab Theo khách hàng (Lead, Admin, Operation Manager)</h3>
   <ul>
     <li>Doanh thu FOB theo <b>khách</b>, nhóm theo <b>Phân loại khách</b> (OEM / ODM / OBM / Branding / Chưa phân loại). Chọn <b>Năm</b> (12 tháng + cột Tổng năm; năm hiện tại là YTD) hoặc <b class="ui">Tất cả các năm</b> (mỗi năm một cột Doanh thu và một cột Tổng Machine).</li>
     <li><b>Hiển thị</b>: <b class="ui">Theo khách hàng (nhóm theo phân loại)</b> hoặc <b class="ui">Chỉ tổng theo nhóm</b>. Ô <b>Tìm khách</b>, chip lọc phân loại, <kbd>⟳ Làm mới</kbd>, <kbd>⬇ Xuất Excel</kbd>. Bốn thẻ: Doanh thu, Số khách có doanh thu, Tổng Machine (số máy), Nhóm lớn nhất.</li>
     <li>Lead chỉ thấy khách thuộc team mình. Khách chưa phân loại → nhờ Admin: <kbd>📇 Client admin</kbd> ▸ Sửa ▸ Phân loại khách.</li>
   </ul>
+</section>
+
+<section class="chap own-lead" id="l-duyet" data-own="lead" data-roles="lead master admin technician" data-group="Lead">
+  <span class="chap-role">Lead · Operation Manager · Admin · Technician</span>
+  <h2><span class="num"></span>Chờ duyệt: duyệt PI và ngoại lệ cổng thanh toán</h2>
+  <p class="sub">Mở <kbd>🧭 Vận hành</kbd> → <kbd>✅ Chờ duyệt</kbd>. Con số bên cạnh là số việc đang chờ chính bạn.</p>
+  <h3>Duyệt PI (Lead là Export Manager)</h3>
+  <ol class="steps">
+    <li>Sau khi Technician kiểm xong, PI được trình vào hàng chờ của Lead cùng team (không có thì mọi Lead; không có Lead nào thì Admin).</li>
+    <li>Bấm PI để mở hộp <b class="ui">Duyệt PI</b>: xem giá, điều kiện thanh toán (% cọc, phần còn lại thu trước khi đóng hàng hay trước telex / giao B/L); <kbd>👁 Xem PI</kbd> để xem đúng form PI.</li>
+    <li><kbd>Duyệt</kbd> hoặc trả lại kèm lý do. Điều khoản đã duyệt đi theo đơn khi chốt.</li>
+  </ol>
+  <p class="muted">Việc duyệt PI có bắt buộc hay không do tham số hệ thống quyết định.</p>
+  <h3>Duyệt ngoại lệ cổng thanh toán</h3>
+  <p>Khi lô chưa đạt điều kiện thanh toán mà cần đóng hàng / phát hành B/L, CV chứng từ xin ngoại lệ kèm lý do. Lead cùng team hoặc Operation Manager duyệt hoặc từ chối ở đây; mọi quyết định có nhật ký và báo qua <kbd>🔔</kbd>.</p>
 </section>
 
 <section class="chap own-lead" id="l-khongduoc" data-own="lead" data-roles="lead" data-group="Lead">
@@ -970,8 +1034,8 @@
     <tbody>
       <tr><td>Thấy hoặc sửa đơn của team khác</td><td>Lead chưa có Team thì không thấy ai. Thông báo: “Lead chỉ được sửa PI của sale cùng team…”, “Lead chỉ chốt được đơn của sale cùng team.”</td></tr>
       <tr><td>Xác nhận 4-reviewed</td><td>“Chỉ technician/admin mới xác nhận reviewed.” Việc của Technician.</td></tr>
-      <tr><td>Sửa đơn từ 5-confirmed trở đi, đổi số SO, Deposit, Ngày cọc, tick FOC</td><td>Chỉ Admin/Master. Technician sửa được chi tiết nhưng không đổi trạng thái.</td></tr>
-      <tr><td>Tạo SO, quản lý Shipment, chứng từ, thanh toán đã xác nhận, Công nợ</td><td>Việc của Admin/Master.</td></tr>
+      <tr><td>Sửa đơn từ 5-confirmed trở đi, đổi số SO, Deposit, Ngày cọc, tick FOC</td><td>Chỉ Admin/Operation Manager. Technician sửa được chi tiết nhưng không đổi trạng thái.</td></tr>
+      <tr><td>Tạo SO, quản lý Shipment, chứng từ, thanh toán đã xác nhận, Công nợ</td><td>Việc của Admin/Operation Manager.</td></tr>
       <tr><td>Sửa Danh mục SP, cấp mã, giá vốn</td><td>Bạn chỉ xem tab Danh mục.</td></tr>
       <tr><td>Xoá đơn từ 4-reviewed trở đi</td><td>Nhờ Admin.</td></tr>
       <tr><td>Xem Revenue Report của OEM nếu team bạn là Brand (và ngược lại)</td><td>Phạm vi đi theo Team.</td></tr>
@@ -982,9 +1046,9 @@
 <!-- ================================================================== TECHNICIAN ================================================================== -->
 
 <section class="chap own-technician" id="t-ngay" data-own="technician" data-roles="technician admin master" data-group="Technician">
-  <span class="chap-role">Technician · Admin, Master cũng có tab này</span>
+  <span class="chap-role">Technician · Admin, Operation Manager cũng có tab này</span>
   <h2><span class="num"></span>Việc hằng ngày: Dashboard Technician</h2>
-  <p class="sub">Technician vào thẳng <b class="ui">Dashboard Technician</b>; Admin và Master mở bằng tab <kbd>🛠 Technician</kbd>. Mỗi thẻ màu là một nhóm việc của bạn kèm số lượng; bấm thẻ để mở bảng, bấm một dòng để mở đơn hoặc mã.</p>
+  <p class="sub">Technician vào thẳng <b class="ui">Dashboard Technician</b>; Admin và Operation Manager mở bằng tab <kbd>🛠 Technician</kbd>. Mỗi thẻ màu là một nhóm việc của bạn kèm số lượng; bấm thẻ để mở bảng, bấm một dòng để mở đơn hoặc mã.</p>
 
   <div class="tw"><table>
     <thead><tr><th>Thẻ</th><th>Là gì</th><th>Việc của bạn</th></tr></thead>
@@ -999,13 +1063,13 @@
   <ul>
     <li>Hàng nút tắt ở đầu trang dẫn thẳng tới các tab sâu của <kbd>🗂️ Danh mục SP</kbd>: <kbd>🎁 Packing</kbd>, <kbd>🏷 Model</kbd>, <kbd>Nhập batch sản phẩm</kbd>.</li>
     <li><kbd>⟳ Làm mới</kbd> cạnh tiêu đề tải lại số liệu; lần mở sau số cũ hiện ngay rồi cập nhật ngầm. Lần đầu vào, app tự mở thẻ khẩn nhất.</li>
-    <li>Technician không có tab Admin và tab Sale. Admin/Master chuyển qua lại giữa <kbd>🛠 Technician</kbd>, <kbd>📋 Admin</kbd>, <kbd>💼 Sale</kbd> (app nhớ tab lần trước).</li>
+    <li>Technician không có tab Admin và tab Sale. Admin/Operation Manager chuyển qua lại giữa <kbd>🛠 Technician</kbd>, <kbd>📋 Admin</kbd>, <kbd>💼 Sale</kbd> (app nhớ tab lần trước).</li>
   </ul>
   <div class="callout tip"><span class="ct">Kiểm tra email</span>Khi Sale / Lead đưa đơn sang drafted, bạn nhận thư Outlook <code>[Review PI] &lt;PI&gt; – &lt;Khách&gt;</code> (bạn ở dòng <b>To</b>; Admin xuất khẩu và Lead của team ở <b>CC</b>) kèm link mở đúng đơn. Mở link là vào thẳng đơn cần kiểm.</div>
 </section>
 
 <section class="chap own-technician" id="t-review" data-own="technician" data-roles="technician admin master" data-group="Technician">
-  <span class="chap-role">Technician · Admin, Master cũng bấm được</span>
+  <span class="chap-role">Technician · Admin, Operation Manager cũng bấm được</span>
   <h2><span class="num"></span>Hàng đợi review và kiểm tra PI</h2>
   <p class="sub">Việc cốt lõi của Technician: nhận đơn <code>3-drafted</code>, soát về mặt kỹ thuật, rồi bấm xác nhận để đơn rời hàng đợi.</p>
 
@@ -1056,7 +1120,7 @@
 </section>
 
 <section class="chap own-technician" id="t-danhmuc" data-own="technician" data-roles="technician admin master" data-group="Technician">
-  <span class="chap-role">Technician · Admin, Master cũng sửa được</span>
+  <span class="chap-role">Technician · Admin, Operation Manager cũng sửa được</span>
   <h2><span class="num"></span>Danh mục sản phẩm: mã, Packing, Model, BOM</h2>
   <p class="sub">Mở bằng <kbd>🧩 Sản phẩm</kbd> ▸ <kbd>🗂️ Danh mục SP</kbd> (màn <b class="ui">Quản lý danh mục sản phẩm</b>). Mọi thay đổi ghi thẳng vào danh mục dùng chung và có hiệu lực ngay với đơn đang soạn của mọi sale. Lead và Sale vào cùng màn nhưng chỉ có tab <kbd>📑 Danh mục</kbd> để xem.</p>
 
@@ -1070,11 +1134,11 @@
     <li>Ô: <b>Code*</b>, <b>Factory_name*</b> (tên tiếng Việt), International_name (tên tiếng Anh dùng trên PI), Category, Option, Model, Brand, Pack_Type, Qty/ct, Length / Width / Height (mm), NetWeight (kg), Type, Technology.</li>
     <li><b>Category</b> gõ để lọc; ô <b>Model</b> và <b>Pack_Type</b> chỉ còn lựa chọn thuộc Category đó. Chọn <b>Pack_Type</b> → Qty/ct và L/W/H tự điền theo bảng Packing (sửa lại được). Chưa có loại phù hợp → chọn <b>+ Tạo Pack_Type mới…</b> mở hộp <b class="ui">Tạo Pack_Type mới</b> (Pack_Option*, Qty/CT*, Length*, Width*, Height* — bắt buộc đủ) → <kbd>Tạo Pack_Type</kbd>.</li>
     <li><b>Ảnh sản phẩm</b> (tối đa 4, ảnh đầu là ảnh đại diện): chọn file rồi <kbd>⬆ Upload ảnh đã chọn</kbd> (ảnh được nén trước khi gửi). Ảnh đại diện hiện ở ô tìm sản phẩm, hộp chọn mã khi lập báo giá, cột Image của form báo giá. Upload chỉ đưa ảnh lên Drive; <b>nhớ bấm <kbd>💾 Lưu sản phẩm</kbd></b> để ghi vào danh mục.</li>
-    <li><kbd>📋 View BOM</kbd> xem cấu hình linh kiện của mã máy (và <kbd>🔄 Update BOM</kbd> cào lại BOM từ SAP — chỉ Technician/Admin/Master, cần máy có SAP).</li>
+    <li><kbd>📋 View BOM</kbd> xem cấu hình linh kiện của mã máy (và <kbd>🔄 Update BOM</kbd> cào lại BOM từ SAP — chỉ Technician/Admin/Operation Manager, cần máy có SAP).</li>
     <li>Mã đã có → cập nhật; mã mới → thêm dòng mới. <b>Không có ô Price</b>: giá là công thức tính từ BOM và giá vốn, app không ghi đè.</li>
   </ul>
   <h4>📑 Danh mục — xem cả danh mục</h4>
-  <p>Bảng toàn bộ sản phẩm: ô <b>🔍 Tìm theo mã hoặc tên sản phẩm…</b>, lọc thêm theo Category / Option / Model / Pack_Type (mở <kbd>▸ Lọc thêm theo Category / Option / Model / Pack_Type</kbd>), tick <b>Chỉ SP chưa có chi tiết</b>, <kbd>✕ Xoá lọc</kbd>. Bấm một dòng để nạp sang tab Sản phẩm sửa (Technician/Admin/Master).</p>
+  <p>Bảng toàn bộ sản phẩm: ô <b>🔍 Tìm theo mã hoặc tên sản phẩm…</b>, lọc thêm theo Category / Option / Model / Pack_Type (mở <kbd>▸ Lọc thêm theo Category / Option / Model / Pack_Type</kbd>), tick <b>Chỉ SP chưa có chi tiết</b>, <kbd>✕ Xoá lọc</kbd>. Bấm một dòng để nạp sang tab Sản phẩm sửa (Technician/Admin/Operation Manager).</p>
   <h4>⚠ Thiếu chi tiết — hàng đợi bổ sung thông tin</h4>
   <p>Mã sale tạo nhanh (chỉ có Code + tên tiếng Việt) rơi vào đây; số việc còn lại hiện ngay trên nhãn tab. Sửa <b>trực tiếp trên bảng</b>: International name, Category, Option, Model, Brand, Pack_Type (chọn Pack_Type có sẵn thì Qty/ct và L×W×H tự theo bảng Packing; bấm <b>+</b> cạnh ô để tạo loại mới). Copy một cột trong Excel, bấm vào một ô rồi <b>Ctrl+V</b> để dán cả cột từ dòng đó xuống. Xong bấm <kbd>💾 Lưu thay đổi</kbd>.</p>
   <div class="callout note"><span class="ct">Khi nào mã rời khỏi danh sách</span>Chỉ khi đủ <b>hết</b> các cột bắt buộc (ô còn thiếu tô vàng): tên tiếng Việt, International name, Category, Model, Brand, Pack_Type và quy cách Qty/ct · L · W · H. <b>Riêng Option được để trống.</b> Điền nửa vời vẫn lưu được nhưng mã ở lại đây. NetWeight, ảnh, BOM làm ở tab Sản phẩm.</div>
@@ -1084,17 +1148,24 @@
   <p>Dán từ Excel (mỗi dòng một sản phẩm, cột cách nhau bằng Tab) theo thứ tự: <code>Code · Factory_name · International_name · Category · Option · Model · Brand · Pack_Type · Qty/ct · Length · Width · Height · (Price — bỏ qua) · Type · Technology · NetWeight</code>. Bấm <kbd>👁 Kiểm tra trước</kbd> để soát, rồi <kbd>💾 Lưu batch</kbd>. Tối đa <b>300 dòng/lần</b>; mã đã có được cập nhật.</p>
   <h4>🏷 Model — thêm / sửa model và dựng BOM</h4>
   <p><kbd>＋ Thêm model mới</kbd> hoặc bấm một model trong bảng; ô: Category, <b>Model*</b>, Model descriptions, Representative_Code (mã máy đại diện để dựng BOM), Based_On_Model. <kbd>💾 Lưu Model</kbd>. Nút <kbd>🔧 Customize BOM</kbd> cào BOM của mã máy đại diện từ SAP (T-code Z_BOM) để bạn tick <b>Changeable</b> cho linh kiện thay đổi theo khách; <kbd>💾 Lưu BOM</kbd> ghi toàn bộ danh sách vào BOM của mã máy đó, và linh kiện chưa có được thêm vào bảng giá linh kiện. <b>Lưu BOM thay toàn bộ</b> khối BOM của máy, không cộng dồn.</p>
-  <div class="callout note"><span class="ct">Không có trong Technician</span>Bạn <b>không</b> cập nhật được giá vốn (<kbd>💰 Giá vốn</kbd> chỉ Admin/Master) và không có tab <kbd>💬 Duyệt Agent</kbd> (chỉ Admin/Master).</div>
+  <h3>Sửa nhanh trên bảng Danh mục và đồng bộ tên SAP (11/2026)</h3>
+  <ul>
+    <li>Ở tab <b>📑 Danh mục</b>, các cột Category, Option, Model, Brand, Pack_Type, NetWeight sửa <b>trực tiếp trên bảng</b> (ô đã sửa tô vàng) rồi <kbd>💾 Lưu thay đổi</kbd>, hoặc <kbd>↺ Bỏ thay đổi</kbd>.</li>
+    <li><b>Ghi đồng loạt</b>: lọc ra nhóm mã cần sửa, điền giá trị ở khung ghi đồng loạt rồi <kbd>⚡ Áp dụng</kbd> cho mọi sản phẩm đang lọc (<kbd>✕ Xoá ô</kbd> để làm lại); hoặc dùng hàng <b>⇩ Điền cả cột</b> ngay dưới tiêu đề bảng.</li>
+    <li><b>👁 Cột hiển thị</b>: tick ẩn / hiện từng cột (app nhớ cho lần sau); cột <b>Name EN</b> (tên tiếng Anh) mặc định ẩn, tick để xem; <kbd>Hiện tất cả</kbd> để hiện lại mọi cột.</li>
+    <li><kbd>🔄 Đồng bộ tên SAP</kbd>: so tên tiếng Việt trên app với SAP (<kbd>🛰 Tra SAP</kbd> tra thẳng MAKT, hoặc so với MB52 / ZSD450 / danh sách dán), chọn các mã lệch rồi <kbd>Đổi tên các mã đã chọn</kbd>; tên trên dòng đơn / PI đổi theo.</li>
+  </ul>
+  <div class="callout note"><span class="ct">Không có trong Technician</span>Bạn <b>không</b> cập nhật được giá vốn (<kbd>💰 Giá vốn</kbd> chỉ Admin/Operation Manager) và không có tab <kbd>💬 Duyệt Agent</kbd> (chỉ Admin/Operation Manager).</div>
 </section>
 
 <section class="chap own-technician" id="t-saber" data-own="technician" data-roles="technician admin master" data-group="Technician">
-  <span class="chap-role">Technician · Admin, Master cũng làm được</span>
+  <span class="chap-role">Technician · Admin, Operation Manager cũng làm được</span>
   <h2><span class="num"></span>Customize, chứng nhận và Saber PCOC</h2>
 
   <h3>📝 Xử lý yêu cầu Customization</h3>
   <ul>
     <li>Danh sách ở <kbd>🧩 Sản phẩm</kbd> ▸ <kbd>📝 Customize</kbd> (Technician thấy mọi đơn) và thẻ <b class="ui">Customization chờ xử lý</b>. Mỗi yêu cầu có: Mã yêu cầu, Khách, PI/SO, Mã, Hạng mục (Tạo mã mới / Sửa BOM / Tạo Maket mới / Sửa Maket), Chi tiết, Ngày yêu cầu.</li>
-    <li>Làm xong, mở đơn → <kbd>📝 Customization</kbd> (trong <kbd>⋯ Thêm</kbd>) → ở cột <b>Trạng thái</b> của dòng bấm <kbd>✔ Hoàn tất</kbd>. Cần làm lại thì <kbd>↺ Mở lại</kbd>. Chỉ Technician/Admin/Master mới sửa được yêu cầu đã hoàn tất.</li>
+    <li>Làm xong, mở đơn → <kbd>📝 Customization</kbd> (trong <kbd>⋯ Thêm</kbd>) → ở cột <b>Trạng thái</b> của dòng bấm <kbd>✔ Hoàn tất</kbd>. Cần làm lại thì <kbd>↺ Mở lại</kbd>. Chỉ Technician/Admin/Operation Manager mới sửa được yêu cầu đã hoàn tất.</li>
     <li>Bạn tạo hoặc sửa yêu cầu hộ sale được (hộp <b class="ui">Yêu cầu Customization</b>). Yêu cầu hoàn tất hay chưa ảnh hưởng cột “Hoàn tất yêu cầu” ở SLA Report.</li>
   </ul>
 
@@ -1112,7 +1183,7 @@
 </section>
 
 <section class="chap own-technician" id="t-ptsp" data-own="technician" data-roles="technician lead leader admin master" data-group="Technician">
-  <span class="chap-role">Technician · Lead, Leader, Admin, Master cũng xem</span>
+  <span class="chap-role">Technician · Lead, Leader, Admin, Operation Manager cũng xem</span>
   <h2><span class="num"></span>Tiến độ PTSP (đọc live từ Jira)</h2>
   <p class="sub">Mở bằng <kbd>🧩 Sản phẩm</kbd> ▸ <kbd>🧪 Tiến độ PTSP</kbd>. Dashboard dự án phát triển sản phẩm đọc trực tiếp từ Jira nội bộ (dữ liệu được lưu tạm 10 phút).</p>
   <ul>
@@ -1132,10 +1203,10 @@
     <tbody>
       <tr><td>Tạo hoặc nhân bản PI</td><td>Nút <kbd>+ Create New</kbd> và <kbd>⧉ Clone</kbd> bị ẩn. Server báo: “Technician chỉ được kiểm tra/sửa đơn có sẵn, không tạo đơn mới.”</td></tr>
       <tr><td>Đổi trạng thái đơn qua màn Sửa đơn</td><td>Ô Trạng thái bị khoá. Dùng đúng nút của luồng: <kbd>✔ Đã kiểm tra KT (→ reviewed)</kbd>, <kbd>✔ Gửi kiểm tra (→ drafted)</kbd>.</td></tr>
-      <tr><td>Chốt đơn (→ confirmed), Tạo SO, đổi số SO, Deposit, Ngày cọc, FOC</td><td>Việc của Sale/Lead/Admin/Master.</td></tr>
+      <tr><td>Chốt đơn (→ confirmed), Tạo SO, đổi số SO, Deposit, Ngày cọc, FOC</td><td>Việc của Sale/Lead/Admin/Operation Manager.</td></tr>
       <tr><td>Xoá đơn</td><td>Không có quyền xoá ở bất kỳ trạng thái nào.</td></tr>
       <tr><td>Sửa lịch trình / chứng từ / tiền của Shipment</td><td>Chỉ phân bổ mã hàng và container, và chỉ khi đơn 3-drafted hoặc 6-opened.</td></tr>
-      <tr><td>Giá vốn, Client admin, Công nợ, Arrange Shipping, chứng từ ĐNXH / Marking / Custom Docs</td><td>Chỉ Admin/Master. Menu không hiện các mục này.</td></tr>
+      <tr><td>Giá vốn, Client admin, Công nợ, Arrange Shipping, chứng từ ĐNXH / Marking / Custom Docs</td><td>Chỉ Admin/Operation Manager. Menu không hiện các mục này.</td></tr>
       <tr><td>Xem Revenue Report</td><td>Technician không có báo cáo Kế hoạch.</td></tr>
     </tbody>
   </table></div>
@@ -1144,9 +1215,9 @@
 <!-- ================================================================== ADMIN ================================================================== -->
 
 <section class="chap own-admin" id="a-ngay" data-own="admin" data-roles="admin master" data-group="Admin">
-  <span class="chap-role">Admin · Master</span>
+  <span class="chap-role">Admin · Operation Manager</span>
   <h2><span class="num"></span>Việc hằng ngày: Dashboard Admin</h2>
-  <p class="sub">Admin và Master vào thẳng <b class="ui">Dashboard Admin</b> (tab <kbd>📋 Admin</kbd>; cùng có <kbd>🛠 Technician</kbd> và <kbd>💼 Sale</kbd>). Mỗi thẻ màu là một nhóm việc cần làm; bấm thẻ để mở bảng, bấm dòng để mở đơn hoặc lô.</p>
+  <p class="sub">Admin và Operation Manager vào thẳng <b class="ui">Dashboard Admin</b> (tab <kbd>📋 Admin</kbd>; cùng có <kbd>🛠 Technician</kbd> và <kbd>💼 Sale</kbd>). Mỗi thẻ màu là một nhóm việc cần làm; bấm thẻ để mở bảng, bấm dòng để mở đơn hoặc lô.</p>
   <div class="tw"><table>
     <thead><tr><th>Thẻ</th><th>Gồm</th><th>Bạn làm gì</th></tr></thead>
     <tbody>
@@ -1165,7 +1236,7 @@
 </section>
 
 <section class="chap own-admin" id="a-so" data-own="admin" data-roles="admin master" data-group="Admin">
-  <span class="chap-role">Admin · Master</span>
+  <span class="chap-role">Admin · Operation Manager</span>
   <h2><span class="num"></span>Tạo SO, mở đơn, sửa đơn, tách đơn</h2>
 
   <h3 id="a-so-taoso">1. Tạo SO từ PI</h3>
@@ -1187,16 +1258,16 @@
 
   <h3 id="a-so-sua">2. Sửa đơn ở mọi trạng thái</h3>
   <ul>
-    <li>Admin/Master mở <kbd>✎ Edit Details</kbd> ở <b>mọi đơn, mọi trạng thái</b>, của mọi sale (đơn vẫn giữ tên sale gốc). Ô <b>Trạng thái</b> mở đủ: <b>1-quoted · 2-targeted · 3-drafted · 4-reviewed · 5-confirmed · 6-opened · closed</b> (trạng thái 7–10 là của lô, đổi ở màn Shipment).</li>
+    <li>Admin/Operation Manager mở <kbd>✎ Edit Details</kbd> ở <b>mọi đơn, mọi trạng thái</b>, của mọi sale (đơn vẫn giữ tên sale gốc). Ô <b>Trạng thái</b> mở đủ: <b>1-quoted · 2-targeted · 3-drafted · 4-reviewed · 5-confirmed · 6-opened · closed</b> (trạng thái 7–10 là của lô, đổi ở màn Shipment).</li>
     <li>Với đơn đã có SO, form hiện thêm: <b>Số SO</b> (đổi được — mã Shipment <code>&lt;SO cũ&gt;-NN</code> đổi theo thành <code>&lt;SO mới&gt;-NN</code>; nếu mã mới trùng dòng khác thì app từ chối và nói rõ), <b>Deposit</b>, <b>Ngày cọc</b>, <kbd>Miễn Deposit (L/C, trả sau…)</kbd>. Đặt <b>6-opened</b> thì lưu sẽ đòi Deposit + Ngày cọc (hoặc Miễn Deposit): các ô thiếu được tô đỏ.</li>
-    <li>Ô <b>Mã KH</b> (chỉ Admin/Master) cập nhật Client_ID của khách ngay khi sửa đơn. Khách chưa có mã: nút <kbd>⬇ YC tạo mã KH</kbd> (xem chương <a href="#a-chungtu">Chứng từ</a>).</li>
+    <li>Ô <b>Mã KH</b> (chỉ Admin/Operation Manager) cập nhật Client_ID của khách ngay khi sửa đơn. Khách chưa có mã: nút <kbd>⬇ YC tạo mã KH</kbd> (xem chương <a href="#a-chungtu">Chứng từ</a>).</li>
     <li>Cột <b>FOC</b>: chỉ bạn tick được (hàng tặng, Thành tiền 0).</li>
     <li>Đơn đã Opened được sửa SL / thêm dòng: SL đơn đổi <b>chảy xuống Shipment 01</b> nếu bạn chưa chỉnh tay phần đó; dòng mới cùng mã vào cùng lô.</li>
     <li>Khung <kbd>🔄 Đối chiếu SAP (VA05)</kbd> (chỉ đơn đã có SO thật): <kbd>🔄 Cào lại từ SAP</kbd> cào lại đúng SO từ SAP và <b>thay toàn bộ bảng</b> bằng số liệu đó (xem lại rồi mới <kbd>💾 Lưu đơn</kbd>). Chạy được trên máy đã cài trình chạy karofi-export và SAP đang đăng nhập; máy khác thì xuất VA05 ra Excel rồi dùng <kbd>📄 Nhập từ file Excel</kbd>.</li>
   </ul>
 
   <h3 id="a-so-tach">3. ⑂ Tách đơn — một PI hoặc SO thành nhiều đơn</h3>
-  <p>Dùng khi cần <b>nhiều SO riêng</b> trên SAP để giao nhiều lần. Mở đơn → <kbd>✎ Edit Details</kbd> → <kbd>⑂ Tách đơn</kbd> (nút chỉ có cho Admin/Master; mờ nếu đơn đã closed).</p>
+  <p>Dùng khi cần <b>nhiều SO riêng</b> trên SAP để giao nhiều lần. Mở đơn → <kbd>✎ Edit Details</kbd> → <kbd>⑂ Tách đơn</kbd> (nút chỉ có cho Admin/Operation Manager; mờ nếu đơn đã closed).</p>
   <ol class="steps">
     <li>Chọn <b>Số đơn cần tách</b> (2–6). Với <b>PI nháp</b> app gợi ý số PI <code>&lt;PI gốc&gt;-1</code>, <code>-2</code>…; với <b>đơn đã có SO</b> bạn nhập <b>Số SO mới</b> cho từng phần. Mỗi đơn có <b>Expected Loading</b> riêng.</li>
     <li>Chia SL: mỗi dòng có một ô cho từng đơn; dòng Qty &gt; 1 chia được. <kbd>⇄ Chia đều</kbd> chia đều mọi dòng, <kbd>↺ Dồn về Đơn 1</kbd> đưa tất cả về đơn đầu.</li>
@@ -1215,7 +1286,7 @@
 </section>
 
 <section class="chap own-admin" id="a-shipment" data-own="admin" data-roles="admin master" data-group="Admin">
-  <span class="chap-role">Admin · Master</span>
+  <span class="chap-role">Admin · Operation Manager</span>
   <h2><span class="num"></span>Quản lý Shipment</h2>
   <p class="sub">Một SO có thể giao thành nhiều Shipment (lô). Mỗi lô có lịch trình, chứng từ, trạng thái và phân bổ số lượng riêng; doanh thu và công nợ tính theo lô. Mở bằng <kbd>🚢 Quản lý Shipment</kbd> ở Chi tiết đơn, hoặc <kbd>✎ Quản lý</kbd> ở Shipment Tracking (mở sẵn đúng lô). Màn có <kbd>✎ Sửa đơn</kbd> để nhảy sang Edit Details của đơn.</p>
 
@@ -1276,7 +1347,7 @@
 </section>
 
 <section class="chap own-admin" id="a-chuyen" data-own="admin" data-roles="admin master" data-group="Admin">
-  <span class="chap-role">Admin · Master</span>
+  <span class="chap-role">Admin · Operation Manager</span>
   <h2><span class="num"></span>Chuyến nhiều SO và Arrange Shipping</h2>
 
   <h3>Chuyến: nhiều SO cùng khách đi chung một lô hàng</h3>
@@ -1306,19 +1377,19 @@
 </section>
 
 <section class="chap own-admin" id="a-chungtu" data-own="admin" data-roles="admin master" data-group="Admin">
-  <span class="chap-role">Admin · Master</span>
+  <span class="chap-role">Admin · Operation Manager</span>
   <h2><span class="num"></span>Chứng từ xuất ra được</h2>
   <p class="sub">Chứng từ Excel được dựng ngay trên trình duyệt từ mẫu gốc của công ty, đúng định dạng, không phải gõ lại.</p>
   <div class="tw"><table>
     <thead><tr><th>Chứng từ</th><th>Nút</th><th>Ai xuất</th><th>Điều kiện</th></tr></thead>
     <tbody>
       <tr><td>Proforma Invoice (PI)</td><td><kbd>⬇ Export PI</kbd> → <kbd>📄 PDF</kbd> / <kbd>📊 Excel</kbd></td><td>Mọi vai trò</td><td>Cần ít nhất một dòng có Code và Qty &gt; 0</td></tr>
-      <tr><td>Yêu cầu phát triển sản phẩm (R&amp;D)</td><td><kbd>⬇ Form RD</kbd></td><td>Technician, Admin, Master</td><td>PI có mã mới hoặc dòng “Change:”</td></tr>
-      <tr><td>Yêu cầu cấp mã khách hàng</td><td><kbd>⬇ YC tạo mã KH</kbd> → <kbd>Submit</kbd></td><td>Admin, Master</td><td>Khách chưa có mã</td></tr>
-      <tr><td>ĐNXH (Đề nghị xuất hàng)</td><td><kbd>⬇ Chứng từ NM</kbd> hoặc ngay sau khi Tạo SO</td><td>Admin, Master</td><td>Đơn <b>6-opened</b> hoặc closed. Có sheet “Theo Shipment” nếu đơn &gt; 1 Shipment; cột “Chia cont” theo Container No.; dòng ghi chú kèm Mã khách</td></tr>
-      <tr><td>Marking carton</td><td><kbd>⬇ Chứng từ NM</kbd></td><td>Admin, Master</td><td>Có mã Marking = Y (không thì “SO … không có mã nào đánh dấu Marking = Y”)</td></tr>
-      <tr><td>File SAP (upload tạo đơn)</td><td>Đi cùng <kbd>⬇ Chứng từ NM</kbd></td><td>Admin, Master</td><td>Đơn Opened hoặc closed. Cột: Code SP · Tên SP · Qty · Đơn giá · Ghi chú</td></tr>
-      <tr><td>Bộ Custom Docs (6 form)</td><td><kbd>⬇ Xuất Custom Docs</kbd></td><td>Admin, Master</td><td>Có thể chọn lô lấy Invoice / Loading point / Cước</td></tr>
+      <tr><td>Yêu cầu phát triển sản phẩm (R&amp;D)</td><td><kbd>⬇ Form RD</kbd></td><td>Technician, Admin, Operation Manager</td><td>PI có mã mới hoặc dòng “Change:”</td></tr>
+      <tr><td>Yêu cầu cấp mã khách hàng</td><td><kbd>⬇ YC tạo mã KH</kbd> → <kbd>Submit</kbd></td><td>Admin, Operation Manager</td><td>Khách chưa có mã</td></tr>
+      <tr><td>ĐNXH (Đề nghị xuất hàng)</td><td><kbd>⬇ Chứng từ NM</kbd> hoặc ngay sau khi Tạo SO</td><td>Admin, Operation Manager</td><td>Đơn <b>6-opened</b> hoặc closed. Có sheet “Theo Shipment” nếu đơn &gt; 1 Shipment; cột “Chia cont” theo Container No.; dòng ghi chú kèm Mã khách</td></tr>
+      <tr><td>Marking carton</td><td><kbd>⬇ Chứng từ NM</kbd></td><td>Admin, Operation Manager</td><td>Có mã Marking = Y (không thì “SO … không có mã nào đánh dấu Marking = Y”)</td></tr>
+      <tr><td>File SAP (upload tạo đơn)</td><td>Đi cùng <kbd>⬇ Chứng từ NM</kbd></td><td>Admin, Operation Manager</td><td>Đơn Opened hoặc closed. Cột: Code SP · Tên SP · Qty · Đơn giá · Ghi chú</td></tr>
+      <tr><td>Bộ Custom Docs (6 form)</td><td><kbd>⬇ Xuất Custom Docs</kbd></td><td>Admin, Operation Manager</td><td>Có thể chọn lô lấy Invoice / Loading point / Cước</td></tr>
     </tbody>
   </table></div>
   <p><kbd>⬇ Chứng từ NM</kbd> gộp ĐNXH + Marking + file SAP thành <b>một file nén</b> <code>ChungTu_NM_&lt;SO&gt;.zip</code> để tránh trình duyệt chặn tải nhiều file một lúc. Xuất ĐNXH lần đầu ghi <b>Ngày gửi NM</b> (mốc bắt đầu Leadtime SLA) và gắn cụm “Under Processing” vào ghi chú đơn; xuất lại không đổi ngày.</p>
@@ -1337,7 +1408,7 @@
 </section>
 
 <section class="chap own-admin" id="a-congno" data-own="admin" data-roles="admin master" data-group="Admin">
-  <span class="chap-role">Admin · Master</span>
+  <span class="chap-role">Admin · Operation Manager</span>
   <h2><span class="num"></span>Thanh toán và Công nợ</h2>
 
   <h3>💳 Điện thanh toán chờ xác nhận</h3>
@@ -1350,7 +1421,7 @@
   <p>Ngoài ra Admin tự thêm / sửa / xoá khoản thanh toán ngay ở màn Quản lý Shipment (phần Thanh toán của đơn) và sửa Deposit bằng <kbd>✎</kbd> cạnh thẻ Deposit.</p>
 
   <h3>🧾 Công nợ khách hàng</h3>
-  <p>Mở bằng <kbd>👥 Client</kbd> ▸ <kbd>🧾 Công nợ</kbd> (chỉ Admin, Master).</p>
+  <p>Mở bằng <kbd>👥 Client</kbd> ▸ <kbd>🧾 Công nợ</kbd> (chỉ Admin, Operation Manager).</p>
   <ul>
     <li>Danh sách khách có giao dịch: <b>Khách hàng · Số đơn · Dư đầu kỳ ($) · Phải thu ($) · Đã thu ($) · Còn lại ($)</b>, dòng tổng ở cuối, ô <b>Lọc khách…</b>. Còn lại dương tô đỏ (khách còn nợ), âm tô vàng (thu dư).</li>
     <li>Bấm một khách xem <b>sổ chi tiết</b>: <b>Đơn hàng · Commercial INV# · INV Date · INV Amount ($) · Payment ($) · Payment Date · Balance ($) · Note</b>. Dòng cọc ghi “Deposit”. <kbd>◀ Quay lại danh sách</kbd>.</li>
@@ -1360,7 +1431,7 @@
 </section>
 
 <section class="chap own-admin" id="a-danhmuc" data-own="admin" data-roles="admin master" data-group="Admin">
-  <span class="chap-role">Admin · Master</span>
+  <span class="chap-role">Admin · Operation Manager</span>
   <h2><span class="num"></span>Khách, giá vốn, tồn kho và các mục quản trị khác</h2>
 
   <h3>📇 Client admin — danh mục khách hàng</h3>
@@ -1368,7 +1439,7 @@
   <div class="callout note"><span class="ct">Đổi tên khách</span>Tên khách là khoá nối khắp nơi; khi bạn đổi tên, app đổi theo ở mọi đơn, PI và yêu cầu Customization. Tên trùng một khách khác bị từ chối. Ô để trống = giữ nguyên giá trị cũ. <b>Phân loại khách</b> quyết định Brand/OEM và nhóm ở báo cáo “Theo khách hàng”; khách KSA cần Country ghi KSA / Saudi / Saudi Arabia để vào danh sách Saber PCOC.</div>
 
   <h3>💰 Giá vốn — cập nhật giá linh kiện</h3>
-  <p>Mở bằng <kbd>🧩 Sản phẩm</kbd> ▸ <kbd>💰 Giá vốn</kbd> (Admin, Master). Màn <b class="ui">Cập nhật giá vốn</b> ghi Base_Cost_VND và Cost_date vào bảng giá linh kiện.</p>
+  <p>Mở bằng <kbd>🧩 Sản phẩm</kbd> ▸ <kbd>💰 Giá vốn</kbd> (Admin, Operation Manager). Màn <b class="ui">Cập nhật giá vốn</b> ghi Base_Cost_VND và Cost_date vào bảng giá linh kiện.</p>
   <ol class="steps">
     <li>Chọn file Excel nhiều tab (mỗi tab một tháng). App tự nhận tab tháng <b>mới nhất</b> (tên dạng “T08.26”) và cột <b>“Giá ưu tiên”</b> (không có thì “Giá vốn”); chỉnh tay được <b>Tab (tháng)</b>, <b>Cột giá</b>, <b>Dòng bắt đầu dữ liệu</b>. Dòng “Tổng cộng / Chiết khấu…” cuối bảng tự bị bỏ qua.</li>
     <li>Mã chưa có sẽ được <b>thêm mới</b>; chọn thêm cột Category / Option / Exchangeable nếu file có (không thì để trống, bổ sung sau). Xem bảng xem trước (Mã, Tên, Giá, Trạng thái).</li>
@@ -1376,26 +1447,26 @@
   </ol>
 
   <h3>📦 Inventory: cập nhật tồn ngay</h3>
-  <p>Ở <kbd>📦 Inventory</kbd>, Admin/Master có thêm <kbd>⇣ Cập nhật tồn ngay</kbd>: gửi yêu cầu để máy có SAP cào MB52 ngay (hộp <b class="ui">Cập nhật tồn kho</b> → <kbd>Gửi yêu cầu cào</kbd>). Số mới về sau vài phút; bấm <kbd>⟳ Làm mới</kbd> trong màn để đọc lại.</p>
+  <p>Ở <kbd>📦 Inventory</kbd>, Admin/Operation Manager có thêm <kbd>⇣ Cập nhật tồn ngay</kbd>: gửi yêu cầu để máy có SAP cào MB52 ngay (hộp <b class="ui">Cập nhật tồn kho</b> → <kbd>Gửi yêu cầu cào</kbd>). Số mới về sau vài phút; bấm <kbd>⟳ Làm mới</kbd> trong màn để đọc lại.</p>
 
   <h3>💬 Duyệt Agent</h3>
-  <p>Trong <kbd>🗂️ Danh mục SP</kbd> có tab <kbd>💬 Duyệt Agent</kbd> (chỉ Admin/Master) liệt kê các lượt người dùng đánh giá 👍/👎 câu trả lời của trợ lý: <b>Ngày · User · Câu hỏi · Trả lời · Đánh giá · Lý do · Bài học</b>. Duyệt kèm một câu “bài học” ngắn để trợ lý áp dụng cho các lượt hỏi sau (dùng tối đa 20 bài học gần nhất).</p>
+  <p>Trong <kbd>🗂️ Danh mục SP</kbd> có tab <kbd>💬 Duyệt Agent</kbd> (chỉ Admin/Operation Manager) liệt kê các lượt người dùng đánh giá 👍/👎 câu trả lời của trợ lý: <b>Ngày · User · Câu hỏi · Trả lời · Đánh giá · Lý do · Bài học</b>. Duyệt kèm một câu “bài học” ngắn để trợ lý áp dụng cho các lượt hỏi sau (dùng tối đa 20 bài học gần nhất).</p>
 
   <h3>Tài khoản và PIN</h3>
   <p>Thêm / xoá tài khoản, sửa quyền vào từng app, đặt lại PIN, mở khoá, gán Team, nhập email (để thư review có địa chỉ) <b>không nằm trong Export Hub</b> mà ở <b>Karofi Portal ▸ Quản trị</b> — chỉ tài khoản được cấp quyền quản trị ở cổng mới thấy nút <kbd>Quản trị</kbd>.</p>
 
-  <h3>Các báo cáo của Admin/Master</h3>
-  <p>Admin/Master xem toàn bộ <a href="#s-doanhthu">Doanh thu tháng và Shipment Tracking</a>, <a href="#s-tracuu">Machine Report và SLA Report</a> (kèm sửa Ngày gửi NM), <a href="#l-baocao">Revenue Report</a> (cả hai tab) và <a href="#t-ptsp">Tiến độ PTSP</a>.</p>
+  <h3>Các báo cáo của Admin/Operation Manager</h3>
+  <p>Admin/Operation Manager xem toàn bộ <a href="#s-doanhthu">Doanh thu tháng và Shipment Tracking</a>, <a href="#s-tracuu">Machine Report và SLA Report</a> (kèm sửa Ngày gửi NM), <a href="#l-baocao">Revenue Report</a> (cả hai tab) và <a href="#t-ptsp">Tiến độ PTSP</a>.</p>
 </section>
 
 <section class="chap own-admin" id="a-khongduoc" data-own="admin" data-roles="admin" data-group="Admin">
   <span class="chap-role">Admin</span>
   <h2><span class="num"></span>Bạn KHÔNG làm được gì (Admin)</h2>
-  <p class="sub">Admin gần như toàn quyền vận hành; còn lại chỉ là vài việc dành riêng cho Master.</p>
+  <p class="sub">Admin gần như toàn quyền vận hành; còn lại chỉ là vài việc dành riêng cho Operation Manager.</p>
   <div class="tw"><table>
     <thead><tr><th>Bạn không thể…</th><th>Ghi chú</th></tr></thead>
     <tbody>
-      <tr><td>Xoá đơn đang <code>6-opened</code> hoặc <code>closed</code></td><td>“Bạn không có quyền xóa đơn này (trạng thái …).” Chỉ Master (đơn huỷ sau khi mở).</td></tr>
+      <tr><td>Xoá đơn đang <code>6-opened</code> hoặc <code>closed</code></td><td>“Bạn không có quyền xóa đơn này (trạng thái …).” Chỉ Operation Manager (đơn huỷ sau khi mở).</td></tr>
       <tr><td>Xoá Shipment <b>cuối</b> của một đơn</td><td>“Đơn phải còn ít nhất 1 Shipment … sửa lô này thay vì xoá. (Master mới xoá được lô cuối.)”</td></tr>
       <tr><td>Cào SAP giá vốn</td><td>Khung <b>🔄 Cào SAP (Internal Price)</b> không hiện với Admin: “Chỉ master mới được Cào SAP giá vốn.” Admin vẫn cập nhật giá vốn bằng file Excel.</td></tr>
       <tr><td>Tách đơn đã <code>closed</code>; Tạo SO khi còn mã tạm hoặc trùng SO</td><td>Xem chương <a href="#a-so">Tạo SO, mở đơn, sửa đơn, tách đơn</a>.</td></tr>
@@ -1405,17 +1476,169 @@
   </table></div>
 </section>
 
+<!-- ================================================================== CV CHỨNG TỪ (cập nhật 25/11/2026) ================================================================== -->
+
+<section class="chap own-cvct" id="cv-ngay" data-own="cvct" data-roles="cvct admin master" data-group="CV chứng từ">
+  <span class="chap-role">CV chứng từ · Admin · Operation Manager</span>
+  <h2><span class="num"></span>Việc hằng ngày: Dashboard CV chứng từ</h2>
+  <p class="sub">CV chứng từ (vai trò hiện trên app là <b>cvct</b>) lo phần vận hành lô sau khi đơn đã mở: hạn và mốc của lô, cổng thanh toán, tờ khai, phiếu xuất kho, C/O, bộ chứng từ, chi phí logistics. Admin và Operation Manager làm được mọi việc của CV chứng từ.</p>
+  <p>Trang đầu là <b class="ui">Dashboard CV chứng từ</b> (tab <kbd>🧾 CV chứng từ</kbd>; Admin / Operation Manager mở tab này trong Dashboard của mình).</p>
+  <div class="tw"><table>
+    <thead><tr><th>Bảng / nhóm</th><th>Gồm</th></tr></thead>
+    <tbody>
+      <tr><td><b>Lô cần làm</b></td><td>Cần xác nhận load date, Cần booking (lọc theo tháng, luôn giữ lô quá hạn), Chờ load hàng, In Transit.</td></tr>
+      <tr><td><b>Cut-off</b></td><td>Hạn SI, VGM, CY sắp tới / đã qua.</td></tr>
+      <tr><td><b>Hải quan</b></td><td>Mã thiếu HS, tổng SL tờ khai lệch SL lô.</td></tr>
+      <tr><td><b>Phiếu xuất kho</b></td><td>Lô sắp load chưa có PXK hoặc PXK chưa xác nhận.</td></tr>
+      <tr><td><b>Chứng từ</b></td><td>Hạn LC, góp ý ngân hàng, B/L nháp còn lệch, free time, telex.</td></tr>
+      <tr><td><b>Yêu cầu khách</b></td><td>Checklist hồ sơ khách chưa tick ở bước hiện tại.</td></tr>
+      <tr><td><b>Logistics</b></td><td>Hóa đơn chi phí chưa gắn lô, sắp tới / đã qua ngày chốt kỳ.</td></tr>
+    </tbody>
+  </table></div>
+  <p>Mọi việc ở đây cũng hiện trong <kbd>🔔</kbd> và trên màn <kbd>⏰ Hạn theo lô</kbd>. Các màn của bạn nằm trong menu <kbd>🧭 Vận hành</kbd>.</p>
+</section>
+
+<section class="chap own-cvct" id="cv-han" data-own="cvct" data-roles="cvct admin master technician" data-group="CV chứng từ">
+  <span class="chap-role">CV chứng từ · Admin · Operation Manager · Technician (xem)</span>
+  <h2><span class="num"></span>Hạn theo lô và cổng thanh toán</h2>
+  <p class="sub">Mở <kbd>🧭 Vận hành</kbd> → <kbd>⏰ Hạn theo lô</kbd>. Mỗi dòng là một lô (hoặc một chuyến), tô đỏ / vàng theo mức gấp. Cảnh báo tính lại mỗi lần mở, ngưỡng chỉnh ở Cài đặt hệ thống. Technician xem được, không sửa.</p>
+  <h3>Hạn và mốc của lô</h3>
+  <p>Bấm vào lô để mở hộp <b class="ui">Hạn và mốc của lô</b>: cut-off SI / CY, hạn VGM, free time DEM / DET, ngày tàu đến (ATA), hạn LC, loại B/L, đã gửi chứng từ, ngày phát hành B/L → <kbd>Lưu</kbd>. Các mốc cut-off đọc được từ file Booking khi bạn nạp chứng từ lô.</p>
+  <p>App cảnh báo: booking trễ, cut-off SI / CY / VGM, hạn LC, SCoC của lô KSA, free time, telex; mã thiếu HS, tờ khai lệch SL; PXK chưa có / chưa xác nhận; B/L nháp còn lệch; ngân hàng có góp ý bộ LC. Từ mỗi dòng mở thẳng được điều khoản thanh toán, PXK, tờ khai, bộ chứng từ, checklist khách.</p>
+  <h3>Điều khoản thanh toán và cổng</h3>
+  <p><kbd>💳 Điều khoản TT</kbd> ghi hình thức thanh toán của đơn: TT 100% trước, TT có cọc (% cọc, phần còn lại thu trước khi đóng hàng hoặc trước telex release / giao B/L), L/C, D/P, trả sau → <kbd>Lưu điều khoản</kbd>. Điều khoản Lead đã duyệt ở bước duyệt PI tự đi theo đơn.</p>
+  <ul>
+    <li><b>Cổng đóng hàng</b>: lô chưa đạt điều kiện thanh toán thì app chặn chuyển lô sang shipped.</li>
+    <li><b>Cổng telex</b>: lô thanh toán TT phải thu đủ mới phát hành B/L.</li>
+    <li>Cần đi tiếp khi chưa đạt: mở hộp <b class="ui">Xin ngoại lệ</b>, ghi lý do → <kbd>Gửi lead duyệt</kbd>. Lead cùng team hoặc Operation Manager duyệt ở <kbd>✅ Chờ duyệt</kbd>.</li>
+    <li>Đơn cũ chưa khai điều khoản thì không bị chặn.</li>
+  </ul>
+</section>
+
+<section class="chap own-cvct" id="cv-hoso" data-own="cvct" data-roles="all" data-group="CV chứng từ">
+  <span class="chap-role">Mọi vai trò (theo phạm vi khách)</span>
+  <h2><span class="num"></span>Hồ sơ khách hàng và checklist yêu cầu</h2>
+  <p class="sub">Mỗi khách có hồ sơ riêng về chứng từ / logistics và các yêu cầu đặc biệt. App hiện checklist đúng ở bước cần kiểm, và chặn bước đó khi yêu cầu bắt buộc chưa được tick.</p>
+  <ol class="steps">
+    <li>Mở <kbd>🧭 Vận hành</kbd> → <kbd>📋 Hồ sơ KH</kbd>, chọn khách → <kbd>Mở hồ sơ</kbd>.</li>
+    <li>Điền forwarder, loại B/L (telex / gốc / seaway), notify party, các chứng từ khách yêu cầu (CI, PL, B/L, C/O, SCoC, PCoC, bảo hiểm).</li>
+    <li><kbd>＋ Yêu cầu</kbd> để thêm yêu cầu đặc biệt (tối đa 80 / khách): nội dung, <b>bước áp dụng</b> (Kiểm PI, Chốt đơn, Chốt load, Đóng hàng, Gửi bộ chứng từ, Phát hành B/L), vai trò kiểm, <b>bắt buộc</b> hay chỉ nhắc → <kbd>💾 Lưu hồ sơ</kbd>.</li>
+    <li>Ở đơn / lô, bấm <kbd>☑ Checklist khách</kbd> để tick các yêu cầu của bước hiện tại. Yêu cầu bắt buộc chưa tick thì app không cho hoàn thành bước đó.</li>
+  </ol>
+</section>
+
+<section class="chap own-cvct" id="cv-hq" data-own="cvct" data-roles="cvct admin master technician" data-group="CV chứng từ">
+  <span class="chap-role">CV chứng từ · Admin · Operation Manager · Technician (xem)</span>
+  <h2><span class="num"></span>Danh mục HS và tờ khai hải quan</h2>
+  <p class="sub">HS và tên khai báo theo từng mã là nguồn cho CI / PL, bộ chứng từ khai báo và C/O. Mã chưa có trong danh mục tạm dùng giá trị mặc định (máy <code>84212111</code>, còn lại <code>84219994</code>) và được báo "cần rà soát".</p>
+  <h3>🏷️ Danh mục HS</h3>
+  <ul>
+    <li>Mở <kbd>🧭 Vận hành</kbd> → <kbd>🏷️ Danh mục HS</kbd>. Mỗi mã: HS, tên khai báo tiếng Việt / tiếng Anh, xuất xứ, ĐVT. Lọc mã cần rà soát / chưa rà soát / đã có.</li>
+    <li>Sửa trên bảng rồi <kbd>✔ Duyệt &amp; lưu các dòng đang hiện</kbd>; hoặc <kbd>✎ Sửa đồng loạt</kbd> → <kbd>Áp dụng cho các dòng đang hiện</kbd>.</li>
+    <li><kbd>⚙ Quy tắc mặc định</kbd>: đặt quy tắc theo mã (bắt đầu bằng / chứa) hoặc tên, có độ ưu tiên, kèm công thức tên khai báo → <kbd>Lưu quy tắc</kbd>; <kbd>Xem trước</kbd> rồi <kbd>Áp dụng</kbd>. <kbd>✨ Tạo từ quy tắc mặc định</kbd> sinh sẵn dòng cho các mã chưa có.</li>
+  </ul>
+  <h3>Tờ khai hải quan của lô</h3>
+  <p>Từ lô mở hộp <b class="ui">Tờ khai hải quan</b>: <kbd>＋ Thêm tờ khai</kbd> (một lô có thể nhiều tờ khai) — số tờ khai, loại hình, container, chi cục, luồng xanh / vàng / đỏ, ngày khai, ngày thông quan, trạng thái và các dòng hàng (<kbd>Điền phần còn lại của lô</kbd> để điền nhanh) → <kbd>Lưu tờ khai</kbd>. <kbd>✨ Gợi ý từ tách container</kbd> dựng sẵn tờ khai nháp theo cách đã chia container. App kiểm tổng SL các tờ khai bằng SL của lô.</p>
+</section>
+
+<section class="chap own-cvct" id="cv-pxk" data-own="cvct" data-roles="cvct admin master technician" data-group="CV chứng từ">
+  <span class="chap-role">CV chứng từ · Admin · Operation Manager · Technician (xem)</span>
+  <h2><span class="num"></span>Phiếu xuất kho (PXK)</h2>
+  <p class="sub">PXK là số thực xuất của nhà máy. Mở từ dòng lô trên <kbd>⏰ Hạn theo lô</kbd> → hộp <b class="ui">Phiếu xuất kho</b>.</p>
+  <ol class="steps">
+    <li><kbd>⬆ Tải PXK (ảnh / PDF / Excel)</kbd> (Excel đọc thẳng; ảnh / PDF đọc bằng AI) hoặc <kbd>＋ Nhập tay</kbd>. Luôn có bước xem trước, sửa được từng dòng.</li>
+    <li>App đối chiếu với SL của lô theo từng mã. Lệch thì phải ghi lý do.</li>
+    <li><kbd>Lưu nháp</kbd> hoặc <kbd>Lưu &amp; xác nhận</kbd>. Một lô có thể nhiều PXK; tick <b>Thay thế PXK cũ</b> khi nhà máy xuất lại phiếu.</li>
+  </ol>
+  <div class="callout tip"><span class="ct">INV theo PXK</span>Ở Quản lý Shipment, khi xuất bộ INV / PKL có thể chọn lấy SL theo PXK đã xác nhận: Invoice tổng, Packing list và Gross weight cho VGM dùng số thực xuất; app cảnh báo nếu tổng các container lệch PXK.</div>
+</section>
+
+<section class="chap own-cvct" id="cv-co" data-own="cvct" data-roles="cvct admin master" data-group="CV chứng từ">
+  <span class="chap-role">CV chứng từ · Admin · Operation Manager</span>
+  <h2><span class="num"></span>C/O: định mức, nguyên liệu và hồ sơ theo lô</h2>
+  <p class="sub">Mục đích: xuất đủ bộ hồ sơ + form của từng lô để upload lên cổng (qua phần mềm VAN Logistics), và trừ lùi nguyên vật liệu trên hóa đơn / tờ khai đầu vào. Mở <kbd>🧭 Vận hành</kbd> → <kbd>🧱 Định mức C/O</kbd>. Technician xem được định mức.</p>
+  <h3>1. Dữ liệu nền (làm một lần, cập nhật dần)</h3>
+  <div class="tw"><table>
+    <thead><tr><th>Thẻ</th><th>Làm gì</th></tr></thead>
+    <tbody>
+      <tr><td><kbd>Bảng 1 · Định mức</kbd></td><td>Định mức NVL cho từng mã SP (gồm hao hụt). <kbd>⬆ Nạp Excel</kbd> (xem trước mới / đổi / bỏ), <kbd>⬇ Mẫu Excel</kbd>, <kbd>⇄ Ánh xạ mã từ Excel</kbd> (tên tab cũ → mã SAP), <kbd>🕘 Nhật ký</kbd> đổi định mức.</td></tr>
+      <tr><td><kbd>Bảng 2 · Nguyên liệu theo chứng từ</kbd></td><td>Từng hóa đơn GTGT / tờ khai nhập của NVL: đơn giá, tiền tệ, SL, xuất xứ, HS, số bản khai báo của nhà cung cấp. <kbd>📄 Nạp tờ khai / hóa đơn</kbd> (tờ khai PDF, hóa đơn PDF / XML; ảnh quét đọc bằng AI — luôn xem trước), <kbd>⬆ Nạp Excel</kbd>, <kbd>＋ Thêm chứng từ</kbd>. Chứng từ mới <b>bắt buộc có SL</b>. Ô <b>Đã dùng trước (ngoài app)</b> ghi phần đã dùng cho C/O làm tay trước đây; <b>Hệ số quy đổi ĐVT</b> khi chứng từ ghi đơn vị khác định mức (vd Cuộn ↔ m; Kg / g, Cái / PCE, Bộ / SET tự đổi).</td></tr>
+      <tr><td><kbd>Danh mục NVL &amp; bí danh</kbd></td><td>Danh sách NVL; bí danh = tên trên chứng từ của nhà cung cấp → NVL (lần sau tự ghép); gộp NVL trùng.</td></tr>
+      <tr><td><kbd>Hóa đơn mua hàng Tecomen→Karofi</kbd></td><td><kbd>📥 Nạp hóa đơn mua hàng</kbd> — dùng khi Karofi xuất (Phụ lục X, giá đầu vào).</td></tr>
+      <tr><td><kbd>Quy trình sản xuất</kbd></td><td><kbd>＋ Thêm quy trình</kbd>, <kbd>📂 Chọn file từ máy…</kbd>, khoảng trang, ngày ký, gắn theo mã / Model / Category.</td></tr>
+      <tr><td><kbd>Cài đặt C/O</kbd></td><td>Tên / MST doanh nghiệp, nơi ký, số chữ số HS, văn bản dẫn chiếu theo Form… (Admin / Operation Manager) → <kbd>💾 Lưu cài đặt</kbd>.</td></tr>
+    </tbody>
+  </table></div>
+  <h3>2. Hồ sơ C/O của một lô</h3>
+  <ol class="steps">
+    <li>Thẻ <kbd>Hồ sơ C/O</kbd>: mục <b>Lô cần C/O chưa có hồ sơ</b> gợi ý các lô cần làm; <kbd>＋ Tạo hồ sơ</kbd> → chọn lô / chuyến và Form (B / D / AI) → <kbd>Tạo hồ sơ</kbd>. Pháp nhân xuất (Tecomen / Karofi) tự nhận theo Loading point của Shipment, đơn Brand → Karofi, còn lại Tecomen; chọn lại được.</li>
+    <li>Mục hàng lấy từ tờ khai của lô (chưa có thì từ hóa đơn): SL <b>gồm hàng tặng</b>; trị giá hàng tặng chỉ tính ở Form AI. <kbd>📥 Nạp tờ khai xuất (Excel)</kbd> để lấy tỷ giá tính thuế, số tờ khai, ngày thông quan. <kbd>↻ Dựng lại từ lô</kbd> khi lô thay đổi.</li>
+    <li><kbd>📐 Phụ lục V &amp; xuất</kbd> mở bản xem trước, mỗi mã một tab: NVL theo định mức, chứng từ đầu vào (mới nhất trước, tự tách khi thiếu SL; chọn tay được), cột <b>có / không có xuất xứ</b>, RVC (tính theo FOB xuất khẩu trên hóa đơn xuất), kiểm HS theo tiêu chí (CTH so 4 số, CTSH so 6 số). <kbd>↻ Tính lại</kbd> sau khi đổi lựa chọn.</li>
+    <li><kbd>🔒 Chốt &amp; giữ SL</kbd>: chụp lại bản nộp và giữ SL trên chứng từ đầu vào (trừ lùi). Thiếu chứng từ, lệch ĐVT chưa quy đổi, thiếu tỷ giá, chưa có định mức → <b>không chốt được</b>; cảnh báo đỏ khác phải ghi lý do.</li>
+    <li>Khung <b>File ECOSYS + kiểm chéo</b>: kiểm số liệu cùng lô (Phụ lục V đã chốt, SL / FOB, Packing list, số hóa đơn, HS, mô tả, tiêu chí), sửa <b>HS nước nhập</b> (app nhớ theo mã × nước). Tải <kbd>⬇ Excel ECOSYS</kbd>, <kbd>⬇ Excel CTC</kbd> hoặc <kbd>📦 Gói hồ sơ (zip)</kbd> (ECOSYS + Phụ lục V + Phụ lục X khi Karofi xuất + danh sách thiếu + tài liệu đính kèm) để upload qua VAN Logistics.</li>
+    <li>Cập nhật trạng thái ở hộp <b class="ui">Đổi trạng thái</b>: đã khai báo → nộp phí → yêu cầu sửa (bắt buộc chọn lý do) → đã cấp (số + ngày C/O). Khi đã khai báo, SL giữ chuyển thành đã dùng; huỷ hồ sơ thì trả lại SL.</li>
+  </ol>
+  <div class="callout note"><span class="ct">Nợ tờ khai / vận đơn</span>Được nộp chậm tờ khai hải quan và vận đơn tối đa 15 ngày làm việc kể từ ngày cấp C/O. Khung kiểm chéo nhắc khi lô chưa có hai chứng từ này và tính hạn bổ sung sau khi C/O được cấp.</div>
+  <div class="callout tip"><span class="ct">Rà hồ sơ đã chốt</span><kbd>🔎 Rà hồ sơ đã chốt</kbd> liệt kê hồ sơ có NVL đang ở cột "có xuất xứ" mà thiếu bằng chứng theo hiệp định (C/O ưu đãi nhập khẩu hoặc bản khai báo của nhà cung cấp), kèm Total và RVC tính lại. Chỉ xem, không sửa hồ sơ cũ.</div>
+</section>
+
+<section class="chap own-cvct" id="cv-bct" data-own="cvct" data-roles="cvct admin master" data-group="CV chứng từ">
+  <span class="chap-role">CV chứng từ · Admin · Operation Manager</span>
+  <h2><span class="num"></span>Bộ chứng từ, B/L nháp và LC</h2>
+  <p class="sub">Mở từ dòng lô trên <kbd>⏰ Hạn theo lô</kbd> → hộp <b class="ui">Bộ chứng từ</b>. Technician, Lead, Leader xem được.</p>
+  <ul>
+    <li><b>Checklist chứng từ</b> = các chứng từ khách yêu cầu (hồ sơ KH) + chứng từ đọc từ điều kiện LC (mặc định CI, PL, B/L). Tick đã nhận → <kbd>💾 Ghi chứng từ nhận được</kbd>.</li>
+    <li><b>B/L nháp</b>: <kbd>⬆ Đọc B/L nháp (ảnh / PDF)</kbd> (AI) hoặc nhập tay → <kbd>Kiểm B/L</kbd> so với CI / PL, tờ khai, LC. Lệch phải ghi lý do → <kbd>✔ Xác nhận B/L với hãng tàu</kbd>.</li>
+    <li><b>LC</b>: nhập điều kiện LC → <kbd>💾 Lưu điều kiện LC</kbd>; app tự kiểm trước khi gửi (gồm các lỗi ngân hàng từng nêu). Mỗi lần gửi ngân hàng: <kbd>＋ Thêm vòng gửi ngân hàng</kbd>, ghi góp ý bằng <kbd>＋ Góp ý</kbd> → <kbd>Lưu vòng</kbd>; app đếm ngược hạn xuất trình và chỉ ghi "đã gửi" khi ngân hàng hết góp ý.</li>
+    <li><b>Gửi bộ chứng từ</b>: chọn cách gửi (email / chuyển phát / ngân hàng LC / D/P), số vận đơn hoặc tham chiếu → <kbd>💾 Lưu thông tin gửi</kbd>. App soạn sẵn thư: <kbd>📋 Chép</kbd> hoặc <kbd>✉ Mở trong chương trình thư</kbd> — <b>app không tự gửi</b>.</li>
+  </ul>
+</section>
+
+<section class="chap own-cvct" id="cv-logi" data-own="cvct" data-roles="cvct admin master lead leader" data-group="CV chứng từ">
+  <span class="chap-role">CV chứng từ · Admin · Operation Manager · Lead / Leader (xem)</span>
+  <h2><span class="num"></span>Chi phí logistics và đề nghị thanh toán NCC</h2>
+  <p class="sub">Mở <kbd>🧭 Vận hành</kbd> → <kbd>🚛 Chi phí logistics</kbd>. Bốn thẻ: Hóa đơn, Đề nghị thanh toán, NCC, Chi phí theo lô.</p>
+  <ol class="steps">
+    <li><b>Ghi hóa đơn chi phí</b>: <kbd>＋ Hóa đơn</kbd> hoặc <kbd>⬆ Đọc file hóa đơn</kbd> (XML hóa đơn điện tử đọc thẳng; PDF / ảnh đọc bằng AI). Gắn một hoặc nhiều lô (<kbd>＋ Lô</kbd>) — phí dùng chung chia theo CBM; 9 loại phí → <kbd>Lưu hóa đơn</kbd>. App chặn trùng số hóa đơn + MST.</li>
+    <li><b>Báo giá theo lô</b>: nhập báo giá → <kbd>💾 Lưu báo giá</kbd>. Hóa đơn lệch báo giá quá ngưỡng (mặc định 5%) phải giải trình và báo Operation Manager. <kbd>Xem chi phí lô</kbd>: thực tế so với báo giá, chi phí / CBM — căn cứ chào FOB / CIF.</li>
+    <li><b>Đề nghị thanh toán</b> theo kỳ × NCC: <kbd>＋ Lập / gom đề nghị kỳ đang chọn</kbd> → đối chiếu bảng kê NCC (AI hoặc dán bảng) → KOI lần 1 → Operation Manager duyệt → KOI lần 2 → Kế toán (Admin) kiểm → đã thanh toán. <kbd>⬇ Xuất hồ sơ KOI (Excel)</kbd>; app chỉ ghi số KOI, không nối hệ thống KOI.</li>
+  </ol>
+  <p>App nhắc hóa đơn chưa gắn lô quá 2 ngày và ngày chốt kỳ (mặc định ngày 25).</p>
+</section>
+
+<section class="chap own-cvct" id="cv-khongduoc" data-own="cvct" data-roles="cvct" data-group="CV chứng từ">
+  <span class="chap-role">CV chứng từ</span>
+  <h2><span class="num"></span>Bạn KHÔNG làm được gì (CV chứng từ)</h2>
+  <div class="tw"><table>
+    <thead><tr><th>Bạn không thể…</th><th>Ghi chú</th></tr></thead>
+    <tbody>
+      <tr><td>Tạo SO, mở / xoá / tách đơn, sửa giá</td><td>Việc của Admin / Operation Manager.</td></tr>
+      <tr><td>Tự duyệt ngoại lệ cổng thanh toán</td><td>Bạn xin ngoại lệ; Lead cùng team hoặc Operation Manager duyệt.</td></tr>
+      <tr><td>Duyệt đề nghị thanh toán NCC</td><td>Operation Manager duyệt, Admin (kế toán) kiểm.</td></tr>
+      <tr><td>Sửa Cài đặt C/O, đổi bộ nối ở <kbd>🔌 Kết nối SAP/ERP</kbd></td><td>Chỉ Admin / Operation Manager.</td></tr>
+      <tr><td>Xoá chứng từ NVL đã dùng trong hồ sơ C/O</td><td>Chỉ "bỏ dùng"; xoá chứng từ chưa dùng là việc của Admin / Operation Manager.</td></tr>
+    </tbody>
+  </table></div>
+</section>
+
 <!-- ================================================================== MASTER ================================================================== -->
 
-<section class="chap own-master" id="m-them" data-own="master" data-roles="master" data-group="Master">
-  <span class="chap-role">Master</span>
-  <h2><span class="num"></span>Master: những gì thêm so với Admin</h2>
-  <p class="sub">Master làm được <b>mọi việc của Admin</b> (xem các chương Admin) và nhìn thấy tất cả khách, đơn. Có ba quyền riêng.</p>
+<section class="chap own-master" id="m-them" data-own="master" data-roles="master" data-group="Operation Manager">
+  <span class="chap-role">Operation Manager</span>
+  <h2><span class="num"></span>Operation Manager: những gì thêm so với Admin</h2>
+  <p class="sub">Operation Manager làm được <b>mọi việc của Admin</b> (xem các chương Admin) và nhìn thấy tất cả khách, đơn. Có ba quyền riêng.</p>
   <ol class="steps">
-    <li><b>Xoá đơn ở mọi trạng thái, kể cả 6-opened và closed.</b> <kbd>🗑 Xóa đơn</kbd> luôn hiện cho Master. Với đơn đã mở, hộp xác nhận mở đầu bằng “⚠ Đơn đang ở trạng thái … (đã mở đơn).” và nhắc xoá luôn dòng hàng và các Shipment, không hoàn tác được. Đơn có thanh toán thì hỏi thêm <b class="ui">Xoá đơn có thanh toán</b> → <kbd>Xoá đơn và thanh toán</kbd> (xoá cả các khoản khỏi công nợ). Dùng cho đơn <b>huỷ sau khi đã mở</b>.</li>
+    <li><b>Xoá đơn ở mọi trạng thái, kể cả 6-opened và closed.</b> <kbd>🗑 Xóa đơn</kbd> luôn hiện cho Operation Manager. Với đơn đã mở, hộp xác nhận mở đầu bằng “⚠ Đơn đang ở trạng thái … (đã mở đơn).” và nhắc xoá luôn dòng hàng và các Shipment, không hoàn tác được. Đơn có thanh toán thì hỏi thêm <b class="ui">Xoá đơn có thanh toán</b> → <kbd>Xoá đơn và thanh toán</kbd> (xoá cả các khoản khỏi công nợ). Dùng cho đơn <b>huỷ sau khi đã mở</b>.</li>
     <li><b>Xoá Shipment cuối của đơn.</b> Ở form lô, <kbd>🗑 Xóa Shipment</kbd> với lô cuối hiện cảnh báo “⚠ Đây là Shipment CUỐI của đơn — xóa xong đơn không còn lô nào (doanh thu / công nợ theo lô sẽ mất phần này).” Dùng cho đơn huỷ hoặc lô tạo nhầm. Admin phải giữ ít nhất một lô.</li>
     <li><b>Cào SAP giá vốn.</b> Ở <kbd>💰 Giá vốn</kbd>, khung <b>🔄 Cào SAP (Internal Price)</b>: <kbd>▶ Bắt đầu cào</kbd> tự lấy giá từ SAP cho các mã linh kiện <b>đang trống giá vốn</b> (cần máy này đã cài giao thức karofi-export và SAP GUI đang đăng nhập sẵn). Xem bảng xem trước (Mã, Tên, Giá SAP) rồi <kbd>✔ Ghi vào CompTotal</kbd>.</li>
   </ol>
+  <h3>Duyệt và quản trị vận hành</h3>
+  <ul>
+    <li><b>Duyệt phiếu sửa đơn mức 4</b> (đổi hàng hoá khi đã có lô load hàng hoặc đơn đã closed) ở <kbd>📨 Phiếu sửa đơn</kbd>; mức 2–3 cũng duyệt được.</li>
+    <li><b>Duyệt ngoại lệ cổng thanh toán</b> (đóng hàng / telex) ở <kbd>✅ Chờ duyệt</kbd>, cùng với Lead của team.</li>
+    <li><b>Duyệt đề nghị thanh toán NCC</b> sau KOI lần 1 ở <kbd>🚛 Chi phí logistics</kbd>; nhận thông báo khi hóa đơn chi phí lệch báo giá quá ngưỡng.</li>
+    <li><b>Đổi bộ nối dữ liệu</b> ở <kbd>🔌 Kết nối SAP/ERP</kbd> (xem nhịp tim, lần chạy gần nhất của từng luồng), sửa <kbd>Cài đặt C/O</kbd> và <kbd>🛠 Cài đặt hệ thống</kbd> (ngưỡng cảnh báo, tham số duyệt PI, ngày chốt kỳ…).</li>
+  </ul>
   <div class="callout warn"><span class="ct">Thận trọng</span>Cả ba việc đều khó hoặc không hoàn tác được (xoá đơn kéo theo lô, thanh toán và công nợ). Kiểm tra đúng SO trước khi xác nhận.</div>
 </section>
 
@@ -1424,7 +1647,7 @@
 <section class="chap own-leader" id="ld-xem" data-own="leader" data-roles="leader" data-group="Leader">
   <span class="chap-role">Leader · chỉ xem</span>
   <h2><span class="num"></span>Leader (View-Only): bạn xem được gì</h2>
-  <p class="sub">Leader xem <b>toàn bộ</b> khách, đơn, dashboard và báo cáo như Master, nhưng <b>không tạo, sửa hay xoá được gì</b>. Các nút hành động bị ẩn hoặc bị chặn.</p>
+  <p class="sub">Leader xem <b>toàn bộ</b> khách, đơn, dashboard và báo cáo như Operation Manager, nhưng <b>không tạo, sửa hay xoá được gì</b>. Các nút hành động bị ẩn hoặc bị chặn.</p>
   <div class="tw"><table>
     <thead><tr><th>Màn hình</th><th>Bạn thấy</th></tr></thead>
     <tbody>
@@ -1451,7 +1674,7 @@
       <tr><td>Tạo khách mới</td><td>“Leader chỉ có quyền xem, không được tạo khách mới.” (nút <kbd>+ Khách mới</kbd> vẫn hiện nhưng không tạo được)</td></tr>
       <tr><td>Đổi trạng thái, chốt, tạo SO, tách đơn, xoá</td><td>Không có nút; ô chọn trạng thái ở Doanh thu tháng chỉ hiện chữ.</td></tr>
       <tr><td>Gửi điện thanh toán, khai Customization</td><td><kbd>💳 Cập nhật thanh toán</kbd> và <kbd>📝 Customization</kbd> không hiện.</td></tr>
-      <tr><td>Quản lý Shipment, chứng từ nhà máy, Công nợ, Client admin, Giá vốn</td><td>Chỉ Admin/Master; các mục không hiện.</td></tr>
+      <tr><td>Quản lý Shipment, chứng từ nhà máy, Công nợ, Client admin, Giá vốn</td><td>Chỉ Admin/Operation Manager; các mục không hiện.</td></tr>
       <tr><td>Mở Danh mục SP, Dashboard Technician / Admin</td><td>Không có mục; Dashboard chỉ có phần Sale.</td></tr>
       <tr><td>Sửa Ngày load, Ghi chú đơn, Ngày gửi NM tại chỗ</td><td>Chỉ hiện chữ.</td></tr>
     </tbody>
@@ -1478,7 +1701,7 @@
       <tr><td>“Chưa tải được dữ liệu (…). Phiên đăng nhập vẫn còn — thử lại là được.”</td><td>Mạng chập hoặc máy chủ đang khởi động.</td><td>Bấm <kbd>⟳ Thử lại</kbd>. Không phải đăng nhập lại.</td></tr>
       <tr><td>Bảng báo “Không tải được …” kèm <kbd>↻ Thử lại</kbd></td><td>Một lần tải bị lỗi.</td><td>Bấm <kbd>↻ Thử lại</kbd>; nếu vẫn lỗi, đọc nội dung lỗi ngay trong dòng.</td></tr>
       <tr><td>Lô báo “Tổng SL các Shipment vượt quá SL đơn hàng …” (hộp <b class="ui">Vượt SL đơn hàng</b>)</td><td>Tổng phân bổ các lô lớn hơn SL đơn của một mã.</td><td><kbd>Điều chỉnh lại</kbd> số trong ma trận, hoặc tăng SL đơn trước; chỉ chọn <kbd>Vẫn lưu</kbd> khi cố ý.</td></tr>
-      <tr><td>“Đơn phải còn ít nhất 1 Shipment …”</td><td>Bạn xoá lô cuối của đơn.</td><td>Sửa lô thay vì xoá. Chỉ Master xoá được lô cuối.</td></tr>
+      <tr><td>“Đơn phải còn ít nhất 1 Shipment …”</td><td>Bạn xoá lô cuối của đơn.</td><td>Sửa lô thay vì xoá. Chỉ Operation Manager xoá được lô cuối.</td></tr>
       <tr><td>“Technician chỉ chia được Shipment/container cho đơn ở trạng thái drafted hoặc opened”</td><td>Đơn đang ở trạng thái khác.</td><td>Nhờ Admin, hoặc đợi đơn tới trạng thái phù hợp.</td></tr>
       <tr><td>“Không đổi được số SO … mã Shipment mới đã có dòng khác dùng”</td><td>Số SO mới làm mã lô trùng với lô khác.</td><td>Chọn số SO khác hoặc xử lý các dòng lô trùng trước.</td></tr>
       <tr><td>Tạo SO: “Còn N mã tạm …” / “SO … đã tồn tại …”</td><td>Còn mã Spare/NewRO chưa cấp mã, hoặc trùng số SO.</td><td>Nhờ Technician cấp mã; kiểm tra lại số SO.</td></tr>
@@ -1507,9 +1730,9 @@
   <details class="fold"><summary>Tôi đổi Expected Loading nhưng doanh thu vẫn ở tháng cũ?</summary><div>
     <p>Doanh thu xếp tháng theo Load date của <b>từng lô</b>. Với đơn đã tách lô, app hỏi bạn có đổi ngày các lô theo không (khung “Đơn này đã có N Shipment mang ngày load”). Tick các lô cần đổi rồi lưu. Admin cũng sửa được ngày load ngay trên bảng Doanh thu tháng.</p></div></details>
   <details class="fold"><summary>Sửa được đơn đã 5-confirmed không?</summary><div>
-    <p>Sale và Lead không. Technician sửa được chi tiết (không đổi trạng thái); Admin, Master sửa mọi thứ. Nhờ người có quyền hoặc xin Admin đưa đơn về trạng thái sửa được.</p></div></details>
+    <p>Sale và Lead không. Technician sửa được chi tiết (không đổi trạng thái); Admin, Operation Manager sửa mọi thứ. Nhờ người có quyền hoặc xin Admin đưa đơn về trạng thái sửa được.</p></div></details>
   <details class="fold"><summary>Ai đổi được Sale phụ trách của khách, phân loại khách, mã khách?</summary><div>
-    <p>Admin, Master ở <kbd>📇 Client admin</kbd> / <kbd>✎ Sửa khách</kbd>. Mã KH do bộ phận có thẩm quyền cấp qua ticket Helpdesk (nút <kbd>⬇ YC tạo mã KH</kbd> chuẩn bị sẵn thông tin).</p></div></details>
+    <p>Admin, Operation Manager ở <kbd>📇 Client admin</kbd> / <kbd>✎ Sửa khách</kbd>. Mã KH do bộ phận có thẩm quyền cấp qua ticket Helpdesk (nút <kbd>⬇ YC tạo mã KH</kbd> chuẩn bị sẵn thông tin).</p></div></details>
   <details class="fold"><summary>App có tự gửi email không?</summary><div>
     <p>Không. App chỉ <b>mở sẵn thư Outlook</b> (đề nghị Technician review); bạn kiểm tra rồi tự bấm Send.</p></div></details>
   <details class="fold"><summary>Mã trên đơn là mã tạm “Spare…/NewRO…”, làm sao?</summary><div>
@@ -1519,14 +1742,23 @@
   <details class="fold"><summary>Xuất PI ra tiếng Anh hay tiếng Việt?</summary><div>
     <p>Tên sản phẩm trên PI dùng <b>tên tiếng Anh</b> (International_name) của danh mục. Mã thiếu tên tiếng Anh thì giữ tên đang có.</p></div></details>
   <details class="fold"><summary>Hướng dẫn này nằm ở đâu trong app?</summary><div>
-    <p>Màn đăng nhập có link <kbd>📘 Hướng dẫn sử dụng</kbd>; khi đã đăng nhập, menu tài khoản có <kbd>📘 Hướng dẫn</kbd>. Chọn vai trò ở đầu trang; muốn gửi cho đồng nghiệp đúng phần của họ, thêm <code>#sale</code>, <code>#lead</code>, <code>#technician</code>, <code>#admin</code>, <code>#master</code> hoặc <code>#leader</code> vào cuối địa chỉ trang, hoặc <code>#vai-tro/chuong</code> như <code>#sale/s-pi</code>.</p></div></details>
+    <p>Màn đăng nhập có link <kbd>📘 Hướng dẫn sử dụng</kbd>; khi đã đăng nhập, menu tài khoản có <kbd>📘 Hướng dẫn</kbd>. Chọn vai trò ở đầu trang; muốn gửi cho đồng nghiệp đúng phần của họ, thêm <code>#sale</code>, <code>#lead</code>, <code>#technician</code>, <code>#admin</code>, <code>#cvct</code>, <code>#master</code> hoặc <code>#leader</code> vào cuối địa chỉ trang, hoặc <code>#vai-tro/chuong</code> như <code>#sale/s-pi</code>.</p></div></details>
 </section>
 
 <section class="chap own-common" id="c-phienban" data-own="common" data-roles="all" data-group="Chung">
   <span class="chap-role">Chung · mọi vai trò</span>
   <h2><span class="num"></span>Liên hệ và ghi chú phiên bản</h2>
-  <p><b>Tài liệu cập nhật ngày 12/10/2026.</b> Soạn lại hoàn toàn theo vai trò dựa trên bản app hiện hành; thay thế bản hướng dẫn cũ (cập nhật 14/09/2026).</p>
-  <h3>Có gì mới so với bản hướng dẫn cũ</h3>
+  <p><b>Tài liệu cập nhật ngày 25/11/2026.</b> Bổ sung vai trò CV chứng từ và các màn mới (menu Vận hành, Hải quan, PXK, C/O, Bộ chứng từ, Chi phí logistics, Chờ duyệt, Tra cứu đơn, Phiếu sửa đơn). Bản soạn lại theo vai trò trước đó: cập nhật 12/10/2026.</p>
+  <h3>Có gì mới từ 12/10/2026 đến 25/11/2026</h3>
+  <ul>
+    <li>Vai trò <b>CV chứng từ</b> và <b class="ui">Dashboard CV chứng từ</b>; menu <kbd>🧭 Vận hành</kbd>: <kbd>⏰ Hạn theo lô</kbd>, <kbd>✅ Chờ duyệt</kbd>, <kbd>🔍 Tra cứu đơn</kbd>, <kbd>🧮 Đơn tổng</kbd>, <kbd>📐 Chỉ số chốt đơn</kbd>, <kbd>📋 Hồ sơ KH</kbd>, <kbd>🏷️ Danh mục HS</kbd>, <kbd>🧱 Định mức C/O</kbd>, <kbd>🚛 Chi phí logistics</kbd>, <kbd>🔌 Kết nối SAP/ERP</kbd>.</li>
+    <li><b>Duyệt PI</b> bởi Lead (Export Manager) và <b>cổng thanh toán</b> trước đóng hàng / telex, có xin ngoại lệ.</li>
+    <li>Tờ khai hải quan theo lô, phiếu xuất kho, bộ chứng từ (B/L nháp, LC), C/O (Phụ lục V / X, trừ lùi NVL, file ECOSYS, kiểm chéo), chi phí logistics và đề nghị thanh toán NCC (KOI).</li>
+    <li><kbd>📨 Phiếu sửa đơn</kbd> cho đơn đã Opened (4 mức duyệt), <b>Trao đổi trong đơn</b>, chuông <kbd>🔔</kbd> thông báo.</li>
+    <li>Danh mục SP sửa trực tiếp / đồng loạt, ẩn hiện cột (có Name EN), <kbd>🔄 Đồng bộ tên SAP</kbd>; Tra cứu đơn / Đơn tổng sắp xếp theo cột, loại trừ đơn, gom theo mã.</li>
+    <li>Tên hiển thị vai trò <b>master</b> trong tài liệu đổi thành <b>Operation Manager</b>.</li>
+  </ul>
+  <h3>Có gì mới ở bản 12/10/2026 so với bản hướng dẫn cũ</h3>
   <ul>
     <li><b>Vòng đời 10 trạng thái đánh số</b> (1-quoted … 10-delivered) và các nút bước tiếp theo mới: <kbd>✔ Khách chấp nhận</kbd>, <kbd>✔ Gửi kiểm tra</kbd>, <kbd>✔ Đã kiểm tra KT</kbd>, <kbd>✔ Chốt đơn</kbd>, <kbd>✔ Tạo SO</kbd>.</li>
     <li><b>Trang đầu là Dashboard theo vai trò</b> (Sale / Technician / Admin); Doanh thu tháng thành mục menu <kbd>📅 Doanh thu tháng</kbd>.</li>
@@ -1548,15 +1780,15 @@
 </div>
 
 <footer class="foot">
-  Export Hub · Phòng Vận hành Kinh doanh — Công ty Cổ phần Tập đoàn Karofi · Hướng dẫn sử dụng, cập nhật 12/10/2026
+  Export Hub · Phòng Vận hành Kinh doanh — Công ty Cổ phần Tập đoàn Karofi · Hướng dẫn sử dụng, cập nhật 25/11/2026
 </footer>
 <button type="button" class="up" id="upBtn" aria-label="Lên đầu trang" title="Lên đầu trang">↑</button>
 
 <script>
 (function () {
   'use strict';
-  var ROLES = ['sale', 'lead', 'technician', 'admin', 'master', 'leader'];
-  var NAMES = { sale: 'Sale', lead: 'Lead', technician: 'Technician', admin: 'Admin', master: 'Master', leader: 'Leader', all: 'Tất cả các vai trò', common: 'Chung' };
+  var ROLES = ['sale', 'lead', 'technician', 'admin', 'cvct', 'master', 'leader'];
+  var NAMES = { sale: 'Sale', lead: 'Lead', technician: 'Technician', admin: 'Admin', cvct: 'CV chứng từ', master: 'Operation Manager', leader: 'Leader', all: 'Tất cả các vai trò', common: 'Chung' };
   var LS_ROLE = 'exporthub_hdsd_role', LS_THEME = 'exporthub_hdsd_theme';
   var role = null;                     // null = chưa chọn · 'all' = hiện hết · hoặc 1 vai trò
   var $ = function (id) { return document.getElementById(id); };
