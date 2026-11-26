@@ -1150,7 +1150,7 @@
   <p><kbd>＋ Thêm model mới</kbd> hoặc bấm một model trong bảng; ô: Category, <b>Model*</b>, Model descriptions, Representative_Code (mã máy đại diện để dựng BOM), Based_On_Model. <kbd>💾 Lưu Model</kbd>. Nút <kbd>🔧 Customize BOM</kbd> cào BOM của mã máy đại diện từ SAP (T-code Z_BOM) để bạn tick <b>Changeable</b> cho linh kiện thay đổi theo khách; <kbd>💾 Lưu BOM</kbd> ghi toàn bộ danh sách vào BOM của mã máy đó, và linh kiện chưa có được thêm vào bảng giá linh kiện. <b>Lưu BOM thay toàn bộ</b> khối BOM của máy, không cộng dồn.</p>
   <h3>Sửa nhanh trên bảng Danh mục và đồng bộ tên SAP (11/2026)</h3>
   <ul>
-    <li>Ở tab <b>📑 Danh mục</b>, các cột Category, Option, Model, Brand, Pack_Type, NetWeight và <b>Name EN</b> (tên tiếng Anh trên PI / INV / PKL) sửa <b>trực tiếp trên bảng</b> (ô đã sửa tô vàng; cột tự co theo độ dài chữ, chỉ hai cột tên được xuống dòng) rồi <kbd>💾 Lưu thay đổi</kbd>, hoặc <kbd>↺ Bỏ thay đổi</kbd>.</li>
+    <li>Ở tab <b>📑 Danh mục</b>, các cột Category, Option, Model, Brand, Pack_Type, NetWeight và <b>Name EN</b> (tên tiếng Anh trên PI / INV / PKL) sửa <b>trực tiếp trên bảng</b> (ô đã sửa tô vàng; cột tự co theo độ dài chữ, chỉ hai cột tên được xuống dòng) rồi <kbd>💾 Lưu thay đổi</kbd>, hoặc <kbd>↺ Bỏ thay đổi</kbd>. Đổi Name EN thì <b>tên khai báo HQ tiếng Anh</b> của mã đó đổi theo: đoạn trùng tên EN cũ được thay bằng tên mới, chữ thêm trước / sau giữ nguyên. Tên khai báo đã sửa tay khác hẳn tên EN cũ thì app không tự đổi mà báo lại mã để sửa ở Danh mục HS. Tờ khai đã khai giữ nguyên.</li>
     <li><b>Ghi đồng loạt</b>: lọc ra nhóm mã cần sửa, điền giá trị ở khung ghi đồng loạt rồi <kbd>⚡ Áp dụng</kbd> cho mọi sản phẩm đang lọc (<kbd>✕ Xoá ô</kbd> để làm lại); hoặc dùng hàng <b>⇩ Điền cả cột</b> ngay dưới tiêu đề bảng.</li>
     <li><b>👁 Cột hiển thị</b>: tick ẩn / hiện từng cột (app nhớ cho lần sau); cột <b>Name EN</b> (tên tiếng Anh) mặc định ẩn, tick để xem và sửa; <kbd>Hiện tất cả</kbd> để hiện lại mọi cột.</li>
     <li><kbd>🔄 Đồng bộ tên SAP</kbd>: so tên tiếng Việt trên app với SAP (<kbd>🛰 Tra SAP</kbd> tra thẳng MAKT, hoặc so với MB52 / ZSD450 / danh sách dán), chọn các mã lệch rồi <kbd>Đổi tên các mã đã chọn</kbd>; tên trên dòng đơn / PI đổi theo.</li>
@@ -1533,7 +1533,7 @@
   <p class="sub">HS và tên khai báo theo từng mã là nguồn cho CI / PL, bộ chứng từ khai báo và C/O. Mã chưa có trong danh mục tạm dùng giá trị mặc định (máy <code>84212111</code>, còn lại <code>84219994</code>) và được báo "cần rà soát".</p>
   <h3>🏷️ Danh mục HS</h3>
   <ul>
-    <li>Mở <kbd>🧭 Vận hành</kbd> → <kbd>🏷️ Danh mục HS</kbd>. Mỗi mã: HS, tên khai báo tiếng Việt / tiếng Anh, xuất xứ, ĐVT. Lọc mã cần rà soát / chưa rà soát / đã có.</li>
+    <li>Mở <kbd>🧭 Vận hành</kbd> → <kbd>🏷️ Danh mục HS</kbd>. Mỗi mã: HS, tên khai báo tiếng Việt / tiếng Anh, xuất xứ, ĐVT. Lọc mã cần rà soát / chưa rà soát / đã có, và lọc theo <b>Xuất xứ</b> / <b>ĐVT</b> (kèm số mã; "(tự động)" = ĐVT để trống, app tự chọn SET cho máy, PCE / PC cho còn lại) để rà soát từng nhóm.</li>
     <li>Sửa trên bảng rồi <kbd>✔ Duyệt &amp; lưu các dòng đang hiện</kbd>; hoặc <kbd>✎ Sửa đồng loạt</kbd> → <kbd>Áp dụng cho các dòng đang hiện</kbd>.</li>
     <li><kbd>⚙ Quy tắc mặc định</kbd>: đặt quy tắc theo mã (bắt đầu bằng / chứa) hoặc tên, có độ ưu tiên, kèm công thức tên khai báo → <kbd>Lưu quy tắc</kbd>; <kbd>Xem trước</kbd> rồi <kbd>Áp dụng</kbd>. <kbd>✨ Tạo từ quy tắc mặc định</kbd> sinh sẵn dòng cho các mã chưa có.</li>
   </ul>
